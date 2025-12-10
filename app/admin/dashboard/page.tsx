@@ -1,3 +1,8 @@
+// NOTE: In production, add authentication middleware or use NextAuth.js
+// to protect all admin routes. Example:
+// export const metadata = { middleware: ['auth'] }
+// Or check auth status: const session = await getServerSession()
+
 import AdminLayout from "@/components/admin/AdminLayout";
 import StatCard from "@/components/admin/StatCard";
 import { dataStore } from "@/lib/data/store";

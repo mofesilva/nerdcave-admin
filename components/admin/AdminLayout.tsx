@@ -74,7 +74,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <p className="text-sm font-medium">Admin User</p>
                 <p className="text-xs text-gray-400">admin@nerdcave.com</p>
               </div>
-              <button className="text-gray-400 hover:text-white">
+              <button 
+                className="text-gray-400 hover:text-white"
+                aria-label="Logout"
+                title="Logout"
+              >
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
