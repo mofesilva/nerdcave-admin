@@ -32,9 +32,9 @@ export default function IconButton({
   // Clone the icon to ensure consistent sizing while preserving any provided classes
   const cloned = React.isValidElement(icon)
     ? React.cloneElement(icon, {
-        className: join((icon.props as any)?.className, "w-5 h-5"),
-        'aria-hidden': true,
-      })
+      className: join((icon.props as any)?.className, "w-5 h-5"),
+      'aria-hidden': true,
+    })
     : icon;
 
   return (
