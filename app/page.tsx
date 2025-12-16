@@ -1,68 +1,67 @@
-import ProfileSection from "@/components/ProfileSection";
-import LinkCard from "@/components/LinkCard";
-import SocialLinks from "@/components/SocialLinks";
+"use client";
+
+import { useEffect, useState } from "react";
+import ProfileSection from "./components/ProfileSection";
+import LinkCard from "./components/LinkCard";
+import SocialLinks from "./components/SocialLinks";
+import { LinksController } from "@/lib/controllers";
+import type { Link } from "@/types";
 
 export default function Home() {
-  const links = [
-    {
-      title: "🎮 Gaming Content",
-      description: "Check out my latest gaming videos and streams",
-      url: "https://youtube.com/@nerdcave",
-      gradient: "from-red-500 to-pink-500",
-    },
-    {
-      title: "💻 Tech Blog",
-      description: "Articles about coding, tech reviews, and tutorials",
-      url: "https://blog.nerdcave.com",
-      gradient: "from-blue-500 to-cyan-500",
-    },
-    {
-      title: "🎙️ Podcast",
-      description: "Weekly discussions on gaming and tech",
-      url: "https://podcast.nerdcave.com",
-      gradient: "from-purple-500 to-indigo-500",
-    },
-    {
-      title: "🛍️ Merch Store",
-      description: "Official Nerdcave merchandise",
-      url: "https://store.nerdcave.com",
-      gradient: "from-green-500 to-emerald-500",
-    },
-    {
-      title: "📧 Newsletter",
-      description: "Subscribe for weekly updates and exclusive content",
-      url: "https://newsletter.nerdcave.com",
-      gradient: "from-orange-500 to-yellow-500",
-    },
-    {
-      title: "💬 Discord Community",
-      description: "Join our amazing community of nerds",
-      url: "https://discord.gg/nerdcave",
-      gradient: "from-violet-500 to-purple-500",
-    },
-  ];
+  const [links, setLinks] = useState<Link[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    async function fetchLinks() {
+      setLoading(true);
+      const models = await LinksController.getAll();
+      console.log('Models:', models);
+      if (mounted) {
+        const allLinks = models.map(m => m.toJSON());
+        console.log('All links:', allLinks);
+        const mainLinks = allLinks.filter(l => l.type === 'main');
+        console.log('Main links:', mainLinks);
+        setLinks(mainLinks);
+        setLoading(false);
+      }
+    }
+    void fetchLinks();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <main className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="animate-in fade-in duration-500">
           <ProfileSection />
-          
-          <div className="mt-8 space-y-4">
-            {links.map((link, index) => (
-              <div key={index}>
-                <LinkCard {...link} />
-              </div>
-            ))}
-          </div>
+
+          {loading ? (
+            <div className="mt-8 text-center text-muted-foreground">Carregando...</div>
+          ) : (
+            <div className="mt-8 space-y-4">
+              {links.map((link) => (
+                <div key={link._id}>
+                  <LinkCard
+                    title={link.title}
+                    description={link.description}
+                    url={link.url}
+                    gradient={link.gradient}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="mt-12">
             <SocialLinks />
           </div>
 
-          <footer className="mt-12 text-center text-gray-400 text-sm pb-8">
+          <footer className="mt-12 text-center text-muted-foreground text-sm pb-8">
             <p>© 2024 Nerdcave. All rights reserved.</p>
-            <p className="mt-2">Built with Next.js & Tailwind CSS</p>
+            <p className="mt-2">Built with Next.js & Tailwind CSS & Cappuccino Cloud</p>
           </footer>
         </div>
       </div>
