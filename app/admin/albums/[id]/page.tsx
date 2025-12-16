@@ -34,14 +34,14 @@ export default function AlbumDetailPage() {
         try {
             setLoading(true);
             const albumData = await AlbumsController.getById(albumId);
-            
+
             if (!albumData) {
                 router.push('/admin/albums');
                 return;
             }
-            
+
             setAlbum(albumData);
-            
+
             if (albumData.mediaIds.length > 0) {
                 const media = await MediaController.getByIds(albumData.mediaIds);
                 const ordered = albumData.mediaIds
@@ -51,7 +51,7 @@ export default function AlbumDetailPage() {
             } else {
                 setMediaItems([]);
             }
-            
+
             setError(null);
         } catch (err) {
             setError("Falha ao carregar álbum");
@@ -119,7 +119,7 @@ export default function AlbumDetailPage() {
 
     const handleSetCover = async (mediaId: string) => {
         if (!album) return;
-        
+
         try {
             await AlbumsController.setCover(album._id, mediaId);
             await fetchData();
@@ -197,7 +197,7 @@ export default function AlbumDetailPage() {
                         {mediaItems.length} imagem(ns) • {album.status === 'published' ? 'Publicado' : 'Rascunho'}
                     </p>
                 </div>
-                
+
                 <label className={`bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold flex items-center gap-2 cursor-pointer ${uploading ? 'opacity-50' : 'hover:opacity-90'}`}>
                     <Upload className="w-5 h-5" />
                     {uploading ? `${uploadProgress}%` : 'Upload'}
@@ -247,9 +247,8 @@ export default function AlbumDetailPage() {
                         {mediaItems.map((media) => (
                             <div
                                 key={media._id}
-                                className={`relative group aspect-square rounded-xl overflow-hidden bg-secondary cursor-pointer ${
-                                    selectedMedia.has(media._id) ? 'ring-2 ring-primary' : ''
-                                }`}
+                                className={`relative group aspect-square rounded-xl overflow-hidden bg-secondary cursor-pointer ${selectedMedia.has(media._id) ? 'ring-2 ring-primary' : ''
+                                    }`}
                                 onClick={() => selectionMode && toggleSelection(media._id)}
                             >
                                 <img
@@ -266,9 +265,8 @@ export default function AlbumDetailPage() {
                                 )}
 
                                 {selectionMode && (
-                                    <div className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                        selectedMedia.has(media._id) ? 'bg-primary border-primary' : 'bg-black/50 border-white'
-                                    }`}>
+                                    <div className={`absolute top-2 right-2 w-6 h-6 rounded-full border-2 flex items-center justify-center ${selectedMedia.has(media._id) ? 'bg-primary border-primary' : 'bg-black/50 border-white'
+                                        }`}>
                                         {selectedMedia.has(media._id) && <Check className="w-4 h-4 text-primary-foreground" />}
                                     </div>
                                 )}
