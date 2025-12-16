@@ -7,34 +7,34 @@ interface StatCardProps {
   value: string | number;
   change?: string;
   icon: ReactNode;
-  trend?: 'up' | 'down';
+  iconBgColor?: string;
+  iconColor?: string;
 }
 
-export default function StatCard({ title, value, change, icon, trend }: StatCardProps) {
+export default function StatCard({
+  title,
+  value,
+  change,
+  icon,
+  iconBgColor = "bg-orange-100",
+  iconColor = "text-orange-600"
+}: StatCardProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-          {change && (
-            <p className={`text-sm mt-2 ${
-              trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : 'text-gray-600'
-            }`}>
-              {change}
-            </p>
-          )}
+    <div className="bg-zinc-300 rounded-xl p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${iconBgColor}`}>
+          <div className={iconColor}>{icon}</div>
         </div>
-        <div className={`p-3 rounded-lg ${
-          trend === 'up' ? 'bg-green-100' : trend === 'down' ? 'bg-red-100' : 'bg-purple-100'
-        }`}>
-          <div className={`w-6 h-6 ${
-            trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : 'text-purple-600'
-          }`}>
-            {icon}
-          </div>
-        </div>
+        {change && (
+          <span className="text-sm text-green-600 font-bold bg-green-50 px-2 py-1 rounded-md">
+            {change}
+          </span>
+        )}
       </div>
+      <p className="text-3xl font-black text-black">
+        {typeof value === 'number' ? value.toLocaleString() : value}
+      </p>
+      <p className="text-base text-neutral-600 font-medium mt-1">{title}</p>
     </div>
   );
 }
