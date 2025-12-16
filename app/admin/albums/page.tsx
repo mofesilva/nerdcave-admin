@@ -190,18 +190,17 @@ export default function AlbumsPage() {
                                             <ImageIcon className="w-16 h-16 text-muted-foreground/30" />
                                         </div>
                                     )}
-                                    
+
                                     {/* Photo count badge */}
                                     <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-full">
                                         {album.mediaCount} imagem(ns)
                                     </div>
 
                                     {/* Status badge */}
-                                    <div className={`absolute top-3 left-3 text-xs px-2 py-1 rounded-full ${
-                                        album.status === 'published' 
-                                            ? 'bg-green-500/20 text-green-400' 
+                                    <div className={`absolute top-3 left-3 text-xs px-2 py-1 rounded-full ${album.status === 'published'
+                                            ? 'bg-green-500/20 text-green-400'
                                             : 'bg-yellow-500/20 text-yellow-400'
-                                    }`}>
+                                        }`}>
                                         {album.status === 'published' ? 'Publicado' : 'Rascunho'}
                                     </div>
                                 </div>
@@ -229,11 +228,10 @@ export default function AlbumsPage() {
                                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
                                     <button
                                         onClick={() => handleTogglePublish(album)}
-                                        className={`p-2 rounded-lg transition-colors ${
-                                            album.status === 'published'
+                                        className={`p-2 rounded-lg transition-colors ${album.status === 'published'
                                                 ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
                                                 : 'bg-secondary text-muted-foreground hover:text-foreground'
-                                        }`}
+                                            }`}
                                         title={album.status === 'published' ? 'Despublicar' : 'Publicar'}
                                     >
                                         {album.status === 'published' ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
