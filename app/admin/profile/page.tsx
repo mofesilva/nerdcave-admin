@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import AdminLayout from "@/components/admin/AdminLayout";
-import { Save, Upload } from "lucide-react";
+import { Save, Upload, Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -40,174 +40,180 @@ export default function ProfilePage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-4xl">
-        <div className="space-y-6">
-          {/* Header */}
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Profile Settings</h1>
-            <p className="text-gray-600 mt-1">Manage your profile information and social links</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="space-y-8">
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight uppercase">Profile Settings</h1>
+          <p className="text-muted-foreground mt-2">Manage your profile information and social links</p>
+        </div>
+
+        {/* Profile Form */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Avatar Section */}
+          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+            <h2 className="text-xl font-bold text-foreground mb-6">Profile Picture</h2>
+            <div className="flex items-center gap-8">
+              <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full shadow-xl shadow-primary/20 ring-4 ring-background">
+              </div>
+              <div>
+                <button
+                  type="button"
+                  className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload New Photo
+                </button>
+                <p className="text-sm text-muted-foreground mt-3">
+                  JPG, PNG or GIF. Max size 2MB.
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* Profile Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Avatar Section */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Profile Picture</h2>
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-5xl">
-                  🤓
-                </div>
-                <div>
-                  <button
-                    type="button"
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Upload New Photo
-                  </button>
-                  <p className="text-sm text-gray-500 mt-2">
-                    JPG, PNG or GIF. Max size 2MB.
-                  </p>
-                </div>
+          {/* Basic Information */}
+          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+            <h2 className="text-xl font-bold text-foreground mb-6">Basic Information</h2>
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Bio
+                </label>
+                <textarea
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50 resize-none"
+                  rows={4}
+                  required
+                />
               </div>
             </div>
+          </div>
 
-            {/* Basic Information */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Basic Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                    required
-                  />
-                </div>
+          {/* Stats */}
+          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+            <h2 className="text-xl font-bold text-foreground mb-6">Statistics</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Followers
+                </label>
+                <input
+                  type="number"
+                  value={formData.followers}
+                  onChange={(e) => setFormData({ ...formData, followers: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Title
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Videos
+                </label>
+                <input
+                  type="number"
+                  value={formData.videos}
+                  onChange={(e) => setFormData({ ...formData, videos: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  required
+                />
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Bio
-                  </label>
-                  <textarea
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                    rows={4}
-                    required
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-2">
+                  Views
+                </label>
+                <input
+                  type="number"
+                  value={formData.views}
+                  onChange={(e) => setFormData({ ...formData, views: e.target.value })}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  required
+                />
               </div>
             </div>
+          </div>
 
-            {/* Stats */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Statistics</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Followers
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.followers}
-                    onChange={(e) => setFormData({ ...formData, followers: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Videos
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.videos}
-                    onChange={(e) => setFormData({ ...formData, videos: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Views
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.views}
-                    onChange={(e) => setFormData({ ...formData, views: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Social Links */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Social Media Links</h2>
-              <div className="space-y-4">
-                {socialLinks.map((social, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 w-32">
+          {/* Social Links */}
+          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+            <h2 className="text-xl font-bold text-foreground mb-6">Social Media Links</h2>
+            <div className="space-y-4">
+              {socialLinks.map((social, index) => (
+                <div key={index} className="flex items-center gap-4 group">
+                  <div className="flex items-center gap-3 w-40">
+                    <div className="relative flex items-center">
                       <input
                         type="checkbox"
                         checked={social.isActive}
                         onChange={(e) => handleSocialLinkChange(index, 'isActive', e.target.checked)}
-                        className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-border bg-background transition-all checked:border-primary checked:bg-primary hover:border-primary/50 focus:ring-2 focus:ring-primary/20"
                       />
-                      <span className="text-sm font-medium text-gray-700">{social.platform}</span>
+                      <Check className="pointer-events-none absolute left-1/2 top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 text-primary-foreground opacity-0 transition-opacity peer-checked:opacity-100" />
                     </div>
-                    <input
-                      type="url"
-                      value={social.url}
-                      onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                      placeholder={`https://${social.platform.toLowerCase()}.com/...`}
-                    />
+                    <span className="text-sm font-medium text-foreground">{social.platform}</span>
                   </div>
-                ))}
-              </div>
+                  <input
+                    type="url"
+                    value={social.url}
+                    onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
+                    className="flex-1 px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                    placeholder={`https://${social.platform.toLowerCase()}.com/...`}
+                  />
+                </div>
+              ))}
             </div>
+          </div>
 
-            {/* Save Button */}
-            <div className="flex items-center justify-between bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          {/* Save Button */}
+          <div className="sticky bottom-6 z-10">
+            <div className="flex items-center justify-between bg-card/80 backdrop-blur-md rounded-xl p-4 shadow-lg border border-border/50">
               <div>
                 {isSaved && (
-                  <p className="text-green-600 font-medium">✓ Changes saved successfully!</p>
+                  <p className="text-emerald-500 font-medium flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+                    <Check className="w-4 h-4" />
+                    Changes saved successfully!
+                  </p>
                 )}
               </div>
               <button
                 type="submit"
-                className="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center gap-2"
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
               >
                 <Save className="w-5 h-5" />
                 Save Changes
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
-    </AdminLayout>
+    </div>
   );
 }
+
