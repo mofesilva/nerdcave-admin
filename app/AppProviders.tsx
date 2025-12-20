@@ -5,6 +5,8 @@ import { CappuccinoProvider } from "@cappuccino/web-sdk";
 
 import { getCappuccinoClient } from "@/lib/cappuccino/client";
 import ThemeProvider from "./ThemeProvider";
+import { SettingsProvider } from "@/lib/contexts/SettingsContext";
+import { AutoLoginProvider } from "@/lib/contexts/AutoLoginContext";
 
 type ProviderChildren = ComponentProps<typeof CappuccinoProvider>["children"];
 
@@ -21,7 +23,11 @@ export function AppProviders({ children }: AppProvidersProps) {
                 apiClient={client.apiClient}
                 authManager={client.authManager}
             >
-                {children}
+                <AutoLoginProvider>
+                    <SettingsProvider>
+                        {children}
+                    </SettingsProvider>
+                </AutoLoginProvider>
             </CappuccinoProvider>
         </ThemeProvider>
     );
