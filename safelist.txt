@@ -1,0 +1,17 @@
+bg-nerdcave-dark
+bg-nerdcave-lime
+bg-nerdcave-purple
+bg-nerdcave-light
+hover:bg-nerdcave-dark
+hover:bg-nerdcave-lime
+hover:bg-nerdcave-purple
+hover:bg-nerdcave-light
+text-nerdcave-dark
+text-nerdcave-lime
+text-nerdcave-purple
+text-nerdcave-light
+text-white
+hover:text-nerdcave-dark
+hover:text-nerdcave-lime
+hover:text-nerdcave-purple
+hover:text-nerdcave-light
