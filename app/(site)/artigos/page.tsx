@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { useApiClient, MediaStorageModule } from "@cappuccino/web-sdk";
-import { ArticleCard } from "../../components/blog/ArticleCard";
+import { ArticleCardWithLoader } from "./components/ArticleCardWithLoader";
 import { CategoryButton } from "./components/CategoryButton";
 import { ViewModeToggle } from "./components/ViewModeToggle";
 import { LayoutGrid, Gamepad2, Tv, Dices, Cpu, Star, Calendar, LucideIcon, ChevronDown, Search, X, Loader2 } from "lucide-react";
@@ -11,8 +10,6 @@ import { ArticleModel } from "@/lib/models/Article.model";
 import { CategoryModel } from "@/lib/models/Category.model";
 import { MediaModel } from "@/lib/models/Media.model";
 import { useAutoLogin } from "@/lib/contexts/AutoLoginContext";
-
-const APP_NAME = "nerdcave-link-tree";
 
 // Mapeamento de ícones por slug/nome de categoria
 const categoryIconMap: Record<string, LucideIcon> = {
@@ -37,7 +34,7 @@ interface ArticleCardData {
     title: string;
     slug: string;
     excerpt: string;
-    coverUrl?: string;
+    media?: MediaModel;
     categoryName: string;
     categoryColor: string;
     categoryId: string;
@@ -47,17 +44,11 @@ interface ArticleCardData {
 
 export default function ArtigosPage() {
     const { isReady: isLoginReady } = useAutoLogin();
-    const apiClient = useApiClient();
-    const mediastorage = useMemo(() => {
-        if (!apiClient) return null;
-        return new MediaStorageModule(apiClient);
-    }, [apiClient]);
 
     // Data states
     const [articles, setArticles] = useState<ArticleModel[]>([]);
     const [dbCategories, setDbCategories] = useState<CategoryModel[]>([]);
     const [mediaMap, setMediaMap] = useState<Record<string, MediaModel>>({});
-    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -70,24 +61,6 @@ export default function ArtigosPage() {
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const searchInputRef = useRef<HTMLInputElement>(null);
-
-    // Carregar imagem de um arquivo
-    const loadImageUrl = useCallback(async (fileName: string) => {
-        if (!mediastorage) return;
-        // Usar ref para verificar se já existe sem causar re-render
-        setImageUrls(prev => {
-            if (prev[fileName]) return prev;
-            // Iniciar download em background
-            mediastorage.download(APP_NAME, fileName)
-                .then(response => response.blob())
-                .then(blob => {
-                    const url = URL.createObjectURL(blob);
-                    setImageUrls(p => ({ ...p, [fileName]: url }));
-                })
-                .catch(err => console.error('Erro ao baixar imagem:', fileName, err));
-            return prev;
-        });
-    }, [mediastorage]);
 
     // Buscar dados do banco
     const fetchData = useCallback(async () => {
@@ -129,18 +102,6 @@ export default function ArtigosPage() {
         }
     }, [isLoginReady, fetchData]);
 
-    // Carregar imagens quando articles e mediaMap mudam
-    useEffect(() => {
-        articles.forEach(article => {
-            if (article.coverMediaId && mediaMap[article.coverMediaId]) {
-                const media = mediaMap[article.coverMediaId];
-                if (media.fileName) {
-                    loadImageUrl(media.fileName);
-                }
-            }
-        });
-    }, [articles, mediaMap, loadImageUrl]);
-
     // Categorias formatadas para exibição (com ícones)
     const categories: CategoryWithIcon[] = useMemo(() => {
         const allCategory: CategoryWithIcon = { id: "all", name: "Todos", color: "#6e5fa6", icon: LayoutGrid };
@@ -160,14 +121,6 @@ export default function ArtigosPage() {
     const visibleCategories = categories.slice(0, 4);
     const hiddenCategories = categories.slice(4);
 
-    // Obter URL da capa de um artigo
-    const getCoverUrl = useCallback((article: ArticleModel): string | null => {
-        if (!article.coverMediaId) return null;
-        const media = mediaMap[article.coverMediaId];
-        if (!media) return null;
-        return imageUrls[media.fileName] || null;
-    }, [mediaMap, imageUrls]);
-
     // Obter dados de categoria
     const getCategoryData = useCallback((categoryId?: string) => {
         const cat = dbCategories.find(c => c._id === categoryId);
@@ -181,12 +134,13 @@ export default function ArtigosPage() {
     const mappedArticles: ArticleCardData[] = useMemo(() => {
         return articles.map(article => {
             const catData = getCategoryData(article.categoryId);
+            const media = article.coverMediaId ? mediaMap[article.coverMediaId] : undefined;
             return {
                 _id: article._id,
                 title: article.title,
                 slug: article.slug,
                 excerpt: article.getExcerpt(150),
-                coverUrl: getCoverUrl(article) || undefined,
+                media,
                 categoryName: catData.name,
                 categoryColor: catData.color,
                 categoryId: article.categoryId || "",
@@ -194,7 +148,7 @@ export default function ArtigosPage() {
                 readingTime: article.readingTime || 5,
             };
         });
-    }, [articles, getCategoryData, getCoverUrl]);
+    }, [articles, getCategoryData, mediaMap]);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -304,8 +258,8 @@ export default function ArtigosPage() {
                                             <button
                                                 onClick={() => setShowMoreCategories(!showMoreCategories)}
                                                 className={`h-11 w-11 lg:w-auto lg:px-4 rounded-lg border text-sm font-medium whitespace-nowrap transition-colors outfit outfit-500 cursor-pointer flex items-center justify-center gap-2 ${hiddenCategories.some(c => c.id === selectedCategory)
-                                                        ? "bg-nerdcave-lime border-nerdcave-lime text-nerdcave-dark"
-                                                        : "bg-nerdcave-light/10 border-nerdcave-light/20 text-nerdcave-light hover:border-nerdcave-lime/50"
+                                                    ? "bg-nerdcave-lime border-nerdcave-lime text-nerdcave-dark"
+                                                    : "bg-nerdcave-light/10 border-nerdcave-light/20 text-nerdcave-light hover:border-nerdcave-lime/50"
                                                     }`}
                                             >
                                                 <ChevronDown className={`w-4 h-4 transition-transform ${showMoreCategories ? "rotate-180" : ""}`} />
@@ -324,8 +278,8 @@ export default function ArtigosPage() {
                                                                     setShowMoreCategories(false);
                                                                 }}
                                                                 className={`w-full px-4 py-2.5 text-left text-sm font-medium outfit outfit-500 transition-colors flex items-center gap-2 first:rounded-t-lg last:rounded-b-lg ${selectedCategory === category.id
-                                                                        ? "bg-nerdcave-lime text-nerdcave-dark"
-                                                                        : "text-nerdcave-light hover:bg-nerdcave-light/10"
+                                                                    ? "bg-nerdcave-lime text-nerdcave-dark"
+                                                                    : "text-nerdcave-light hover:bg-nerdcave-light/10"
                                                                     }`}
                                                             >
                                                                 <Icon className="w-4 h-4" />
@@ -355,7 +309,9 @@ export default function ArtigosPage() {
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <Loader2 className="w-8 h-8 text-nerdcave-lime animate-spin mb-4" />
-                            <p className="text-muted-foreground outfit outfit-400">Carregando artigos...</p>
+                            <p className="text-muted-foreground outfit outfit-400">
+                                Carregando artigos...
+                            </p>
                         </div>
                     ) : error ? (
                         <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -379,13 +335,13 @@ export default function ArtigosPage() {
                             {viewMode === "grid" ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                     {filteredArticles.map((article) => (
-                                        <ArticleCard key={article._id} {...article} />
+                                        <ArticleCardWithLoader key={article._id} {...article} />
                                     ))}
                                 </div>
                             ) : (
                                 <div className="flex flex-col gap-4">
                                     {filteredArticles.map((article) => (
-                                        <ArticleCard key={article._id} {...article} variant="horizontal" />
+                                        <ArticleCardWithLoader key={article._id} {...article} variant="horizontal" />
                                     ))}
                                 </div>
                             )}
