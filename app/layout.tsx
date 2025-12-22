@@ -3,13 +3,13 @@ import "./globals.css";
 import { AppProviders } from "./AppProviders";
 
 export const metadata: Metadata = {
-  title: "Nerdcave - Links",
-  description: "Your one-stop destination for all Nerdcave links and content",
+  title: "Nerdcave Studio",
+  description: "Seu hub de conteúdo sobre Games!",
   keywords: ["nerdcave", "links", "social media", "tech", "gaming"],
-  authors: [{ name: "Nerdcave" }],
+  authors: [{ name: "Moisés Ferreira e Silva" }],
   openGraph: {
-    title: "Nerdcave - Links",
-    description: "Your one-stop destination for all Nerdcave links and content",
+    title: "Nerdcave Studio",
+    description: "Seu hub de conteúdo sobre Games!",
     type: "website",
   },
 };
