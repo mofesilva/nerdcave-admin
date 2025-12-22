@@ -1,17 +1,14 @@
 "use client";
 
-import { useMemo, type ComponentProps } from "react";
+import { useMemo, type ReactNode } from "react";
 import { CappuccinoProvider } from "@cappuccino/web-sdk";
 
 import { getCappuccinoClient } from "@/lib/cappuccino/client";
 import ThemeProvider from "./ThemeProvider";
-import { SettingsProvider } from "@/lib/contexts/SettingsContext";
 import { AutoLoginProvider } from "@/lib/contexts/AutoLoginContext";
 
-type ProviderChildren = ComponentProps<typeof CappuccinoProvider>["children"];
-
 interface AppProvidersProps {
-    children: ProviderChildren;
+    children: ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
@@ -24,9 +21,7 @@ export function AppProviders({ children }: AppProvidersProps) {
                 authManager={client.authManager}
             >
                 <AutoLoginProvider>
-                    <SettingsProvider>
-                        {children}
-                    </SettingsProvider>
+                    {children}
                 </AutoLoginProvider>
             </CappuccinoProvider>
         </ThemeProvider>
