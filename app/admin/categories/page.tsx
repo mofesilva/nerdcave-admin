@@ -5,6 +5,8 @@ import { Plus, Edit2, Trash2, FolderTree, GripVertical } from "lucide-react";
 import { CategoryModel } from "@/lib/models/Category.model";
 import { CategoriesController } from "@/lib/controllers";
 import type { Category } from "@/types";
+import Button from "@/components/Button";
+import IconButton from "@/components/IconButton";
 
 export default function CategoriesPage() {
     const [categories, setCategories] = useState<CategoryModel[]>([]);
@@ -135,17 +137,14 @@ export default function CategoriesPage() {
         <div className="space-y-8">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Categorias</h1>
-                    <p className="text-muted-foreground mt-2 text-lg">Organize seu conteúdo em categorias</p>
-                </div>
-                <button
+                <div />
+                <Button
                     onClick={() => handleOpenModal()}
-                    className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95"
+                    icon={Plus}
+                    size="lg"
                 >
-                    <Plus className="w-5 h-5" />
                     Nova Categoria
-                </button>
+                </Button>
             </div>
 
             {/* Error Message */}
@@ -166,12 +165,13 @@ export default function CategoriesPage() {
                     <div className="text-center py-12 bg-card rounded-2xl border border-border">
                         <FolderTree className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                         <p className="text-muted-foreground">Nenhuma categoria criada ainda</p>
-                        <button
+                        <Button
                             onClick={() => handleOpenModal()}
-                            className="mt-4 text-primary hover:underline"
+                            variant="ghost"
+                            className="mt-4"
                         >
                             Criar primeira categoria
-                        </button>
+                        </Button>
                     </div>
                 ) : (
                     categories.map((category) => (
@@ -198,20 +198,20 @@ export default function CategoriesPage() {
                                 </div>
 
                                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
+                                    <IconButton
+                                        icon={<Edit2 />}
                                         onClick={() => handleOpenModal(category)}
-                                        className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground transition-colors"
+                                        colorClass="text-foreground"
+                                        hoverClass="hover:bg-secondary/80"
                                         title="Editar"
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                    <button
+                                    />
+                                    <IconButton
+                                        icon={<Trash2 />}
                                         onClick={() => handleDelete(category._id)}
-                                        className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                                        colorClass="text-red-400"
+                                        hoverClass="hover:bg-red-500/20"
                                         title="Deletar"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -306,20 +306,23 @@ export default function CategoriesPage() {
                             </div>
 
                             <div className="flex gap-3 pt-4">
-                                <button
+                                <Button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-secondary text-foreground font-medium hover:bg-secondary/80 transition-colors"
+                                    variant="secondary"
+                                    size="lg"
+                                    className="flex-1"
                                 >
                                     Cancelar
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-colors disabled:opacity-50"
+                                    size="lg"
+                                    className="flex-1"
                                 >
                                     {loading ? 'Salvando...' : 'Salvar'}
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     </div>
