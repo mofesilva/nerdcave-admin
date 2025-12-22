@@ -1,14 +1,24 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { StatsCard } from "./componentes/StatsCard";
-import { DeviceStats } from "./componentes/DeviceStats";
-import { ClickTrends } from "./componentes/ClickTrends";
-import TopLinks from "./componentes/TopLinks";
-import { AnalyticsController, LinksController } from "@/lib/controllers";
-import { MousePointerClick, Users, Eye, TrendingUp, Plus, User } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { FileText, Image as ImageIcon, FolderOpen, Link2, Eye, Users, Star, Target } from "lucide-react";
+import {
+  AnalyticsController, LinksController, ArticlesController,
+  AlbumsController, MediaController, CategoriesController
+} from "@/lib/controllers";
 import { LinkModel } from "@/lib/models/Link.model";
-import LinkNext from "next/link";
+import { ArticleModel } from "@/lib/models/Article.model";
+import { AlbumModel } from "@/lib/models/Album.model";
+import { MediaModel } from "@/lib/models/Media.model";
+
+import WelcomeBanner from "./componentes/WelcomeBanner";
+import StatCard from "./componentes/StatCard";
+import QuickStat from "./componentes/QuickStat";
+import TrafficChart from "./componentes/TrafficChart";
+import DeviceStats from "./componentes/DeviceStats";
+import RecentPosts from "./componentes/RecentPosts";
+import TopPosts from "./componentes/TopPosts";
+import TopLinks from "./componentes/TopLinks";
 
 interface Analytics {
   totalClicks: number;
@@ -18,20 +28,45 @@ interface Analytics {
   deviceStats: { desktop: number; mobile: number; tablet: number };
 }
 
+interface DashboardData {
+  analytics: Analytics | null;
+  links: LinkModel[];
+  articles: ArticleModel[];
+  albums: AlbumModel[];
+  media: MediaModel[];
+  totalCategories: number;
+}
+
 export default function DashboardPage() {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [links, setLinks] = useState<LinkModel[]>([]);
+  const [data, setData] = useState<DashboardData>({
+    analytics: null,
+    links: [],
+    articles: [],
+    albums: [],
+    media: [],
+    totalCategories: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [analyticsData, linkModels] = await Promise.all([
+        const [analytics, links, articles, albums, media, categories] = await Promise.all([
           AnalyticsController.get(),
-          LinksController.getAll()
+          LinksController.getAll(),
+          ArticlesController.getAll(),
+          AlbumsController.getAll(),
+          MediaController.getAll(),
+          CategoriesController.getAll()
         ]);
-        setAnalytics(analyticsData);
-        setLinks(linkModels);
+        setData({
+          analytics,
+          links,
+          articles,
+          albums,
+          media,
+          totalCategories: categories.length
+        });
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -41,78 +76,144 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  if (loading || !analytics) {
+  // Computed stats
+  const stats = useMemo(() => {
+    const activeLinks = data.links.filter(l => l.isActive).length;
+    const publishedPosts = data.articles.filter(a => a.status === 'published').length;
+    const draftPosts = data.articles.filter(a => a.status === 'draft').length;
+    const featuredPosts = data.articles.filter(a => a.isFeatured).length;
+    const publicAlbums = data.albums.filter(a => a.isPublic).length;
+    // TODO: Views agora vem de article_views collection - implementar agregação
+    const totalViews = 0;
+
+    return {
+      activeLinks,
+      publishedPosts,
+      draftPosts,
+      featuredPosts,
+      publicAlbums,
+      totalViews,
+      totalMedia: data.media.length
+    };
+  }, [data]);
+
+  // Recent posts
+  const recentPosts = useMemo(() => {
+    return [...data.articles]
+      .sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime())
+      .slice(0, 5);
+  }, [data.articles]);
+
+  // Top performing posts - TODO: Buscar views da collection article_views
+  const topPosts = useMemo(() => {
+    return [...data.articles]
+      .filter(a => a.status === 'published')
+      .sort((a, b) => new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime())
+      .slice(0, 5);
+  }, [data.articles]);
+
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-zinc-400 animate-pulse">Carregando...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-muted-foreground animate-pulse">Carregando dashboard...</p>
+        </div>
       </div>
     );
   }
 
-  const activeLinks = links.filter(link => link.isActive).length;
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toLocaleString();
+  };
 
   return (
-    <div className="space-y-8">
-      {/* Page Title */}
-      <div>
-        <h1 className="text-3xl font-black text-secondary-foreground tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground text-base mt-2">Visão geral do seu Link Tree</p>
+    <div className="space-y-3">
+      {/* Welcome Banner */}
+      <WelcomeBanner
+        publishedPosts={stats.publishedPosts}
+        totalViews={formatNumber(stats.totalViews)}
+      />
+
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <StatCard
+          icon={FileText}
+          label="Posts"
+          value={data.articles.length}
+          sublabel={`${stats.publishedPosts} publicados`}
+          color="blue"
+          href="/admin/posts"
+        />
+        <StatCard
+          icon={Eye}
+          label="Views"
+          value={formatNumber(stats.totalViews)}
+          trend="+12%"
+          color="emerald"
+        />
+        <StatCard
+          icon={Link2}
+          label="Links"
+          value={data.links.length}
+          sublabel={`${stats.activeLinks} ativos`}
+          color="purple"
+          href="/admin/links"
+        />
+        <StatCard
+          icon={FolderOpen}
+          label="Álbuns"
+          value={data.albums.length}
+          sublabel={`${stats.publicAlbums} públicos`}
+          color="orange"
+          href="/admin/albums"
+        />
+        <StatCard
+          icon={ImageIcon}
+          label="Mídia"
+          value={stats.totalMedia}
+          sublabel="arquivos"
+          color="pink"
+          href="/admin/media"
+        />
+        <StatCard
+          icon={Users}
+          label="Visitantes"
+          value={formatNumber(data.analytics?.uniqueVisitors || 0)}
+          trend="+8%"
+          color="cyan"
+        />
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatsCard
-          title="Total Clicks"
-          value={analytics.totalClicks}
-          change="+12.5%"
-          icon={<MousePointerClick className="w-6 h-6" />}
-          iconBgColor="bg-orange-100"
-          iconColor="text-orange-600"
-        />
-
-        <StatsCard
-          title="Visitantes Unicos"
-          value={analytics.uniqueVisitors}
-          change="+8.2%"
-          icon={<Users className="w-6 h-6" />}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
-        />
-
-        <StatsCard
-          title="Links Ativos"
-          value={activeLinks}
-          icon={<TrendingUp className="w-6 h-6" />}
-          iconBgColor="bg-purple-100"
-          iconColor="text-purple-600"
-        />
-
-        <StatsCard
-          title="Total Views"
-          value="1M+"
-          change="+15.3%"
-          icon={<Eye className="w-6 h-6" />}
-          iconBgColor="bg-emerald-100"
-          iconColor="text-emerald-600"
-        />
-      </div>
-
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Performing Links */}
-        <TopLinks topLinks={analytics.topLinks} />
-
+      {/* Analytics Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <TrafficChart data={data.analytics?.clicksByDate || []} />
         <DeviceStats
-          mobile={analytics.deviceStats.mobile}
-          desktop={analytics.deviceStats.desktop}
-          tablet={analytics.deviceStats.tablet}
+          desktop={data.analytics?.deviceStats.desktop || 0}
+          mobile={data.analytics?.deviceStats.mobile || 0}
+          tablet={data.analytics?.deviceStats.tablet || 0}
+          totalClicks={data.analytics?.totalClicks || 0}
         />
       </div>
 
-      {/* Click Trends */}
-      <ClickTrends data={analytics.clicksByDate} />
+      {/* Content Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <RecentPosts posts={recentPosts} />
+        <TopPosts posts={topPosts} />
+      </div>
 
-      {/* Quick Actions removed - moved to side navigation */}
+      {/* Top Links */}
+      <TopLinks links={data.analytics?.topLinks || []} />
+
+      {/* Quick Stats Footer */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <QuickStat icon={Star} label="Posts Destacados" value={stats.featuredPosts} />
+        <QuickStat icon={FileText} label="Rascunhos" value={stats.draftPosts} />
+        <QuickStat icon={FolderOpen} label="Categorias" value={data.totalCategories} />
+        <QuickStat icon={Target} label="Links Ativos" value={stats.activeLinks} />
+      </div>
     </div>
   );
 }
