@@ -1,20 +1,30 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Upload, Trash2, Star, Image as ImageIcon, X, Check } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+import { useApiClient, MediaStorageModule } from "@cappuccino/web-sdk";
 import { AlbumModel } from "@/lib/models/Album.model";
 import { MediaModel } from "@/lib/models/Media.model";
 import { AlbumsController, MediaController } from "@/lib/controllers";
-import { useCappuccino } from "@/lib/contexts/CappuccinoContext";
-import { mediastorage } from "cappuccino-web-sdk";
+import Button from "@/components/Button";
+import IconButton from "@/components/IconButton";
+
+const APP_NAME = "nerdcave";
 
 export default function AlbumDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const { app } = useCappuccino();
+    const apiClient = useApiClient();
+    const mediastorage = useMemo(() => {
+        if (!apiClient) return null;
+        return new MediaStorageModule(apiClient);
+    }, [apiClient]);
     const albumId = params.id as string;
+
+    const getMediaUrl = (fileName: string) => mediastorage?.getPublicUrl(APP_NAME, fileName) || '';
 
     const [album, setAlbum] = useState<AlbumModel | null>(null);
     const [mediaItems, setMediaItems] = useState<MediaModel[]>([]);
@@ -24,11 +34,6 @@ export default function AlbumDetailPage() {
     const [error, setError] = useState<string | null>(null);
     const [selectedMedia, setSelectedMedia] = useState<Set<string>>(new Set());
     const [selectionMode, setSelectionMode] = useState(false);
-
-    const getMediaUrl = (fileName: string): string => {
-        if (!app) return '';
-        return mediastorage.getPublicUrl(app, fileName);
-    };
 
     const fetchData = useCallback(async () => {
         try {
@@ -45,8 +50,8 @@ export default function AlbumDetailPage() {
             if (albumData.mediaIds.length > 0) {
                 const media = await MediaController.getByIds(albumData.mediaIds);
                 const ordered = albumData.mediaIds
-                    .map(id => media.find(m => m._id === id))
-                    .filter((m): m is MediaModel => m !== undefined);
+                    .map((id: string) => media.find((m: MediaModel) => m._id === id))
+                    .filter((m: MediaModel | undefined): m is MediaModel => m !== undefined);
                 setMediaItems(ordered);
             } else {
                 setMediaItems([]);
@@ -67,7 +72,7 @@ export default function AlbumDetailPage() {
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (!files || files.length === 0 || !app || !album) return;
+        if (!files || files.length === 0 || !album) return;
 
         setUploading(true);
         setUploadProgress(0);
@@ -75,23 +80,30 @@ export default function AlbumDetailPage() {
         const totalFiles = files.length;
         let completed = 0;
 
+        if (!mediastorage) {
+            setError('Serviço de mídia não disponível');
+            return;
+        }
+
         try {
             for (const file of Array.from(files)) {
                 if (!file.type.startsWith('image/')) continue;
 
                 const timestamp = Date.now();
                 const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const fileName = `albums/${albumId}/${timestamp}-${cleanName}`;
+                const fileName = `media/${timestamp}-${cleanName}`;
 
                 const result = await mediastorage.upload({
                     file,
-                    app,
+                    app: APP_NAME,
                     fileName,
                     fileType: file.type,
                 });
 
+                const uploadedFileName = result.document?.fileName ?? fileName;
+
                 const media = await MediaController.create({
-                    fileName: result.fileName,
+                    fileName: uploadedFileName,
                     title: file.name.replace(/\.[^/.]+$/, ''),
                     altText: file.name.replace(/\.[^/.]+$/, ''),
                 });
@@ -208,7 +220,12 @@ export default function AlbumDetailPage() {
             {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex justify-between">
                     <span>{error}</span>
-                    <button onClick={() => setError(null)}><X className="w-4 h-4" /></button>
+                    <IconButton
+                        icon={<X />}
+                        onClick={() => setError(null)}
+                        colorClass="text-red-400"
+                        hoverClass="hover:text-red-300"
+                    />
                 </div>
             )}
 
@@ -216,14 +233,24 @@ export default function AlbumDetailPage() {
                 <div className="bg-card rounded-xl border border-border p-4 flex justify-between">
                     <div className="flex items-center gap-4">
                         <span>{selectedMedia.size} selecionada(s)</span>
-                        <button onClick={() => setSelectedMedia(new Set(mediaItems.map(m => m._id)))} className="text-sm text-primary hover:underline">Todas</button>
-                        <button onClick={() => setSelectedMedia(new Set())} className="text-sm text-muted-foreground hover:underline">Limpar</button>
+                        <Button onClick={() => setSelectedMedia(new Set(mediaItems.map(m => m._id)))} variant="ghost" size="sm">Todas</Button>
+                        <Button onClick={() => setSelectedMedia(new Set())} variant="ghost" size="sm">Limpar</Button>
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={handleRemoveSelected} disabled={selectedMedia.size === 0} className="px-4 py-2 rounded-lg bg-red-500/10 text-red-400 disabled:opacity-50">
-                            <Trash2 className="w-4 h-4 inline mr-2" />Remover
-                        </button>
-                        <button onClick={() => { setSelectionMode(false); setSelectedMedia(new Set()); }} className="px-4 py-2 rounded-lg bg-secondary">Cancelar</button>
+                        <Button
+                            onClick={handleRemoveSelected}
+                            disabled={selectedMedia.size === 0}
+                            variant="danger"
+                            icon={Trash2}
+                        >
+                            Remover
+                        </Button>
+                        <Button
+                            onClick={() => { setSelectionMode(false); setSelectedMedia(new Set()); }}
+                            variant="secondary"
+                        >
+                            Cancelar
+                        </Button>
                     </div>
                 </div>
             )}
@@ -240,7 +267,7 @@ export default function AlbumDetailPage() {
             ) : (
                 <>
                     {!selectionMode && (
-                        <button onClick={() => setSelectionMode(true)} className="text-sm text-muted-foreground hover:text-foreground">Selecionar</button>
+                        <Button onClick={() => setSelectionMode(true)} variant="ghost" size="sm">Selecionar</Button>
                     )}
 
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -251,10 +278,11 @@ export default function AlbumDetailPage() {
                                     }`}
                                 onClick={() => selectionMode && toggleSelection(media._id)}
                             >
-                                <img
+                                <Image
                                     src={getMediaUrl(media.fileName)}
                                     alt={media.altText || media.title}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    className="object-cover"
                                     onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-image.png'; }}
                                 />
 
@@ -274,13 +302,19 @@ export default function AlbumDetailPage() {
                                 {!selectionMode && (
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                         {album.coverMediaId !== media._id && (
-                                            <button onClick={(e) => { e.stopPropagation(); handleSetCover(media._id); }} className="p-2 rounded-lg bg-yellow-500/20 text-yellow-400">
-                                                <Star className="w-5 h-5" />
-                                            </button>
+                                            <IconButton
+                                                icon={<Star />}
+                                                onClick={(e) => { e?.stopPropagation(); handleSetCover(media._id); }}
+                                                colorClass="text-yellow-400"
+                                                hoverClass="hover:bg-yellow-500/30"
+                                            />
                                         )}
-                                        <button onClick={(e) => { e.stopPropagation(); handleRemoveMedia(media._id); }} className="p-2 rounded-lg bg-red-500/20 text-red-400">
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
+                                        <IconButton
+                                            icon={<Trash2 />}
+                                            onClick={(e) => { e?.stopPropagation(); handleRemoveMedia(media._id); }}
+                                            colorClass="text-red-400"
+                                            hoverClass="hover:bg-red-500/30"
+                                        />
                                     </div>
                                 )}
 
