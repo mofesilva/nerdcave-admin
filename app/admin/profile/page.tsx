@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Save, Upload, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Button from "@/components/Button";
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
@@ -42,11 +43,6 @@ export default function ProfilePage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight uppercase">Profile Settings</h1>
-          <p className="text-muted-foreground mt-2">Manage your profile information and social links</p>
-        </div>
 
         {/* Profile Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -57,13 +53,12 @@ export default function ProfilePage() {
               <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full shadow-xl shadow-primary/20 ring-4 ring-background">
               </div>
               <div>
-                <button
+                <Button
                   type="button"
-                  className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+                  icon={Upload}
                 >
-                  <Upload className="w-4 h-4" />
                   Upload New Photo
-                </button>
+                </Button>
                 <p className="text-sm text-muted-foreground mt-3">
                   JPG, PNG or GIF. Max size 2MB.
                 </p>
@@ -202,13 +197,13 @@ export default function ProfilePage() {
                   </p>
                 )}
               </div>
-              <button
+              <Button
                 type="submit"
-                className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+                icon={Save}
+                size="lg"
               >
-                <Save className="w-5 h-5" />
                 Save Changes
-              </button>
+              </Button>
             </div>
           </div>
         </form>
