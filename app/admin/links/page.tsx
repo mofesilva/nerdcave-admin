@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
 import { LinkModel } from "@/lib/models/Link.model";
 import { LinksController } from "@/lib/controllers";
+import Button from "@/components/Button";
+import IconButton from "@/components/IconButton";
 
 export default function LinksPage() {
   const [links, setLinks] = useState<LinkModel[]>([]);
@@ -131,17 +133,14 @@ export default function LinksPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">Gerenciar Links</h1>
-          <p className="text-muted-foreground mt-2 text-lg">Organize e personalize sua presença digital</p>
-        </div>
-        <button
+        <div />
+        <Button
           onClick={() => handleOpenModal()}
-          className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95"
+          icon={Plus}
+          size="lg"
         >
-          <Plus className="w-5 h-5" />
           Novo Link
-        </button>
+        </Button>
       </div>
 
       {/* Links List */}
@@ -162,12 +161,12 @@ export default function LinksPage() {
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-2">Nenhum link criado</h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">Comece adicionando seu primeiro link para compartilhar com seu público.</p>
-            <button
+            <Button
               onClick={() => handleOpenModal()}
-              className="text-primary font-medium hover:underline"
+              variant="ghost"
             >
               Criar primeiro link
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="grid gap-4">
@@ -177,9 +176,10 @@ export default function LinksPage() {
                 className="group bg-card hover:bg-accent/50 border border-border rounded-xl p-4 transition-all duration-200 hover:shadow-md flex items-center gap-4"
               >
                 {/* Drag Handle */}
-                <button className="p-2 text-muted-foreground hover:text-foreground cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
-                  <GripVertical className="w-5 h-5" />
-                </button>
+                <IconButton
+                  icon={<GripVertical />}
+                  className="cursor-move opacity-0 group-hover:opacity-100 transition-opacity"
+                />
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
@@ -211,27 +211,25 @@ export default function LinksPage() {
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 pl-4 border-l border-border">
-                  <button
+                  <IconButton
+                    icon={link.isActive ? <Eye /> : <EyeOff />}
                     onClick={() => handleToggleActive(link._id)}
-                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-background rounded-lg transition-colors cursor-pointer"
                     title={link.isActive ? 'Ocultar' : 'Mostrar'}
-                  >
-                    {link.isActive ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-                  </button>
-                  <button
+                  />
+                  <IconButton
+                    icon={<Edit2 />}
                     onClick={() => handleOpenModal(link)}
-                    className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                    colorClass="text-blue-500"
+                    hoverClass="hover:bg-blue-500/10"
                     title="Editar"
-                  >
-                    <Edit2 className="w-5 h-5" />
-                  </button>
-                  <button
+                  />
+                  <IconButton
+                    icon={<Trash2 />}
                     onClick={() => handleDelete(link._id)}
-                    className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                    colorClass="text-destructive"
+                    hoverClass="hover:bg-destructive/10"
                     title="Deletar"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                  />
                 </div>
               </div>
             ))}
@@ -338,21 +336,24 @@ export default function LinksPage() {
                 </div>
 
                 <div className="flex gap-4 pt-4 border-t border-border">
-                  <button
+                  <Button
                     type="button"
                     onClick={handleCloseModal}
                     disabled={loading}
-                    className="flex-1 px-6 py-3 rounded-xl font-medium text-foreground bg-background border border-border hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50"
+                    variant="secondary"
+                    size="lg"
+                    className="flex-1"
                   >
                     Cancelar
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    size="lg"
+                    className="flex-1"
                   >
                     {loading ? 'Salvando...' : (editingLink ? 'Salvar Alterações' : 'Criar Link')}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>
