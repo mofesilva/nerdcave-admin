@@ -19,7 +19,7 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
     const pathname = usePathname();
 
     return (
-        <nav className="flex-1 w-full px-3 space-y-2 flex flex-col">
+        <nav className="flex-1 w-full px-3 space-y-2 flex flex-col overflow-y-auto scrollbar-hide">
             {/* Quick Add button
             <Link
                 href="/admin/links"
@@ -34,7 +34,7 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
                 </div>
             </Link> */}
             {items.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
                 const Icon = item.icon;
                 return (
                     <Link
