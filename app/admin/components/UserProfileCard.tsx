@@ -53,7 +53,7 @@ export default function UserProfileCard({
                     onClick={onLogout}
                     disabled={loggingOut}
                     title={!isExpanded ? "Sair da conta" : undefined}
-                    className="w-full h-11 flex items-center hover:bg-red-600 text-zinc-400 hover:text-white transition-colors"
+                    className="w-full h-11 flex items-center hover:bg-red-600 text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 >
                     <div className="w-14 h-11 flex items-center justify-center shrink-0">
                         <LogOut className={`w-5 h-5 ${loggingOut ? 'animate-spin' : ''}`} />
