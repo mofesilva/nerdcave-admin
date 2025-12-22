@@ -3,10 +3,13 @@
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Image as ImageIcon, Eye, EyeOff, FolderOpen } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { AlbumModel } from "@/lib/models/Album.model";
 import { AlbumsController } from "@/lib/controllers";
 import { CategoriesController } from "@/lib/controllers";
 import { CategoryModel } from "@/lib/models/Category.model";
+import Button from "@/components/Button";
+import IconButton from "@/components/IconButton";
 
 export default function AlbumsPage() {
     const [albums, setAlbums] = useState<AlbumModel[]>([]);
@@ -17,6 +20,7 @@ export default function AlbumsPage() {
     const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         title: '',
+        slug: '',
         description: '',
         categoryId: '',
         status: 'draft' as 'draft' | 'published',
@@ -50,6 +54,7 @@ export default function AlbumsPage() {
             setEditingAlbum(album);
             setFormData({
                 title: album.title,
+                slug: album.slug,
                 description: album.description,
                 categoryId: album.categoryId,
                 status: album.status,
@@ -59,6 +64,7 @@ export default function AlbumsPage() {
             setEditingAlbum(null);
             setFormData({
                 title: '',
+                slug: '',
                 description: '',
                 categoryId: categories[0]?._id || '',
                 status: 'draft',
@@ -132,17 +138,14 @@ export default function AlbumsPage() {
         <div className="space-y-8">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Álbuns</h1>
-                    <p className="text-muted-foreground mt-2 text-lg">Gerencie suas galerias de fotos</p>
-                </div>
-                <button
+                <div />
+                <Button
                     onClick={() => handleOpenModal()}
-                    className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95"
+                    icon={Plus}
+                    size="lg"
                 >
-                    <Plus className="w-5 h-5" />
                     Novo Álbum
-                </button>
+                </Button>
             </div>
 
             {/* Error */}
@@ -162,12 +165,13 @@ export default function AlbumsPage() {
                 <div className="text-center py-12 bg-card rounded-2xl border border-border">
                     <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">Nenhum álbum criado ainda</p>
-                    <button
+                    <Button
                         onClick={() => handleOpenModal()}
-                        className="mt-4 text-primary hover:underline"
+                        variant="ghost"
+                        className="mt-4"
                     >
                         Criar primeiro álbum
-                    </button>
+                    </Button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -180,10 +184,11 @@ export default function AlbumsPage() {
                             <Link href={`/admin/albums/${album._id}`}>
                                 <div className="aspect-video bg-secondary relative cursor-pointer">
                                     {album.coverMediaId ? (
-                                        <img
+                                        <Image
                                             src={`/api/media/${album.coverMediaId}`}
                                             alt={album.title}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            className="object-cover"
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
@@ -198,8 +203,8 @@ export default function AlbumsPage() {
 
                                     {/* Status badge */}
                                     <div className={`absolute top-3 left-3 text-xs px-2 py-1 rounded-full ${album.status === 'published'
-                                            ? 'bg-green-500/20 text-green-400'
-                                            : 'bg-yellow-500/20 text-yellow-400'
+                                        ? 'bg-green-500/20 text-green-400'
+                                        : 'bg-yellow-500/20 text-yellow-400'
                                         }`}>
                                         {album.status === 'published' ? 'Publicado' : 'Rascunho'}
                                     </div>
@@ -226,30 +231,27 @@ export default function AlbumsPage() {
 
                                 {/* Actions */}
                                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
-                                    <button
+                                    <IconButton
+                                        icon={album.status === 'published' ? <Eye /> : <EyeOff />}
                                         onClick={() => handleTogglePublish(album)}
-                                        className={`p-2 rounded-lg transition-colors ${album.status === 'published'
-                                                ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
-                                                : 'bg-secondary text-muted-foreground hover:text-foreground'
-                                            }`}
+                                        colorClass={album.status === 'published' ? 'text-green-400' : 'text-muted-foreground'}
+                                        hoverClass={album.status === 'published' ? 'hover:bg-green-500/20' : 'hover:bg-secondary hover:text-foreground'}
                                         title={album.status === 'published' ? 'Despublicar' : 'Publicar'}
-                                    >
-                                        {album.status === 'published' ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                                    </button>
-                                    <button
+                                    />
+                                    <IconButton
+                                        icon={<Edit2 />}
                                         onClick={() => handleOpenModal(album)}
-                                        className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 text-foreground transition-colors"
+                                        colorClass="text-foreground"
+                                        hoverClass="hover:bg-secondary/80"
                                         title="Editar"
-                                    >
-                                        <Edit2 className="w-4 h-4" />
-                                    </button>
-                                    <button
+                                    />
+                                    <IconButton
+                                        icon={<Trash2 />}
                                         onClick={() => handleDelete(album._id)}
-                                        className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+                                        colorClass="text-red-400"
+                                        hoverClass="hover:bg-red-500/20"
                                         title="Deletar"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
+                                    />
                                     <Link
                                         href={`/admin/albums/${album._id}`}
                                         className="ml-auto px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-colors"
@@ -331,20 +333,23 @@ export default function AlbumsPage() {
                             </div>
 
                             <div className="flex gap-3 pt-4">
-                                <button
+                                <Button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-secondary text-foreground font-medium hover:bg-secondary/80 transition-colors"
+                                    variant="secondary"
+                                    size="lg"
+                                    className="flex-1"
                                 >
                                     Cancelar
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-colors disabled:opacity-50"
+                                    size="lg"
+                                    className="flex-1"
                                 >
                                     {loading ? 'Salvando...' : 'Salvar'}
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     </div>
