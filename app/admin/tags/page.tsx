@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Tag, Search, X } from "lucide-react";
 import { TagModel } from "@/lib/models/Tag.model";
 import { TagsController } from "@/lib/controllers";
+import Button from "@/components/Button";
+import IconButton from "@/components/IconButton";
 
 export default function TagsPage() {
     const [tags, setTags] = useState<TagModel[]>([]);
@@ -95,17 +97,14 @@ export default function TagsPage() {
         <div className="space-y-8">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-foreground tracking-tight">Tags</h1>
-                    <p className="text-muted-foreground mt-2 text-lg">Gerencie as tags do seu conteúdo</p>
-                </div>
-                <button
+                <div />
+                <Button
                     onClick={() => handleOpenModal()}
-                    className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2 hover:scale-105 active:scale-95"
+                    icon={Plus}
+                    size="lg"
                 >
-                    <Plus className="w-5 h-5" />
                     Nova Tag
-                </button>
+                </Button>
             </div>
 
             {/* Search */}
@@ -119,9 +118,10 @@ export default function TagsPage() {
                     className="bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground flex-1"
                 />
                 {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="text-muted-foreground hover:text-foreground">
-                        <X className="w-4 h-4" />
-                    </button>
+                    <IconButton
+                        icon={<X />}
+                        onClick={() => setSearchQuery('')}
+                    />
                 )}
             </div>
 
@@ -146,12 +146,13 @@ export default function TagsPage() {
                             {searchQuery ? 'Nenhuma tag encontrada' : 'Nenhuma tag criada ainda'}
                         </p>
                         {!searchQuery && (
-                            <button
+                            <Button
                                 onClick={() => handleOpenModal()}
-                                className="mt-4 text-primary hover:underline"
+                                variant="ghost"
+                                className="mt-4"
                             >
                                 Criar primeira tag
-                            </button>
+                            </Button>
                         )}
                     </div>
                 ) : (
@@ -168,20 +169,20 @@ export default function TagsPage() {
                                 </span>
 
                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                                    <button
+                                    <IconButton
+                                        icon={<Edit2 className="w-3.5 h-3.5" />}
                                         onClick={() => handleOpenModal(tag)}
-                                        className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                                        hoverClass="hover:bg-secondary hover:text-foreground"
                                         title="Editar"
-                                    >
-                                        <Edit2 className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button
+                                        className="p-1.5"
+                                    />
+                                    <IconButton
+                                        icon={<Trash2 className="w-3.5 h-3.5" />}
                                         onClick={() => handleDelete(tag._id)}
-                                        className="p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors"
+                                        hoverClass="hover:bg-red-500/10 hover:text-red-400"
                                         title="Deletar"
-                                    >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
+                                        className="p-1.5"
+                                    />
                                 </div>
                             </div>
                         ))}
@@ -247,20 +248,23 @@ export default function TagsPage() {
                             </div>
 
                             <div className="flex gap-3 pt-4">
-                                <button
+                                <Button
                                     type="button"
                                     onClick={handleCloseModal}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-secondary text-foreground font-medium hover:bg-secondary/80 transition-colors"
+                                    variant="secondary"
+                                    size="lg"
+                                    className="flex-1"
                                 >
                                     Cancelar
-                                </button>
-                                <button
+                                </Button>
+                                <Button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-colors disabled:opacity-50"
+                                    size="lg"
+                                    className="flex-1"
                                 >
                                     {loading ? 'Salvando...' : 'Salvar'}
-                                </button>
+                                </Button>
                             </div>
                         </form>
                     </div>
