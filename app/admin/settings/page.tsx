@@ -1,14 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "../../ThemeProvider";
-import { Save, Eye, Shield, Bell, Palette, Check } from "lucide-react";
+import { useSettings } from "@/lib/contexts/SettingsContext";
+import { Save, Eye, Shield, Bell, Palette, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Button from "@/components/Button";
+
+// Grid de cores predefinidas
+const COLOR_PRESETS = [
+  { name: "Blue", hex: "#0067ff" },
+  { name: "Purple", hex: "#8b5cf6" },
+  { name: "Pink", hex: "#ec4899" },
+  { name: "Rose", hex: "#f43f5e" },
+  { name: "Orange", hex: "#f97316" },
+  { name: "Amber", hex: "#f59e0b" },
+  { name: "Yellow", hex: "#eab308" },
+  { name: "Lime", hex: "#84cc16" },
+  { name: "Green", hex: "#22c55e" },
+  { name: "Emerald", hex: "#10b981" },
+  { name: "Teal", hex: "#14b8a6" },
+  { name: "Cyan", hex: "#06b6d4" },
+  { name: "Sky", hex: "#0ea5e9" },
+  { name: "Indigo", hex: "#6366f1" },
+  { name: "Violet", hex: "#8b5cf6" },
+  { name: "Fuchsia", hex: "#d946ef" },
+];
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('appearance');
   const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [customHex, setCustomHex] = useState('');
   const { theme, setTheme } = useTheme();
+  const { primaryColor, updatePrimaryColor, loading: settingsLoading } = useSettings();
+
+  // Sincroniza o input hex com a cor atual
+  useEffect(() => {
+    setCustomHex(primaryColor);
+  }, [primaryColor]);
+
+  const handleColorSelect = async (hex: string) => {
+    setIsSaving(true);
+    try {
+      await updatePrimaryColor(hex);
+      setCustomHex(hex);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000);
+    } catch (error) {
+      console.error('Erro ao salvar cor:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCustomHexChange = (value: string) => {
+    // Adiciona # se não tiver
+    if (value && !value.startsWith('#')) {
+      value = '#' + value;
+    }
+    setCustomHex(value);
+  };
+
+  const handleCustomHexApply = async () => {
+    // Valida se é um hex válido
+    const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    if (!hexRegex.test(customHex)) {
+      alert('Por favor, insira um código hexadecimal válido (ex: #ff0000)');
+      return;
+    }
+    await handleColorSelect(customHex);
+  };
 
   const handleSave = () => {
     setIsSaved(true);
@@ -26,17 +88,13 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight uppercase">Settings</h1>
-          <p className="text-muted-foreground mt-2">Manage your application settings and preferences</p>
-        </div>
-        <button
+        <div />
+        <Button
           onClick={handleSave}
-          className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-medium hover:bg-primary/90 transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
+          icon={Save}
         >
-          <Save className="w-5 h-5" />
           Save Changes
-        </button>
+        </Button>
       </div>
 
       {isSaved && (
@@ -53,19 +111,20 @@ export default function SettingsPage() {
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button
+                <Button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  variant="ghost"
+                  icon={Icon}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-4 border-b-2 font-medium transition-colors whitespace-nowrap",
+                    "rounded-none border-b-2 py-4",
                     activeTab === tab.id
                       ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                   )}
                 >
-                  <Icon className="w-5 h-5" />
                   {tab.name}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -89,21 +148,78 @@ export default function SettingsPage() {
                     </select>
                   </div>
 
+                  {/* Primary Color Selector */}
                   <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
+                    <label className="block text-sm font-medium text-muted-foreground mb-4">
                       Primary Color
                     </label>
-                    <div className="flex gap-3">
-                      {['bg-purple-600', 'bg-blue-600', 'bg-emerald-600', 'bg-rose-600', 'bg-pink-600', 'bg-amber-600'].map((color) => (
-                        <button
-                          key={color}
-                          className={cn(
-                            "w-12 h-12 rounded-lg transition-all hover:scale-110",
-                            color
-                          )}
-                        />
-                      ))}
-                    </div>
+
+                    {settingsLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {/* Color Grid */}
+                        <div className="grid grid-cols-8 gap-3">
+                          {COLOR_PRESETS.map((color) => (
+                            <button
+                              key={color.hex}
+                              onClick={() => handleColorSelect(color.hex)}
+                              disabled={isSaving}
+                              className={cn(
+                                "w-10 h-10 rounded-lg transition-all hover:scale-110 relative",
+                                primaryColor.toLowerCase() === color.hex.toLowerCase() && "ring-2 ring-offset-2 ring-offset-card ring-foreground"
+                              )}
+                              style={{ backgroundColor: color.hex }}
+                              title={color.name}
+                            >
+                              {primaryColor.toLowerCase() === color.hex.toLowerCase() && (
+                                <Check className="w-4 h-4 text-white absolute inset-0 m-auto drop-shadow-md" />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Custom Hex Input */}
+                        <div className="flex items-center gap-3 pt-4 border-t border-border">
+                          <div className="flex items-center gap-2 flex-1">
+                            <div
+                              className="w-10 h-10 rounded-lg border border-border flex-shrink-0"
+                              style={{ backgroundColor: customHex }}
+                            />
+                            <input
+                              type="text"
+                              value={customHex}
+                              onChange={(e) => handleCustomHexChange(e.target.value)}
+                              placeholder="#000000"
+                              className="flex-1 px-4 py-2.5 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground placeholder:text-muted-foreground/50 font-mono"
+                              maxLength={7}
+                            />
+                          </div>
+                          <Button
+                            onClick={handleCustomHexApply}
+                            disabled={isSaving || customHex === primaryColor}
+                            size="sm"
+                          >
+                            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Aplicar'}
+                          </Button>
+                        </div>
+
+                        {/* Color Picker Native */}
+                        <div className="flex items-center gap-3">
+                          <label className="text-sm text-muted-foreground">
+                            Ou escolha do seletor de cores:
+                          </label>
+                          <input
+                            type="color"
+                            value={customHex}
+                            onChange={(e) => handleColorSelect(e.target.value)}
+                            className="w-10 h-10 rounded-lg cursor-pointer border border-border"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border/50">
@@ -112,7 +228,6 @@ export default function SettingsPage() {
                       <p className="text-sm text-muted-foreground">Enable dark mode for the public page</p>
                     </div>
                     <label className="relative inline-flex items-center cursor-pointer">
-                      { /* Controlled dark mode toggle using ThemeProvider */}
                       <input
                         type="checkbox"
                         className="sr-only peer"
@@ -291,9 +406,9 @@ export default function SettingsPage() {
                       <p className="font-medium text-foreground">Two-Factor Authentication</p>
                       <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
                     </div>
-                    <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                    <Button>
                       Enable
-                    </button>
+                    </Button>
                   </div>
 
                   <div className="bg-muted/50 border border-border/50 rounded-lg p-4">
