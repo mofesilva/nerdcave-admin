@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import StatCard from "@/components/admin/StatCard";
+import StatCard from "../dashboard/componentes/StatCard";
 import { AnalyticsController, LinksController } from "@/lib/controllers";
 import { MousePointerClick, Users, TrendingUp, Globe, Download, FileText } from "lucide-react";
 import type { Link } from "@/types";
+import Button from "@/components/Button";
 
 interface Analytics {
   totalClicks: number;
@@ -262,14 +263,17 @@ export default function AnalyticsPage() {
             <p className="text-muted-foreground">Download your analytics data in CSV or PDF format</p>
           </div>
           <div className="flex gap-3">
-            <button className="bg-card text-foreground border border-border px-4 py-2 rounded-lg font-medium hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+            <Button
+              variant="secondary"
+              icon={FileText}
+            >
               Export as CSV
-            </button>
-            <button className="bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-lg shadow-primary/20">
-              <Download className="w-4 h-4" />
+            </Button>
+            <Button
+              icon={Download}
+            >
               Export as PDF
-            </button>
+            </Button>
           </div>
         </div>
       </div>
