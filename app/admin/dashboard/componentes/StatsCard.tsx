@@ -20,7 +20,7 @@ export function StatsCard({
     iconColor = "text-orange-600"
 }: StatCardProps) {
     return (
-        <div className="bg-card rounded-xl p-6 border border-border">
+        <div className="bg-card rounded-xl p-6 border border-border cursor-pointer">
             <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 rounded-lg flex items-center justify-center bg-primary`}>
                     <div className={'text-primary-foreground'}>{icon}</div>
