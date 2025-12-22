@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@cappuccino/web-sdk';
 import AdminLayout from './components/AdminLayout';
+import { MediaPickerProvider } from '@/lib/contexts/MediaPickerContext';
+import { SettingsProvider } from '@/lib/contexts/SettingsContext';
 
 export default function AdminRootLayout({
   children,
@@ -13,19 +15,15 @@ export default function AdminRootLayout({
   const router = useRouter();
   const { user, initializing } = useAuth();
 
+  const hasAccess = user?.role?.toLowerCase() === 'admin';
+
   useEffect(() => {
-    console.log('Admin layout - initializing:', initializing, 'user:', user);
-    if (initializing) {
-      console.log('Admin layout - still initializing');
-      return;
-    }
-    if (!user) {
-      console.log('Admin layout - no user, redirecting to login');
+    if (initializing) return;
+
+    if (!hasAccess) {
       router.replace('/login');
-    } else {
-      console.log('Admin layout - user exists, staying here');
     }
-  }, [initializing, user, router]);
+  }, [initializing, hasAccess, router]);
 
   if (initializing) {
     return (
@@ -35,9 +33,19 @@ export default function AdminRootLayout({
     );
   }
 
-  if (!user) {
-    return null;
+  if (!hasAccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
+        <div className="text-white">Redirecionando...</div>
+      </div>
+    );
   }
 
-  return <AdminLayout user={user}>{children}</AdminLayout>;
+  return (
+    <SettingsProvider>
+      <MediaPickerProvider>
+        <AdminLayout>{children}</AdminLayout>
+      </MediaPickerProvider>
+    </SettingsProvider>
+  );
 }
