@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { User } from "lucide-react";
 import { ProfileController } from "@/lib/controllers";
 import { ProfileModel } from "@/lib/models/Profile.model";
@@ -36,11 +37,14 @@ export default function ProfileSection() {
     return (
         <div className="flex flex-col items-center text-center">
             {((profile as any)?.avatarUrl) ? (
-                <img
-                    src={(profile as any).avatarUrl}
-                    alt={profile.name}
-                    className="w-32 h-32 rounded-full mb-4 object-cover"
-                />
+                <div className="w-32 h-32 rounded-full mb-4 relative overflow-hidden">
+                    <Image
+                        src={(profile as any).avatarUrl}
+                        alt={profile.name}
+                        fill
+                        className="object-cover"
+                    />
+                </div>
             ) : (
                 <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center mb-4">
                     <span className="text-2xl font-bold text-foreground">{profile.name ? profile.name.charAt(0) : 'U'}</span>
