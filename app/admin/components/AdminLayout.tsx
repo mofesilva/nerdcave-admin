@@ -9,59 +9,66 @@ import {
     User,
     BarChart3,
     Settings,
-    Search,
-    ChevronRight,
-    ChevronLeft,
-    Sun,
-    Moon,
     FolderTree,
     Tag,
     Image,
     Images,
+    FileText,
     type LucideIcon,
 } from "lucide-react";
 import { useAuth } from '@cappuccino/web-sdk';
+import { useAutoLogin } from '@/lib/contexts/AutoLoginContext';
 import UserProfileCard from "./UserProfileCard";
 import NavigationMenu from "./NavigationMenu";
 import SidebarHeader from "./SidebarHeader";
-import { useTheme } from '../../ThemeProvider';
+import ThemeToggle from "./ThemeToggle";
 
 interface AdminLayoutProps {
     children: React.ReactNode;
-    user?: any;
 }
 
 interface NavigationItem {
     name: string;
     href: string;
     icon: LucideIcon;
+    description?: string;
 }
 
 const navigation: NavigationItem[] = [
-    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Links', href: '/admin/links', icon: LinkIcon },
-    { name: 'Categories', href: '/admin/categories', icon: FolderTree },
-    { name: 'Tags', href: '/admin/tags', icon: Tag },
-    { name: 'Albums', href: '/admin/albums', icon: Images },
-    { name: 'Media', href: '/admin/media', icon: Image },
-    { name: 'Profile', href: '/admin/profile', icon: User },
-    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, description: 'Bem vindo ao admin para gerenciar o hub Nerdcave Studio' },
+    { name: 'Posts', href: '/admin/posts', icon: FileText, description: 'Gerencie seus artigos e publicações' },
+    { name: 'Links', href: '/admin/links', icon: LinkIcon, description: 'Organize e personalize sua presença digital' },
+    { name: 'Categories', href: '/admin/categories', icon: FolderTree, description: 'Organize seu conteúdo em categorias' },
+    { name: 'Tags', href: '/admin/tags', icon: Tag, description: 'Gerencie as tags do seu conteúdo' },
+    { name: 'Albums', href: '/admin/albums', icon: Images, description: 'Gerencie suas galerias de fotos' },
+    { name: 'Media', href: '/admin/media', icon: Image, description: 'Gerencie suas imagens' },
+    { name: 'Profile', href: '/admin/profile', icon: User, description: 'Manage your profile information' },
+    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, description: 'Acompanhe suas métricas' },
+    { name: 'Settings', href: '/admin/settings', icon: Settings, description: 'Manage your application settings' },
 ];
 
-export default function AdminLayout({ children, user }: AdminLayoutProps) {
+export default function AdminLayout({ children }: AdminLayoutProps) {
     const router = useRouter();
-    const { signOut } = useAuth();
+    const pathname = usePathname();
+    const { user, signOut } = useAuth();
+    const { loginAsGuest } = useAutoLogin();
     const [loggingOut, setLoggingOut] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+
+    // Pega o título e descrição da página baseado na rota atual
+    const currentPage = navigation.find(item => pathname?.startsWith(item.href));
+    const pageTitle = currentPage?.name || 'Admin';
+    const pageDescription = currentPage?.description || '';
 
     const handleLogout = async () => {
         setLoggingOut(true);
         try {
-            if (user?.id) {
-                await signOut(user.id);
+            if (user?._id) {
+                await signOut(user._id);
             }
-            router.push('/login');
+            // Faz login como visitante após logout
+            await loginAsGuest();
+            router.push('/');
         } catch (error) {
             console.error('Logout error:', error);
         } finally {
@@ -75,7 +82,7 @@ export default function AdminLayout({ children, user }: AdminLayoutProps) {
                 onMouseEnter={() => setIsExpanded(true)}
                 onMouseLeave={() => setIsExpanded(false)}
                 className={`${isExpanded ? 'w-64' : 'w-20'
-                    } bg-sidebar rounded-3xl text-sidebar-foreground flex flex-col py-6 pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden`}
+                    } sticky top-4 h-[calc(100vh-2rem)] bg-sidebar rounded-3xl text-sidebar-foreground flex flex-col py-6 pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden`}
             >
                 {/* Header com logo */}
                 <SidebarHeader isExpanded={isExpanded} />
@@ -85,7 +92,7 @@ export default function AdminLayout({ children, user }: AdminLayoutProps) {
 
                 {/* Seção inferior com usuário e logout */}
                 <UserProfileCard
-                    user={user}
+                    user={user ?? undefined}
                     isExpanded={isExpanded}
                     onLogout={handleLogout}
                     loggingOut={loggingOut}
@@ -93,21 +100,17 @@ export default function AdminLayout({ children, user }: AdminLayoutProps) {
             </aside>
 
             <div className="flex-1 flex flex-col min-w-0">
-                <div className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8">
-                    <header className="h-14 flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3 bg-card rounded-xl px-4 py-2.5 w-80">
-                            <Search className="w-5 h-5 text-muted-foreground" />
-                            <input
-                                type="text"
-                                placeholder="Search something..."
-                                className="bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground flex-1"
-                            />
+                <div className="w-full mx-auto">
+                    <header className="h-14 flex items-center justify-between my-4">
+                        <div>
+                            <h1 className="text-3xl font-bold text-foreground">{pageTitle}</h1>
+                            {pageDescription && (
+                                <p className="text-muted-foreground text-md">{pageDescription}</p>
+                            )}
                         </div>
-
                         <div className="flex items-center gap-3">
                             {/* Theme toggle */}
                             <ThemeToggle />
-
 
                         </div>
                     </header>
@@ -120,36 +123,5 @@ export default function AdminLayout({ children, user }: AdminLayoutProps) {
                 </div>
             </div>
         </div>
-    );
-}
-
-function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
-
-    const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
-
-    const toggle = () => setTheme(isDark ? 'light' : 'dark');
-
-    return (
-        <button
-            role="switch"
-            aria-checked={isDark}
-            onClick={toggle}
-            title={isDark ? 'Switch to light' : 'Switch to dark'}
-            className="relative w-20 h-10 rounded-2xl transition-all focus:outline-none cursor-pointer"
-        >
-            {/* background */}
-            <span className="absolute inset-0 rounded-2xl bg-card transition-colors" />
-
-            {/* knob abaixo dos ícones */}
-            <span
-                className={`absolute top-1 w-8 h-8 bg-primary rounded-xl shadow-lg transition-all ${isDark ? 'right-1' : 'left-1'}`}
-            />
-
-            {/* ícones acima do knob */}
-            <Sun className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-opacity z-10 ${isDark ? 'text-foreground opacity-50' : 'text-background opacity-100'}`} />
-            <Moon className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 transition-opacity z-10 ${isDark ? 'text-foreground opacity-100' : 'text-foreground opacity-50'}`} />
-        </button>
     );
 }
