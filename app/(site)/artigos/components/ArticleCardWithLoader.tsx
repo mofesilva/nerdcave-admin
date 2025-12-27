@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useApiClient, MediaStorageModule } from "@cappuccino/web-sdk";
+import { useState, useEffect } from "react";
 import { ArticleCard } from "../../../components/blog/ArticleCard";
 import { Loader2 } from "lucide-react";
 import { MediaModel } from "@/lib/models/Media.model";
-
-const APP_NAME = "nerdcave-link-tree";
+import { MediaController } from "@/lib/controllers";
 
 interface ArticleCardWithLoaderProps {
     _id: string;
@@ -35,12 +33,6 @@ export function ArticleCardWithLoader({
     media,
     variant = "default",
 }: ArticleCardWithLoaderProps) {
-    const apiClient = useApiClient();
-    const mediastorage = useMemo(() => {
-        if (!apiClient) return null;
-        return new MediaStorageModule(apiClient);
-    }, [apiClient]);
-
     const [coverUrl, setCoverUrl] = useState<string | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(!!media?.fileName);
     const [hasError, setHasError] = useState(false);
@@ -50,14 +42,21 @@ export function ArticleCardWithLoader({
         let isMounted = true;
 
         const loadImage = async () => {
-            if (!media?.fileName || !mediastorage) {
+            if (!media?.fileName) {
                 setIsLoading(false);
                 return;
             }
 
             try {
-                const response = await mediastorage.download(APP_NAME, media.fileName);
-                const blob = await response.blob();
+                const blob = await MediaController.download(media.fileName);
+                if (!blob) {
+                    if (isMounted) {
+                        setHasError(true);
+                        setIsLoading(false);
+                    }
+                    return;
+                }
+
                 const url = URL.createObjectURL(blob);
 
                 if (isMounted) {
@@ -82,7 +81,7 @@ export function ArticleCardWithLoader({
                 URL.revokeObjectURL(coverUrl);
             }
         };
-    }, [media?.fileName, mediastorage]);
+    }, [media?.fileName]);
 
     // Skeleton loader enquanto carrega
     if (isLoading) {
