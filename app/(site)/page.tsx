@@ -1,129 +1,170 @@
 "use client";
 
-import { FeaturedCarousel } from "../components/blog/FeaturedCarousel";
+import { useState, useEffect, useRef } from "react";
+import { HeroCarousel } from "../components/blog/HeroCarousel";
 import { ArticleCard } from "../components/blog/ArticleCard";
 import { AlbumCard } from "../components/blog/AlbumCard";
 import { SectionHeader } from "../components/blog/SectionHeader";
+import * as ArticleController from "@/lib/articles/Article.controller";
+import * as CategoryController from "@/lib/categories/Category.controller";
+import * as MediaController from "@/lib/medias/Media.controller";
+import * as AlbumController from "@/lib/albums/Album.controller";
+import type { Category } from "@/lib/categories/Category.model";
+import { useAutoLogin } from "@/lib/contexts/AutoLoginContext";
 
-// Mock data para demonstração - será substituído pela integração com Cappuccino
-const featuredArticles = [
-    {
-        _id: "1",
-        title: "O Guia Definitivo para Montar seu Setup Gamer em 2024",
-        slug: "guia-setup-gamer-2024",
-        excerpt: "Descubra como montar o setup perfeito para gaming com as melhores dicas de hardware, periféricos e organização.",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        categoryName: "Gaming",
-    },
-    {
-        _id: "2",
-        title: "Análise: Os Melhores Jogos de RPG do Ano",
-        slug: "melhores-rpg-2024",
-        excerpt: "Uma análise completa dos RPGs que dominaram o ano, desde clássicos remasterizados até novidades surpreendentes.",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        categoryName: "Reviews",
-    },
-    {
-        _id: "3",
-        title: "Nerdcave na CCXP 2024: Tudo que Vimos",
-        slug: "nerdcave-ccxp-2024",
-        excerpt: "Cobertura completa da maior convenção de cultura pop do mundo. Confira os melhores momentos!",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        categoryName: "Eventos",
-    },
-];
+interface HeroArticle {
+    _id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    coverUrl?: string;
+    categoryName?: string;
+}
 
-const recentArticles = [
-    {
-        _id: "4",
-        title: "10 Easter Eggs que Você Perdeu em GTA VI",
-        slug: "easter-eggs-gta-vi",
-        excerpt: "Rockstar escondeu dezenas de referências no trailer. Veja as mais surpreendentes que encontramos.",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        categoryName: "Gaming",
-        categoryColor: "#abca4a",
-        publishedAt: "2024-12-15",
-        readingTime: 8,
-    },
-    {
-        _id: "5",
-        title: "Por Que Dungeons & Dragons Nunca Foi Tão Popular",
-        slug: "dungeons-dragons-popular",
-        excerpt: "O renascimento do RPG de mesa e como a cultura pop abraçou o hobby.",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        categoryName: "RPG de Mesa",
-        categoryColor: "#6e5fa6",
-        publishedAt: "2024-12-14",
-        readingTime: 12,
-    },
-    {
-        _id: "6",
-        title: "Anime Spotlight: As Jóias de Outono 2024",
-        slug: "anime-spotlight-outono-2024",
-        excerpt: "Os animes que você precisa acompanhar nesta temporada.",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        categoryName: "Anime",
-        categoryColor: "#e91e63",
-        publishedAt: "2024-12-13",
-        readingTime: 6,
-    },
-    {
-        _id: "7",
-        title: "Build PC Custo-Benefício para 2025",
-        slug: "build-pc-custo-beneficio-2025",
-        excerpt: "Monte um PC gamer sem gastar uma fortuna. Guia completo de componentes.",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        categoryName: "Hardware",
-        categoryColor: "#00bcd4",
-        publishedAt: "2024-12-12",
-        readingTime: 15,
-    },
-];
+interface ArticleCardData {
+    _id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    coverUrl?: string;
+    categoryName?: string;
+    categoryColor?: string;
+    publishedAt?: string;
+    readingTime?: number;
+}
 
-const recentAlbums = [
-    {
-        _id: "1",
-        title: "CCXP 2024 - Dia 1",
-        slug: "ccxp-2024-dia-1",
-        description: "Os melhores cosplays e painéis do primeiro dia",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        photoCount: 48,
-    },
-    {
-        _id: "2",
-        title: "Setup Tour: Dezembro",
-        slug: "setup-tour-dezembro",
-        description: "Setups enviados pela comunidade",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        photoCount: 24,
-    },
-    {
-        _id: "3",
-        title: "Unboxing: Coleção Marvel",
-        slug: "unboxing-colecao-marvel",
-        description: "As últimas aquisições da coleção",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        photoCount: 16,
-    },
-    {
-        _id: "4",
-        title: "Meetup Nerdcave SP",
-        slug: "meetup-nerdcave-sp",
-        description: "Encontro da comunidade em São Paulo",
-        coverUrl: "/images/background/nerdcave-background-dark-blue.png",
-        photoCount: 32,
-    },
-];
+interface AlbumCardData {
+    _id: string;
+    title: string;
+    slug: string;
+    description?: string;
+    coverUrl?: string;
+    photoCount: number;
+}
 
 export default function HomePage() {
+    const { isReady: isLoginReady } = useAutoLogin();
+    const hasFetched = useRef(false);
+
+    const [featuredArticles, setFeaturedArticles] = useState<HeroArticle[]>([]);
+    const [recentArticles, setRecentArticles] = useState<ArticleCardData[]>([]);
+    const [recentAlbums, setRecentAlbums] = useState<AlbumCardData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        if (!isLoginReady || hasFetched.current) return;
+        hasFetched.current = true;
+
+        const loadImageUrl = async (fileName: string): Promise<string | null> => {
+            try {
+                const response = await MediaController.downloadFile({ fileName });
+                if (!response) return null;
+                const blob = await response.blob();
+                return URL.createObjectURL(blob);
+            } catch (err) {
+                console.error('Erro ao baixar imagem:', fileName, err);
+                return null;
+            }
+        };
+
+        async function loadData() {
+            try {
+                // Buscar todos os dados necessários em paralelo
+                const [featured, published, categories, albums] = await Promise.all([
+                    ArticleController.getFeaturedArticles(),
+                    ArticleController.getPublishedArticles(),
+                    CategoryController.getAllCategories(),
+                    AlbumController.getAllAlbumsController(),
+                ]);
+
+                // Criar mapa de categorias
+                const catMap = new Map<string, Category>();
+                categories.forEach(cat => catMap.set(cat._id, cat));
+
+                // Coletar todos os IDs de mídia (covers dos artigos e álbuns)
+                const allCoverIds = [
+                    ...featured.map(a => a.coverMediaId).filter(Boolean),
+                    ...published.slice(0, 4).map(a => a.coverMediaId).filter(Boolean),
+                    ...albums.slice(0, 4).map(a => a.coverMediaId).filter(Boolean),
+                ] as string[];
+
+                // Buscar mídias e suas URLs
+                const mediaUrls = new Map<string, string>();
+                if (allCoverIds.length > 0) {
+                    const uniqueIds = [...new Set(allCoverIds)];
+                    const mediaPromises = uniqueIds.map(id => MediaController.getMediaById({ id }));
+                    const mediaResults = await Promise.all(mediaPromises);
+
+                    // Baixar imagens usando mediastorage.download
+                    await Promise.all(
+                        mediaResults.map(async (media) => {
+                            if (media?.fileName) {
+                                const url = await loadImageUrl(media.fileName);
+                                if (url) {
+                                    mediaUrls.set(media._id, url);
+                                }
+                            }
+                        })
+                    );
+                }
+
+                // Mapear artigos em destaque para o formato do HeroCarousel
+                const heroArticles: HeroArticle[] = featured.map(article => ({
+                    _id: article._id,
+                    title: article.title,
+                    slug: article.slug,
+                    excerpt: article.excerpt || "",
+                    coverUrl: article.coverMediaId ? mediaUrls.get(article.coverMediaId) : undefined,
+                    categoryName: article.categoryId ? catMap.get(article.categoryId)?.name : undefined,
+                }));
+                setFeaturedArticles(heroArticles);
+
+                // Mapear artigos recentes (top 4, excluindo os em destaque)
+                const recentOnly = published
+                    .filter(a => !a.isFeatured)
+                    .slice(0, 4);
+
+                const recentCards: ArticleCardData[] = recentOnly.map(article => {
+                    const category = article.categoryId ? catMap.get(article.categoryId) : undefined;
+                    return {
+                        _id: article._id,
+                        title: article.title,
+                        slug: article.slug,
+                        excerpt: article.excerpt || "",
+                        coverUrl: article.coverMediaId ? mediaUrls.get(article.coverMediaId) : undefined,
+                        categoryName: category?.name,
+                        categoryColor: category?.color,
+                        publishedAt: article.publishedAt,
+                        readingTime: article.readingTime,
+                    };
+                });
+                setRecentArticles(recentCards);
+
+                // Mapear álbuns recentes (top 4)
+                const albumCards: AlbumCardData[] = albums.slice(0, 4).map(album => ({
+                    _id: album._id,
+                    title: album.title,
+                    slug: album.slug,
+                    description: album.description,
+                    coverUrl: album.coverMediaId ? mediaUrls.get(album.coverMediaId) : undefined,
+                    photoCount: album.mediaIds?.length || 0,
+                }));
+                setRecentAlbums(albumCards);
+
+            } catch (error) {
+                console.error("Erro ao carregar dados da homepage:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        loadData();
+    }, [isLoginReady]);
+
     return (
-        <div className="min-h-screen pt-24">
-            {/* Hero Section with Featured Carousel */}
-            <section className="px-4 sm:px-6 py-8">
-                <div className="max-w-6xl mx-auto">
-                    <FeaturedCarousel articles={featuredArticles} />
-                </div>
-            </section>
+        <div className="min-h-screen">
+            {/* Hero Section - Full Screen Carousel */}
+            <HeroCarousel articles={featuredArticles} />
 
             {/* Recent Articles Section */}
             <section className="px-4 sm:px-6 py-12">
