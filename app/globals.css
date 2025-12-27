@@ -213,6 +213,15 @@
     @apply border-border;
   }
 
+  button,
+  [role="button"],
+  a,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
+    cursor: pointer;
+  }
+
   body {
     font-family: var(--font-outfit);
     -webkit-font-smoothing: antialiased;
