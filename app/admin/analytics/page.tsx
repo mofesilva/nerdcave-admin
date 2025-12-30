@@ -2,33 +2,68 @@
 
 import { useEffect, useState } from "react";
 import StatCard from "../dashboard/componentes/StatCard";
-import { AnalyticsController, LinksController } from "@/lib/controllers";
+import * as AnalyticController from "@/lib/analytics/Analytic.controller";
+import * as LinkController from "@/lib/links/Link.controller";
 import { MousePointerClick, Users, TrendingUp, Globe, Download, FileText } from "lucide-react";
-import type { Link } from "@/types";
+import type { Link } from "@/lib/links/Link.model";
 import Button from "@/components/Button";
 
-interface Analytics {
+// Tipo para estatísticas agregadas
+interface AnalyticsData {
   totalClicks: number;
   uniqueVisitors: number;
-  topLinks: Array<{ id: string; title: string; clicks: number }>;
-  clicksByDate: Array<{ date: string; clicks: number }>;
-  deviceStats: { desktop: number; mobile: number; tablet: number };
+  clicksByDate: { date: string; clicks: number }[];
+  deviceStats: {
+    mobile: number;
+    desktop: number;
+    tablet: number;
+  };
 }
 
 export default function AnalyticsPage() {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [analyticsData, linkModels] = await Promise.all([
-          AnalyticsController.get(),
-          LinksController.getAll()
+        const [allAnalytics, allLinks] = await Promise.all([
+          AnalyticController.getAllAnalytics(),
+          LinkController.getAllLinks()
         ]);
-        setAnalytics(analyticsData);
-        setLinks(linkModels.map(m => m.toJSON()));
+
+        // Agregar estatísticas dos analytics
+        const totalClicks = allAnalytics.filter(a => a.type === 'click').length;
+        const uniqueSessions = new Set(allAnalytics.map(a => a.sessionId).filter(Boolean));
+
+        // Agrupar cliques por data (últimos 7 dias)
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          return date.toISOString().split('T')[0];
+        }).reverse();
+
+        const clicksByDate = last7Days.map(date => ({
+          date,
+          clicks: allAnalytics.filter(a => a.type === 'click').length / 7 // Placeholder
+        }));
+
+        // Device breakdown em percentagem
+        const totalDevices = allAnalytics.length || 1;
+        const deviceStats = {
+          mobile: Math.round((allAnalytics.filter(a => a.device === 'mobile').length / totalDevices) * 100),
+          desktop: Math.round((allAnalytics.filter(a => a.device === 'desktop').length / totalDevices) * 100),
+          tablet: Math.round((allAnalytics.filter(a => a.device === 'tablet').length / totalDevices) * 100),
+        };
+
+        setAnalytics({
+          totalClicks,
+          uniqueVisitors: uniqueSessions.size,
+          clicksByDate,
+          deviceStats,
+        });
+        setLinks(allLinks);
       } catch (error) {
         console.error('Error loading analytics data:', error);
       } finally {
@@ -51,32 +86,32 @@ export default function AnalyticsPage() {
       {/* Overview Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Total Clicks"
+          label="Total Clicks"
           value={analytics.totalClicks.toLocaleString()}
-          change="+12.5% vs last period"
-          icon={<MousePointerClick className="w-6 h-6" />}
-          trend="up"
+          sublabel="+12.5% vs last period"
+          icon={MousePointerClick}
+          color="blue"
         />
         <StatCard
-          title="Unique Visitors"
+          label="Unique Visitors"
           value={analytics.uniqueVisitors.toLocaleString()}
-          change="+8.2% vs last period"
-          icon={<Users className="w-6 h-6" />}
-          trend="up"
+          sublabel="+8.2% vs last period"
+          icon={Users}
+          color="emerald"
         />
         <StatCard
-          title="Avg. Click Rate"
+          label="Avg. Click Rate"
           value="67.5%"
-          change="+3.1% vs last period"
-          icon={<TrendingUp className="w-6 h-6" />}
-          trend="up"
+          sublabel="+3.1% vs last period"
+          icon={TrendingUp}
+          color="purple"
         />
         <StatCard
-          title="Countries"
+          label="Countries"
           value="42"
-          change="+5 new countries"
-          icon={<Globe className="w-6 h-6" />}
-          trend="up"
+          sublabel="+5 new countries"
+          icon={Globe}
+          color="orange"
         />
       </div>
 
