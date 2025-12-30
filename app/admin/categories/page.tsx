@@ -2,23 +2,32 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, FolderTree, GripVertical } from "lucide-react";
-import { CategoryModel } from "@/lib/models/Category.model";
-import { CategoriesController } from "@/lib/controllers";
-import type { Category } from "@/types";
+import type { Category, CategoryType } from "@/lib/categories/Category.model";
+import * as CategoriesController from "@/lib/categories/Category.controller";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 
+// Helper function to generate slug
+function generateSlug(name: string): string {
+    return name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+}
+
 export default function CategoriesPage() {
-    const [categories, setCategories] = useState<CategoryModel[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingCategory, setEditingCategory] = useState<CategoryModel | null>(null);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: '',
         slug: '',
         description: '',
-        type: 'both' as Category['type'],
+        type: 'both' as CategoryType,
         parentId: '',
         order: 0,
     });
@@ -30,7 +39,7 @@ export default function CategoriesPage() {
     async function fetchCategories() {
         try {
             setLoading(true);
-            const models = await CategoriesController.getAll();
+            const models = await CategoriesController.getAllCategories();
             setCategories(models);
             setError(null);
         } catch (err) {
@@ -41,7 +50,7 @@ export default function CategoriesPage() {
         }
     }
 
-    const handleOpenModal = (category?: CategoryModel) => {
+    const handleOpenModal = (category?: Category) => {
         if (category) {
             setEditingCategory(category);
             setFormData({
@@ -78,7 +87,7 @@ export default function CategoriesPage() {
         try {
             const payload = {
                 name: formData.name,
-                slug: formData.slug || CategoryModel.generateSlug(formData.name),
+                slug: formData.slug || generateSlug(formData.name),
                 description: formData.description || undefined,
                 type: formData.type,
                 parentId: formData.parentId || undefined,
@@ -86,9 +95,12 @@ export default function CategoriesPage() {
             };
 
             if (editingCategory) {
-                await CategoriesController.update(editingCategory._id, payload);
+                await CategoriesController.updateCategory({
+                    id: editingCategory._id,
+                    updates: payload
+                });
             } else {
-                await CategoriesController.create(payload);
+                await CategoriesController.createCategory({ data: payload as any });
             }
 
             handleCloseModal();
@@ -105,7 +117,7 @@ export default function CategoriesPage() {
         if (!confirm('Tem certeza que deseja deletar esta categoria?')) return;
 
         try {
-            await CategoriesController.delete(id);
+            await CategoriesController.deleteCategory({ id });
             await fetchCategories();
         } catch (error: any) {
             console.error('Error deleting category:', error);
@@ -119,12 +131,12 @@ export default function CategoriesPage() {
         { name: 'Ambos', value: 'both' },
     ];
 
-    const getTypeLabel = (type: Category['type']) => {
+    const getTypeLabel = (type: CategoryType) => {
         const option = typeOptions.find(o => o.value === type);
         return option?.name || type;
     };
 
-    const getTypeBadgeColor = (type: Category['type']) => {
+    const getTypeBadgeColor = (type: CategoryType) => {
         switch (type) {
             case 'article': return 'bg-blue-500/20 text-blue-400';
             case 'album': return 'bg-purple-500/20 text-purple-400';
