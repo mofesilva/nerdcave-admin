@@ -81,41 +81,34 @@ export default function HomePage() {
                 const catMap = new Map<string, Category>();
                 categories.forEach(cat => catMap.set(cat._id, cat));
 
-                // Coletar todos os IDs de mídia (covers dos artigos e álbuns)
-                const allCoverIds = [
-                    ...featured.map(a => a.coverMediaId).filter(Boolean),
-                    ...published.slice(0, 4).map(a => a.coverMediaId).filter(Boolean),
-                    ...albums.slice(0, 4).map(a => a.coverMediaId).filter(Boolean),
-                ] as string[];
+                // Coletar todas as medias de cover já populadas
+                const allMedias = [
+                    ...featured.filter(a => a.coverMedia).map(a => a.coverMedia!),
+                    ...published.slice(0, 4).filter(a => a.coverMedia).map(a => a.coverMedia!),
+                    ...albums.slice(0, 4).filter(a => a.coverMedia).map(a => a.coverMedia!),
+                ];
 
-                // Buscar mídias e suas URLs
+                // Baixar imagens e criar mapa de URLs
                 const mediaUrls = new Map<string, string>();
-                if (allCoverIds.length > 0) {
-                    const uniqueIds = [...new Set(allCoverIds)];
-                    const mediaPromises = uniqueIds.map(id => MediaController.getMediaById({ id }));
-                    const mediaResults = await Promise.all(mediaPromises);
-
-                    // Baixar imagens usando mediastorage.download
-                    await Promise.all(
-                        mediaResults.map(async (media) => {
-                            if (media?.fileName) {
-                                const url = await loadImageUrl(media.fileName);
-                                if (url) {
-                                    mediaUrls.set(media._id, url);
-                                }
+                await Promise.all(
+                    allMedias.map(async (media) => {
+                        if (media?.fileName) {
+                            const url = await loadImageUrl(media.fileName);
+                            if (url) {
+                                mediaUrls.set(media._id, url);
                             }
-                        })
-                    );
-                }
+                        }
+                    })
+                );
 
                 // Mapear artigos em destaque para o formato do HeroCarousel
                 const heroArticles: HeroArticle[] = featured.map(article => ({
                     _id: article._id,
                     title: article.title,
                     slug: article.slug,
-                    excerpt: article.excerpt || "",
-                    coverUrl: article.coverMediaId ? mediaUrls.get(article.coverMediaId) : undefined,
-                    categoryName: article.categoryId ? catMap.get(article.categoryId)?.name : undefined,
+                    excerpt: article.content?.substring(0, 150) || "",
+                    coverUrl: article.coverMedia ? mediaUrls.get(article.coverMedia._id) : undefined,
+                    categoryName: article.category ? catMap.get(article.category)?.name : undefined,
                 }));
                 setFeaturedArticles(heroArticles);
 
@@ -125,13 +118,13 @@ export default function HomePage() {
                     .slice(0, 4);
 
                 const recentCards: ArticleCardData[] = recentOnly.map(article => {
-                    const category = article.categoryId ? catMap.get(article.categoryId) : undefined;
+                    const category = article.category ? catMap.get(article.category) : undefined;
                     return {
                         _id: article._id,
                         title: article.title,
                         slug: article.slug,
-                        excerpt: article.excerpt || "",
-                        coverUrl: article.coverMediaId ? mediaUrls.get(article.coverMediaId) : undefined,
+                        excerpt: article.content?.substring(0, 150) || "",
+                        coverUrl: article.coverMedia ? mediaUrls.get(article.coverMedia._id) : undefined,
                         categoryName: category?.name,
                         categoryColor: category?.color,
                         publishedAt: article.publishedAt,
@@ -146,8 +139,8 @@ export default function HomePage() {
                     title: album.title,
                     slug: album.slug,
                     description: album.description,
-                    coverUrl: album.coverMediaId ? mediaUrls.get(album.coverMediaId) : undefined,
-                    photoCount: album.mediaIds?.length || 0,
+                    coverUrl: album.coverMedia ? mediaUrls.get(album.coverMedia._id) : undefined,
+                    photoCount: album.medias?.length || 0,
                 }));
                 setRecentAlbums(albumCards);
 
