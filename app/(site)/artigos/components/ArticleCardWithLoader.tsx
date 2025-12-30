@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { ArticleCard } from "../../../components/blog/ArticleCard";
 import { Loader2 } from "lucide-react";
-import { MediaModel } from "@/lib/models/Media.model";
-import { MediaController } from "@/lib/controllers";
+import type { Media } from "@/lib/medias/Media.model";
+import * as MediaController from "@/lib/medias/Media.controller";
 
 interface ArticleCardWithLoaderProps {
     _id: string;
@@ -16,7 +16,7 @@ interface ArticleCardWithLoaderProps {
     categoryId: string;
     publishedAt: string;
     readingTime: number;
-    media?: MediaModel;
+    media?: Media;
     variant?: "default" | "horizontal";
 }
 
@@ -48,8 +48,8 @@ export function ArticleCardWithLoader({
             }
 
             try {
-                const blob = await MediaController.download(media.fileName);
-                if (!blob) {
+                const response = await MediaController.downloadFile({ fileName: media.fileName });
+                if (!response) {
                     if (isMounted) {
                         setHasError(true);
                         setIsLoading(false);
@@ -57,6 +57,7 @@ export function ArticleCardWithLoader({
                     return;
                 }
 
+                const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
 
                 if (isMounted) {
