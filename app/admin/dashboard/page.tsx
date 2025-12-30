@@ -2,14 +2,15 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { FileText, Image as ImageIcon, FolderOpen, Link2, Eye, Users, Star, Target } from "lucide-react";
-import {
-  AnalyticsController, LinksController, ArticlesController,
-  AlbumsController, MediaController, CategoriesController
-} from "@/lib/controllers";
-import { LinkModel } from "@/lib/models/Link.model";
-import { ArticleModel } from "@/lib/models/Article.model";
-import { AlbumModel } from "@/lib/models/Album.model";
-import { MediaModel } from "@/lib/models/Media.model";
+import type { Link } from "@/lib/links/Link.model";
+import type { Article } from "@/lib/articles/Article.model";
+import type { Album } from "@/lib/albums/Album.model";
+import type { Media } from "@/lib/medias/Media.model";
+import * as LinksController from "@/lib/links/Link.controller";
+import * as ArticlesController from "@/lib/articles/Article.controller";
+import * as AlbumsController from "@/lib/albums/Album.controller";
+import * as MediaController from "@/lib/medias/Media.controller";
+import * as CategoriesController from "@/lib/categories/Category.controller";
 
 import WelcomeBanner from "./componentes/WelcomeBanner";
 import StatCard from "./componentes/StatCard";
@@ -30,10 +31,10 @@ interface Analytics {
 
 interface DashboardData {
   analytics: Analytics | null;
-  links: LinkModel[];
-  articles: ArticleModel[];
-  albums: AlbumModel[];
-  media: MediaModel[];
+  links: Link[];
+  articles: Article[];
+  albums: Album[];
+  media: Media[];
   totalCategories: number;
 }
 
@@ -51,16 +52,15 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [analytics, links, articles, albums, media, categories] = await Promise.all([
-          AnalyticsController.get(),
-          LinksController.getAll(),
-          ArticlesController.getAll(),
-          AlbumsController.getAll(),
-          MediaController.getAll(),
-          CategoriesController.getAll()
+        const [links, articles, albums, media, categories] = await Promise.all([
+          LinksController.getAllLinks(),
+          ArticlesController.getAllArticles(),
+          AlbumsController.getAllAlbumsController(),
+          MediaController.getAllMedias(),
+          CategoriesController.getAllCategories()
         ]);
         setData({
-          analytics,
+          analytics: null, // TODO: Implement analytics
           links,
           articles,
           albums,
@@ -82,7 +82,7 @@ export default function DashboardPage() {
     const publishedPosts = data.articles.filter(a => a.status === 'published').length;
     const draftPosts = data.articles.filter(a => a.status === 'draft').length;
     const featuredPosts = data.articles.filter(a => a.isFeatured).length;
-    const publicAlbums = data.albums.filter(a => a.isPublic).length;
+    const publicAlbums = data.albums.filter(a => a.status === 'published').length;
     // TODO: Views agora vem de article_views collection - implementar agregação
     const totalViews = 0;
 
