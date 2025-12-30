@@ -4,18 +4,18 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Image as ImageIcon, Eye, EyeOff, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { AlbumModel } from "@/lib/models/Album.model";
-import { AlbumsController } from "@/lib/controllers";
-import { CategoriesController } from "@/lib/controllers";
-import { CategoryModel } from "@/lib/models/Category.model";
+import type { Album } from "@/lib/albums/Album.model";
+import type { Category } from "@/lib/categories/Category.model";
+import * as AlbumsController from "@/lib/albums/Album.controller";
+import * as CategoriesController from "@/lib/categories/Category.controller";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 
 export default function AlbumsPage() {
-    const [albums, setAlbums] = useState<AlbumModel[]>([]);
-    const [categories, setCategories] = useState<CategoryModel[]>([]);
+    const [albums, setAlbums] = useState<Album[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingAlbum, setEditingAlbum] = useState<AlbumModel | null>(null);
+    const [editingAlbum, setEditingAlbum] = useState<Album | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [formData, setFormData] = useState({
@@ -24,7 +24,6 @@ export default function AlbumsPage() {
         description: '',
         categoryId: '',
         status: 'draft' as 'draft' | 'published',
-        isPublic: true,
     });
 
     useEffect(() => {
@@ -35,8 +34,8 @@ export default function AlbumsPage() {
         try {
             setLoading(true);
             const [albumsList, categoriesList] = await Promise.all([
-                AlbumsController.getAll(),
-                CategoriesController.getForAlbums(),
+                AlbumsController.getAllAlbumsController(),
+                CategoriesController.getCategoriesForAlbums(),
             ]);
             setAlbums(albumsList);
             setCategories(categoriesList);
@@ -49,7 +48,7 @@ export default function AlbumsPage() {
         }
     }
 
-    const handleOpenModal = (album?: AlbumModel) => {
+    const handleOpenModal = (album?: Album) => {
         if (album) {
             setEditingAlbum(album);
             setFormData({
@@ -58,7 +57,6 @@ export default function AlbumsPage() {
                 description: album.description,
                 categoryId: album.categoryId,
                 status: album.status,
-                isPublic: album.isPublic,
             });
         } else {
             setEditingAlbum(null);
@@ -68,7 +66,6 @@ export default function AlbumsPage() {
                 description: '',
                 categoryId: categories[0]?._id || '',
                 status: 'draft',
-                isPublic: true,
             });
         }
         setIsModalOpen(true);
@@ -85,11 +82,17 @@ export default function AlbumsPage() {
 
         try {
             if (editingAlbum) {
-                await AlbumsController.update(editingAlbum._id, formData);
+                await AlbumsController.updateAlbumController({
+                    id: editingAlbum._id,
+                    updates: formData
+                });
             } else {
-                await AlbumsController.create({
-                    ...formData,
-                    tags: [],
+                await AlbumsController.createAlbumController({
+                    data: {
+                        ...formData,
+                        tags: [],
+                        medias: [],
+                    },
                 });
             }
 
@@ -103,12 +106,12 @@ export default function AlbumsPage() {
         }
     };
 
-    const handleTogglePublish = async (album: AlbumModel) => {
+    const handleTogglePublish = async (album: Album) => {
         try {
             if (album.status === 'published') {
-                await AlbumsController.unpublish(album._id);
+                await AlbumsController.unpublishAlbumController({ id: album._id });
             } else {
-                await AlbumsController.publish(album._id);
+                await AlbumsController.publishAlbumController({ id: album._id });
             }
             await fetchData();
         } catch (error) {
@@ -121,7 +124,7 @@ export default function AlbumsPage() {
         if (!confirm('Tem certeza que deseja deletar este álbum e todas as suas fotos?')) return;
 
         try {
-            await AlbumsController.delete(id);
+            await AlbumsController.deleteAlbumController({ id });
             await fetchData();
         } catch (error) {
             console.error('Error deleting album:', error);
@@ -183,9 +186,9 @@ export default function AlbumsPage() {
                             {/* Cover Image */}
                             <Link href={`/admin/albums/${album._id}`}>
                                 <div className="aspect-video bg-secondary relative cursor-pointer">
-                                    {album.coverMediaId ? (
+                                    {album.coverMedia ? (
                                         <Image
-                                            src={`/api/media/${album.coverMediaId}`}
+                                            src={`/api/media/${album.coverMedia.fileName}`}
                                             alt={album.title}
                                             fill
                                             className="object-cover"
@@ -198,7 +201,7 @@ export default function AlbumsPage() {
 
                                     {/* Photo count badge */}
                                     <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-full">
-                                        {album.mediaCount} imagem(ns)
+                                        {album.medias.length} imagem(ns)
                                     </div>
 
                                     {/* Status badge */}
@@ -224,7 +227,7 @@ export default function AlbumsPage() {
                                             {album.description || 'Sem descrição'}
                                         </p>
                                         <p className="text-xs text-muted-foreground mt-2">
-                                            {getCategoryName(album.categoryId)} • {album.views} visualizações
+                                            {getCategoryName(album.categoryId)}
                                         </p>
                                     </div>
                                 </div>
@@ -318,18 +321,6 @@ export default function AlbumsPage() {
                                         </option>
                                     ))}
                                 </select>
-                            </div>
-
-                            <div className="flex items-center gap-4">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.isPublic}
-                                        onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-                                        className="w-4 h-4 rounded border-border"
-                                    />
-                                    <span className="text-sm text-foreground">Álbum público</span>
-                                </label>
                             </div>
 
                             <div className="flex gap-3 pt-4">
