@@ -5,11 +5,14 @@ import { ArticleCardWithLoader } from "./components/ArticleCardWithLoader";
 import { CategoryButton } from "./components/CategoryButton";
 import { ViewModeToggle } from "./components/ViewModeToggle";
 import { LayoutGrid, Gamepad2, Tv, Dices, Cpu, Star, Calendar, LucideIcon, ChevronDown, Search, X, Loader2 } from "lucide-react";
-import { ArticlesController, CategoriesController, MediaController } from "@/lib/controllers";
-import { ArticleModel } from "@/lib/models/Article.model";
-import { CategoryModel } from "@/lib/models/Category.model";
-import { MediaModel } from "@/lib/models/Media.model";
+import * as ArticleController from "@/lib/articles/Article.controller";
+import * as CategoryController from "@/lib/categories/Category.controller";
+import * as MediaController from "@/lib/medias/Media.controller";
+import type { Article } from "@/lib/articles/Article.model";
+import type { Category } from "@/lib/categories/Category.model";
+import type { Media } from "@/lib/medias/Media.model";
 import { useAutoLogin } from "@/lib/contexts/AutoLoginContext";
+import { getExcerpt } from "@/lib/utils";
 
 // Mapeamento de ícones por slug/nome de categoria
 const categoryIconMap: Record<string, LucideIcon> = {
@@ -34,7 +37,7 @@ interface ArticleCardData {
     title: string;
     slug: string;
     excerpt: string;
-    media?: MediaModel;
+    media?: Media;
     categoryName: string;
     categoryColor: string;
     categoryId: string;
@@ -46,9 +49,9 @@ export default function ArtigosPage() {
     const { isReady: isLoginReady } = useAutoLogin();
 
     // Data states
-    const [articles, setArticles] = useState<ArticleModel[]>([]);
-    const [dbCategories, setDbCategories] = useState<CategoryModel[]>([]);
-    const [mediaMap, setMediaMap] = useState<Record<string, MediaModel>>({});
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [dbCategories, setDbCategories] = useState<Category[]>([]);
+    const [mediaMap, setMediaMap] = useState<Record<string, Media>>({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -67,24 +70,22 @@ export default function ArtigosPage() {
         try {
             setLoading(true);
             const [articlesData, categoriesData] = await Promise.all([
-                ArticlesController.getPublished(),
-                CategoriesController.getAll(),
+                ArticleController.getPublishedArticles(),
+                CategoryController.getAllCategories(),
             ]);
 
             setArticles(articlesData);
             setDbCategories(categoriesData);
 
-            // Carregar media das capas
-            const coverIds = articlesData
-                .map(a => a.coverMediaId)
-                .filter((id): id is string => !!id);
-
-            if (coverIds.length > 0) {
-                const mediaItems = await MediaController.getByIds(coverIds);
-                const map: Record<string, MediaModel> = {};
-                mediaItems.forEach(m => { map[m._id] = m; });
-                setMediaMap(map);
-            }
+            // O coverMedia já vem populado no article, não precisa buscar separado
+            // Mas mantemos o mediaMap para compatibilidade
+            const map: Record<string, Media> = {};
+            articlesData.forEach(a => {
+                if (a.coverMedia) {
+                    map[a.coverMedia._id] = a.coverMedia;
+                }
+            });
+            setMediaMap(map);
 
             setError(null);
         } catch (err) {
@@ -133,17 +134,17 @@ export default function ArtigosPage() {
     // Mapear artigos para o formato do card
     const mappedArticles: ArticleCardData[] = useMemo(() => {
         return articles.map(article => {
-            const catData = getCategoryData(article.categoryId);
-            const media = article.coverMediaId ? mediaMap[article.coverMediaId] : undefined;
+            const catData = getCategoryData(article.category);
+            const media = article.coverMedia;
             return {
                 _id: article._id,
                 title: article.title,
                 slug: article.slug,
-                excerpt: article.getExcerpt(150),
+                excerpt: getExcerpt(article.content || '', 150),
                 media,
                 categoryName: catData.name,
                 categoryColor: catData.color,
-                categoryId: article.categoryId || "",
+                categoryId: article.category || "",
                 publishedAt: article.publishedAt || "",
                 readingTime: article.readingTime || 5,
             };
