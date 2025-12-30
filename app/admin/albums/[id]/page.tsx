@@ -1,33 +1,24 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Upload, Trash2, Star, Image as ImageIcon, X, Check } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useApiClient, MediaStorageModule } from "@cappuccino/web-sdk";
-import { AlbumModel } from "@/lib/models/Album.model";
-import { MediaModel } from "@/lib/models/Media.model";
-import { AlbumsController, MediaController } from "@/lib/controllers";
+import type { Album } from "@/lib/albums/Album.model";
+import type { Media } from "@/lib/medias/Media.model";
+import * as AlbumsController from "@/lib/albums/Album.controller";
+import * as MediaController from "@/lib/medias/Media.controller";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
-
-const APP_NAME = "nerdcave";
 
 export default function AlbumDetailPage() {
     const params = useParams();
     const router = useRouter();
-    const apiClient = useApiClient();
-    const mediastorage = useMemo(() => {
-        if (!apiClient) return null;
-        return new MediaStorageModule(apiClient);
-    }, [apiClient]);
     const albumId = params.id as string;
 
-    const getMediaUrl = (fileName: string) => mediastorage?.getPublicUrl(APP_NAME, fileName) || '';
-
-    const [album, setAlbum] = useState<AlbumModel | null>(null);
-    const [mediaItems, setMediaItems] = useState<MediaModel[]>([]);
+    const [album, setAlbum] = useState<Album | null>(null);
+    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -35,10 +26,24 @@ export default function AlbumDetailPage() {
     const [selectedMedia, setSelectedMedia] = useState<Set<string>>(new Set());
     const [selectionMode, setSelectionMode] = useState(false);
 
+    const loadImageUrl = useCallback(async (fileName: string) => {
+        if (imageUrls[fileName]) return;
+        try {
+            const response = await MediaController.downloadFile({ fileName });
+            if (response) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                setImageUrls(prev => ({ ...prev, [fileName]: url }));
+            }
+        } catch (err) {
+            console.error('Error loading image:', err);
+        }
+    }, [imageUrls]);
+
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
-            const albumData = await AlbumsController.getById(albumId);
+            const albumData = await AlbumsController.getAlbumByIdController({ id: albumId });
 
             if (!albumData) {
                 router.push('/admin/albums');
@@ -47,14 +52,12 @@ export default function AlbumDetailPage() {
 
             setAlbum(albumData);
 
-            if (albumData.mediaIds.length > 0) {
-                const media = await MediaController.getByIds(albumData.mediaIds);
-                const ordered = albumData.mediaIds
-                    .map((id: string) => media.find((m: MediaModel) => m._id === id))
-                    .filter((m: MediaModel | undefined): m is MediaModel => m !== undefined);
-                setMediaItems(ordered);
-            } else {
-                setMediaItems([]);
+            // Load image URLs for all medias
+            for (const media of albumData.medias) {
+                loadImageUrl(media.fileName);
+            }
+            if (albumData.coverMedia) {
+                loadImageUrl(albumData.coverMedia.fileName);
             }
 
             setError(null);
@@ -64,7 +67,7 @@ export default function AlbumDetailPage() {
         } finally {
             setLoading(false);
         }
-    }, [albumId, router]);
+    }, [albumId, router, loadImageUrl]);
 
     useEffect(() => {
         fetchData();
@@ -80,38 +83,29 @@ export default function AlbumDetailPage() {
         const totalFiles = files.length;
         let completed = 0;
 
-        if (!mediastorage) {
-            setError('Serviço de mídia não disponível');
-            return;
-        }
-
         try {
             for (const file of Array.from(files)) {
                 if (!file.type.startsWith('image/')) continue;
 
-                const timestamp = Date.now();
-                const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const fileName = `media/${timestamp}-${cleanName}`;
-
-                const result = await mediastorage.upload({
+                // Upload file and create media
+                const media = await MediaController.createMedia({
                     file,
-                    app: APP_NAME,
-                    fileName,
-                    fileType: file.type,
+                    data: {
+                        fileName: file.name,
+                        title: file.name.replace(/\.[^/.]+$/, ''),
+                    }
                 });
 
-                const uploadedFileName = result.document?.fileName ?? fileName;
-
-                const media = await MediaController.create({
-                    fileName: uploadedFileName,
-                    title: file.name.replace(/\.[^/.]+$/, ''),
-                    altText: file.name.replace(/\.[^/.]+$/, ''),
+                await AlbumsController.addMediaToAlbumController({
+                    albumId: album._id,
+                    media
                 });
 
-                await AlbumsController.addMedia(album._id, media._id);
-
-                if (mediaItems.length === 0 && completed === 0) {
-                    await AlbumsController.setCover(album._id, media._id);
+                if (album.medias.length === 0 && completed === 0) {
+                    await AlbumsController.setAlbumCoverController({
+                        albumId: album._id,
+                        media
+                    });
                 }
 
                 completed++;
@@ -129,11 +123,14 @@ export default function AlbumDetailPage() {
         }
     };
 
-    const handleSetCover = async (mediaId: string) => {
+    const handleSetCover = async (media: Media) => {
         if (!album) return;
 
         try {
-            await AlbumsController.setCover(album._id, mediaId);
+            await AlbumsController.setAlbumCoverController({
+                albumId: album._id,
+                media
+            });
             await fetchData();
         } catch (err) {
             setError('Erro ao definir capa');
@@ -144,7 +141,10 @@ export default function AlbumDetailPage() {
         if (!album || !confirm('Remover esta imagem do álbum?')) return;
 
         try {
-            await AlbumsController.removeMedia(album._id, mediaId);
+            await AlbumsController.removeMediaFromAlbumController({
+                albumId: album._id,
+                mediaId
+            });
             await fetchData();
         } catch (err) {
             setError('Erro ao remover imagem');
@@ -157,7 +157,10 @@ export default function AlbumDetailPage() {
 
         try {
             for (const mediaId of selectedMedia) {
-                await AlbumsController.removeMedia(album._id, mediaId);
+                await AlbumsController.removeMediaFromAlbumController({
+                    albumId: album._id,
+                    mediaId
+                });
             }
             setSelectedMedia(new Set());
             setSelectionMode(false);
@@ -195,6 +198,8 @@ export default function AlbumDetailPage() {
             </div>
         );
     }
+
+    const mediaItems = album.medias;
 
     return (
         <div className="space-y-8">
@@ -278,15 +283,20 @@ export default function AlbumDetailPage() {
                                     }`}
                                 onClick={() => selectionMode && toggleSelection(media._id)}
                             >
-                                <Image
-                                    src={getMediaUrl(media.fileName)}
-                                    alt={media.altText || media.title}
-                                    fill
-                                    className="object-cover"
-                                    onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder-image.png'; }}
-                                />
+                                {imageUrls[media.fileName] ? (
+                                    <Image
+                                        src={imageUrls[media.fileName]}
+                                        alt={media.altText || media.title}
+                                        fill
+                                        className="object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary"></div>
+                                    </div>
+                                )}
 
-                                {album.coverMediaId === media._id && (
+                                {album.coverMedia?._id === media._id && (
                                     <div className="absolute top-2 left-2 bg-yellow-500 text-black text-xs px-2 py-1 rounded-full flex items-center gap-1">
                                         <Star className="w-3 h-3 fill-current" />Capa
                                     </div>
@@ -301,10 +311,10 @@ export default function AlbumDetailPage() {
 
                                 {!selectionMode && (
                                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                        {album.coverMediaId !== media._id && (
+                                        {album.coverMedia?._id !== media._id && (
                                             <IconButton
                                                 icon={<Star />}
-                                                onClick={(e) => { e?.stopPropagation(); handleSetCover(media._id); }}
+                                                onClick={(e) => { e?.stopPropagation(); handleSetCover(media); }}
                                                 colorClass="text-yellow-400"
                                                 hoverClass="hover:bg-yellow-500/30"
                                             />
