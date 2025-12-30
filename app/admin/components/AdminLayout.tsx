@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const { user, signOut } = useAuth();
     const { loginAsGuest } = useAutoLogin();
     const [loggingOut, setLoggingOut] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isPinned, setIsPinned] = useState(false);
 
     // Pega o título e descrição da página baseado na rota atual
     const currentPage = navigation.find(item => pathname?.startsWith(item.href));
@@ -79,21 +79,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return (
         <div className="min-h-screen bg-background text-foreground flex p-4 gap-4">
             <aside
-                onMouseEnter={() => setIsExpanded(true)}
-                onMouseLeave={() => setIsExpanded(false)}
-                className={`${isExpanded ? 'w-64' : 'w-20'
+                className={`${isPinned ? 'w-64' : 'w-20'
                     } sticky top-4 h-[calc(100vh-2rem)] bg-sidebar rounded-3xl text-sidebar-foreground flex flex-col py-6 pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden`}
             >
                 {/* Header com logo */}
-                <SidebarHeader isExpanded={isExpanded} />
+                <SidebarHeader
+                    isExpanded={isPinned}
+                    isPinned={isPinned}
+                    onTogglePin={() => setIsPinned(!isPinned)}
+                />
 
                 {/* Navegação */}
-                <NavigationMenu items={navigation} isExpanded={isExpanded} />
+                <NavigationMenu items={navigation} isExpanded={isPinned} />
 
                 {/* Seção inferior com usuário e logout */}
                 <UserProfileCard
                     user={user ?? undefined}
-                    isExpanded={isExpanded}
+                    isExpanded={isPinned}
                     onLogout={handleLogout}
                     loggingOut={loggingOut}
                 />
