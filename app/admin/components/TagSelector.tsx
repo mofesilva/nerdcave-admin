@@ -1,9 +1,9 @@
 "use client";
 
-import { TagModel } from "@/lib/models/Tag.model";
+import type { Tag } from "@/lib/tags/Tag.model";
 
 interface TagSelectorProps {
-    tags: TagModel[];
+    tags: Tag[];
     selectedTagIds: string[];
     onToggle: (tagId: string) => void;
 }
