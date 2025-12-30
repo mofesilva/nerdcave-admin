@@ -4,16 +4,16 @@ import { use, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
-import { useApiClient, MediaStorageModule } from "@cappuccino/web-sdk";
 import { ArticleCard } from "../../../components/blog/ArticleCard";
 import { SectionHeader } from "../../../components/blog/SectionHeader";
 import { CommentsSection } from "../../../components/blog/CommentsSection";
-import { ArticlesController, CategoriesController, MediaController } from "@/lib/controllers";
-import { CategoryModel } from "@/lib/models/Category.model";
-import { MediaModel } from "@/lib/models/Media.model";
+import * as ArticleController from "@/lib/articles/Article.controller";
+import * as CategoryController from "@/lib/categories/Category.controller";
+import * as MediaController from "@/lib/medias/Media.controller";
+import type { Category } from "@/lib/categories/Category.model";
+import type { Media } from "@/lib/medias/Media.model";
 import { useAutoLogin } from "@/lib/contexts/AutoLoginContext";
-
-const APP_NAME = "nerdcave-link-tree";
+import { getExcerpt } from "@/lib/utils";
 
 interface ArticleData {
     _id: string;
@@ -45,7 +45,6 @@ interface RelatedArticle {
 export default function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
     const { isReady: isLoginReady } = useAutoLogin();
-    const apiClient = useApiClient();
     const hasFetched = useRef(false);
 
     const [article, setArticle] = useState<ArticleData | null>(null);
@@ -54,15 +53,14 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
     const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
-        // Só executa quando login e apiClient estão prontos e ainda não buscou
-        if (!isLoginReady || !apiClient || hasFetched.current) return;
+        // Só executa quando login está pronto e ainda não buscou
+        if (!isLoginReady || hasFetched.current) return;
         hasFetched.current = true;
-
-        const mediastorage = new MediaStorageModule(apiClient);
 
         const loadImageUrl = async (fileName: string): Promise<string | null> => {
             try {
-                const response = await mediastorage.download(APP_NAME, fileName);
+                const response = await MediaController.downloadFile({ fileName });
+                if (!response) return null;
                 const blob = await response.blob();
                 return URL.createObjectURL(blob);
             } catch (err) {
@@ -71,7 +69,7 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
             }
         };
 
-        const getCategoryData = (categoryId: string | undefined, cats: CategoryModel[]) => {
+        const getCategoryData = (categoryId: string | undefined, cats: Category[]) => {
             const cat = cats.find(c => c._id === categoryId);
             return {
                 name: cat?.name || "Sem categoria",
@@ -85,8 +83,8 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                 console.log("[ArticlePage] Buscando artigo:", slug);
 
                 // Buscar artigo por slug
-                const articleData = await ArticlesController.getBySlug(slug);
-                console.log("[ArticlePage] Artigo encontrado:", articleData?._id, "coverMediaId:", articleData?.coverMediaId);
+                const articleData = await ArticleController.getArticleBySlug({ slug });
+                console.log("[ArticlePage] Artigo encontrado:", articleData?._id, "coverMedia:", articleData?.coverMedia?._id);
 
                 if (!articleData || articleData.status !== "published") {
                     setNotFound(true);
@@ -95,23 +93,19 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                 }
 
                 // Buscar categorias
-                const categoriesData = await CategoriesController.getAll();
+                const categoriesData = await CategoryController.getAllCategories();
 
-                // Buscar imagem de capa
+                // Buscar imagem de capa - coverMedia já vem populado
                 let coverUrl: string | undefined;
-                if (articleData.coverMediaId) {
-                    console.log("[ArticlePage] Buscando media:", articleData.coverMediaId);
-                    const mediaItems = await MediaController.getByIds([articleData.coverMediaId]);
-                    console.log("[ArticlePage] Media encontrada:", mediaItems.length, mediaItems[0]?.fileName);
-                    if (mediaItems.length > 0) {
-                        const url = await loadImageUrl(mediaItems[0].fileName);
-                        console.log("[ArticlePage] URL da imagem:", url);
-                        if (url) coverUrl = url;
-                    }
+                if (articleData.coverMedia) {
+                    console.log("[ArticlePage] Buscando media:", articleData.coverMedia._id);
+                    const url = await loadImageUrl(articleData.coverMedia.fileName);
+                    console.log("[ArticlePage] URL da imagem:", url);
+                    if (url) coverUrl = url;
                 }
 
                 // Montar dados do artigo
-                const catData = getCategoryData(articleData.categoryId, categoriesData);
+                const catData = getCategoryData(articleData.category, categoriesData);
                 console.log("[ArticlePage] Conteúdo bruto:", JSON.stringify(articleData.content.substring(0, 500)));
                 console.log("[ArticlePage] Tem \\n?", articleData.content.includes('\n'));
                 console.log("[ArticlePage] Tem \\r\\n?", articleData.content.includes('\r\n'));
@@ -119,7 +113,7 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                     _id: articleData._id,
                     title: articleData.title,
                     slug: articleData.slug,
-                    excerpt: articleData.getExcerpt(200),
+                    excerpt: getExcerpt(articleData.content || '', 200),
                     content: articleData.content,
                     coverUrl,
                     categoryName: catData.name,
@@ -131,37 +125,25 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                 });
 
                 // Buscar artigos relacionados
-                const allPublished = await ArticlesController.getPublished();
+                const allPublished = await ArticleController.getPublishedArticles();
                 const related = allPublished
                     .filter(a => a._id !== articleData._id)
                     .slice(0, 3);
 
-                // Carregar imagens dos relacionados
-                const relatedCoverIds = related
-                    .map(a => a.coverMediaId)
-                    .filter((id): id is string => !!id);
-
-                const relatedMediaMap: Record<string, MediaModel> = {};
-                if (relatedCoverIds.length > 0) {
-                    const mediaItems = await MediaController.getByIds(relatedCoverIds);
-                    mediaItems.forEach(m => { relatedMediaMap[m._id] = m; });
-                }
-
-                // Carregar URLs das imagens relacionadas
+                // Carregar URLs das imagens relacionadas - coverMedia já vem populado
                 const relatedWithCovers = await Promise.all(
                     related.map(async (a) => {
                         let relCoverUrl: string | undefined;
-                        if (a.coverMediaId && relatedMediaMap[a.coverMediaId]) {
-                            const media = relatedMediaMap[a.coverMediaId];
-                            const url = await loadImageUrl(media.fileName);
+                        if (a.coverMedia) {
+                            const url = await loadImageUrl(a.coverMedia.fileName);
                             if (url) relCoverUrl = url;
                         }
-                        const cat = getCategoryData(a.categoryId, categoriesData);
+                        const cat = getCategoryData(a.category, categoriesData);
                         return {
                             _id: a._id,
                             title: a.title,
                             slug: a.slug,
-                            excerpt: a.getExcerpt(150),
+                            excerpt: getExcerpt(a.content || '', 150),
                             coverUrl: relCoverUrl,
                             categoryName: cat.name,
                             categoryColor: cat.color,
@@ -181,7 +163,7 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
         };
 
         fetchArticle();
-    }, [isLoginReady, apiClient, slug]);
+    }, [isLoginReady, slug]);
 
     // Loading state
     if (loading) {
@@ -301,11 +283,6 @@ export default function ArticlePage({ params }: { params: Promise<{ slug: string
                             {article.readingTime} min de leitura
                         </span>
                     </div>
-
-                    {/* Excerpt */}
-                    <p className="text-lg text-muted-foreground outfit outfit-400 mb-8 leading-relaxed">
-                        {article.excerpt}
-                    </p>
 
                     {/* Content */}
                     <div
