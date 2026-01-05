@@ -2,23 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
-import { LinkModel } from "@/lib/models/Link.model";
-import { LinksController } from "@/lib/controllers";
+import type { Link, LinkType } from "@/lib/links/Link.model";
+import * as LinksController from "@/lib/links/Link.controller";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 
 export default function LinksPage() {
-  const [links, setLinks] = useState<LinkModel[]>([]);
+  const [links, setLinks] = useState<Link[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingLink, setEditingLink] = useState<LinkModel | null>(null);
+  const [editingLink, setEditingLink] = useState<Link | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     url: '',
-    gradient: 'from-purple-500 to-pink-500',
     isActive: true,
+    type: 'main' as LinkType,
   });
 
   useEffect(() => {
@@ -28,8 +28,8 @@ export default function LinksPage() {
   async function fetchLinks() {
     try {
       setLoading(true);
-      const models = await LinksController.getAll();
-      models.sort((a, b) => a.order - b.order);
+      const models = await LinksController.getAllLinks();
+      models.sort((a: Link, b: Link) => a.order - b.order);
       setLinks(models);
       setError(null);
     } catch (err) {
@@ -40,15 +40,15 @@ export default function LinksPage() {
     }
   }
 
-  const handleOpenModal = (link?: LinkModel) => {
+  const handleOpenModal = (link?: Link) => {
     if (link) {
       setEditingLink(link);
       setFormData({
         title: link.title,
         description: link.description,
         url: link.url,
-        gradient: link.gradient,
         isActive: link.isActive,
+        type: link.type,
       });
     } else {
       setEditingLink(null);
@@ -56,8 +56,8 @@ export default function LinksPage() {
         title: '',
         description: '',
         url: '',
-        gradient: '#000000',
         isActive: true,
+        type: 'main',
       });
     }
     setIsModalOpen(true);
@@ -74,15 +74,13 @@ export default function LinksPage() {
 
     try {
       if (editingLink) {
-        await LinksController.update(editingLink._id, formData);
+        await LinksController.updateLink({ id: editingLink._id, updates: formData });
       } else {
         const payload = {
           ...formData,
           order: links.length,
-          clicks: 0,
-          type: 'main' as const,
         };
-        await LinksController.create(payload);
+        await LinksController.createLink({ data: payload as any });
       }
 
       handleCloseModal();
@@ -96,11 +94,8 @@ export default function LinksPage() {
   };
 
   const handleToggleActive = async (id: string) => {
-    const link = links.find(l => l._id === id);
-    if (!link) return;
-
     try {
-      await LinksController.update(id, { isActive: !link.isActive });
+      await LinksController.toggleLinkActive({ id });
       await fetchLinks();
     } catch (error) {
       console.error('Error toggling link:', error);
@@ -112,22 +107,13 @@ export default function LinksPage() {
     if (!confirm('Tem certeza que deseja deletar este link?')) return;
 
     try {
-      await LinksController.delete(id);
+      await LinksController.deleteLink({ id });
       await fetchLinks();
     } catch (error) {
       console.error('Error deleting link:', error);
       setError('Erro ao deletar link');
     }
   };
-
-  const gradientOptions = [
-    { name: 'Purple-Pink', value: 'from-purple-500 to-pink-500' },
-    { name: 'Blue-Cyan', value: 'from-blue-500 to-cyan-500' },
-    { name: 'Red-Pink', value: 'from-red-500 to-pink-500' },
-    { name: 'Green-Emerald', value: 'from-green-500 to-emerald-500' },
-    { name: 'Orange-Yellow', value: 'from-orange-500 to-yellow-500' },
-    { name: 'Violet-Purple', value: 'from-violet-500 to-purple-500' },
-  ];
 
   return (
     <div className="space-y-8">
@@ -201,12 +187,6 @@ export default function LinksPage() {
                   >
                     {link.url}
                   </a>
-                </div>
-
-                {/* Stats */}
-                <div className="px-6 py-2 bg-background rounded-lg border border-border text-center min-w-[100px]">
-                  <span className="block text-xl font-bold text-foreground">{link.clicks}</span>
-                  <span className="text-xs text-muted-foreground tracking-wider">Cliques</span>
                 </div>
 
                 {/* Actions */}
@@ -289,35 +269,6 @@ export default function LinksPage() {
                       placeholder="https://..."
                       required
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-3">
-                      Estilo do Cartão
-                    </label>
-                    <div className="grid grid-cols-3 gap-4">
-                      {gradientOptions.map((option) => (
-                        <button
-                          key={option.value}
-                          type="button"
-                          onClick={() => setFormData({ ...formData, gradient: option.value })}
-                          className={`group relative p-1 rounded-xl transition-all ${formData.gradient === option.value
-                            ? 'ring-2 ring-primary ring-offset-2 ring-offset-card'
-                            : 'hover:opacity-80'
-                            }`}
-                        >
-                          <div className={`h-12 rounded-lg bg-gradient-to-r ${option.value} shadow-sm`} />
-                          <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            {formData.gradient === option.value && (
-                              <div className="bg-black/20 rounded-full p-1">
-                                <div className="w-2 h-2 bg-white rounded-full" />
-                              </div>
-                            )}
-                          </span>
-                          <p className="text-xs text-muted-foreground mt-2 text-center font-medium">{option.name}</p>
-                        </button>
-                      ))}
-                    </div>
                   </div>
 
                   <div className="flex items-center p-4 bg-background rounded-xl border border-border">
