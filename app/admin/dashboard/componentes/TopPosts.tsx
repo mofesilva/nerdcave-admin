@@ -2,10 +2,17 @@
 
 import Link from "next/link";
 import { Award, BarChart3 } from "lucide-react";
-import { ArticleModel } from "@/lib/models/Article.model";
+
+interface TopPost {
+    _id: string;
+    title: string;
+    slug: string;
+    readingTime?: number;
+    views?: number;
+}
 
 interface TopPostsProps {
-    posts: ArticleModel[];
+    posts: TopPost[];
 }
 
 export default function TopPosts({ posts }: TopPostsProps) {
@@ -32,12 +39,11 @@ export default function TopPosts({ posts }: TopPostsProps) {
                         href={`/admin/posts/${post._id}`}
                         className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
                     >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${
-                            index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
                             index === 1 ? 'bg-zinc-300/20 text-zinc-400' :
-                            index === 2 ? 'bg-orange-500/20 text-orange-500' :
-                            'bg-muted text-muted-foreground'
-                        }`}>
+                                index === 2 ? 'bg-orange-500/20 text-orange-500' :
+                                    'bg-muted text-muted-foreground'
+                            }`}>
                             #{index + 1}
                         </div>
                         <div className="flex-1 min-w-0">
