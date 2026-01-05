@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/lib/cappuccino/server-client';
+import { getServerClient } from '@/lib/cappuccino/server';
 
 export async function GET(request: NextRequest) {
   try {
-    const { apiClient } = getServerClient();
+    const { apiClient } = await getServerClient();
 
     // Buscar o usuário atual usando o token dos cookies
     const result = await apiClient.get('/dbauth/me');
