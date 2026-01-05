@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/lib/cappuccino/server-client';
+import { getServerClient } from '@/lib/cappuccino/server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { authManager } = getServerClient();
+    const { authManager } = await getServerClient();
 
     // Fazer login usando o Cappuccino AuthManager
     const result = await authManager.signIn({
