@@ -1,7 +1,7 @@
 // Script de migração de dados para o Cappuccino Cloud Database
 // Execute: node --loader ts-node/esm scripts/migrate-data.ts
 
-import { getServerClient } from '../lib/cappuccino/server-client';
+import { getServerClient } from '../lib/cappuccino/server';
 
 const initialLinks = [
   {
