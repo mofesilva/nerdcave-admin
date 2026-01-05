@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { User } from "lucide-react";
-import { ProfileController } from "@/lib/controllers";
-import type { Profile } from "@/types";
+import * as ProfileController from "@/lib/profiles/Profile.controller";
+import type { Profile } from "@/lib/profiles/Profile.model";
 
 export default function ProfileSection() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -11,9 +12,9 @@ export default function ProfileSection() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const profileModel = await ProfileController.get();
-        if (profileModel) {
-          setProfile(profileModel.toJSON());
+        const profileData = await ProfileController.getProfile();
+        if (profileData) {
+          setProfile(profileData);
         }
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -36,11 +37,14 @@ export default function ProfileSection() {
   return (
     <div className="flex flex-col items-center text-center">
       {profile.avatarUrl ? (
-        <img
-          src={profile.avatarUrl}
-          alt={profile.name}
-          className="w-32 h-32 rounded-full mb-4 object-cover"
-        />
+        <div className="w-32 h-32 rounded-full mb-4 relative overflow-hidden">
+          <Image
+            src={profile.avatarUrl}
+            alt={profile.name}
+            fill
+            className="object-cover"
+          />
+        </div>
       ) : (
         <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center mb-4">
           <User className="w-16 h-16 text-muted-foreground" />
