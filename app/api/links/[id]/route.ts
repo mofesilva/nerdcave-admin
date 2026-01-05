@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { dataStore } from '@/lib/data/store';
+import * as LinksController from '@/lib/links/Link.controller';
 
 // GET - Buscar um link específico
 export async function GET(
@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const link = await dataStore.getLink(id);
+    const link = await LinksController.getLinkById({ id });
 
     if (!link) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const updatedLink = await dataStore.updateLink(id, body);
+    const updatedLink = await LinksController.updateLink({ id, updates: body });
 
     if (!updatedLink) {
       return NextResponse.json(
@@ -62,7 +62,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const success = await dataStore.deleteLink(id);
+    const success = await LinksController.deleteLink({ id });
 
     if (!success) {
       return NextResponse.json(
