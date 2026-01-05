@@ -2,15 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Tag, Search, X } from "lucide-react";
-import { TagModel } from "@/lib/models/Tag.model";
-import { TagsController } from "@/lib/controllers";
+import type { Tag as TagType } from "@/lib/tags/Tag.model";
+import * as TagsController from "@/lib/tags/Tag.controller";
 import Button from "@/components/Button";
 import IconButton from "@/components/IconButton";
 
+// Helper function to generate slug
+function generateSlug(name: string): string {
+    return name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+}
+
 export default function TagsPage() {
-    const [tags, setTags] = useState<TagModel[]>([]);
+    const [tags, setTags] = useState<TagType[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingTag, setEditingTag] = useState<TagModel | null>(null);
+    const [editingTag, setEditingTag] = useState<TagType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +35,7 @@ export default function TagsPage() {
     async function fetchTags() {
         try {
             setLoading(true);
-            const models = await TagsController.getAll();
+            const models = await TagsController.getAllTags();
             setTags(models);
             setError(null);
         } catch (err) {
@@ -36,7 +46,7 @@ export default function TagsPage() {
         }
     }
 
-    const handleOpenModal = (tag?: TagModel) => {
+    const handleOpenModal = (tag?: TagType) => {
         if (tag) {
             setEditingTag(tag);
             setFormData({
@@ -62,9 +72,14 @@ export default function TagsPage() {
 
         try {
             if (editingTag) {
-                await TagsController.update(editingTag._id, { name: formData.name });
+                await TagsController.updateTag({
+                    id: editingTag._id,
+                    updates: { name: formData.name }
+                });
             } else {
-                await TagsController.create({ name: formData.name });
+                await TagsController.createTag({
+                    data: { name: formData.name } as any
+                });
             }
 
             handleCloseModal();
@@ -81,7 +96,7 @@ export default function TagsPage() {
         if (!confirm('Tem certeza que deseja deletar esta tag?')) return;
 
         try {
-            await TagsController.delete(id);
+            await TagsController.deleteTag({ id });
             await fetchTags();
         } catch (error) {
             console.error('Error deleting tag:', error);
@@ -243,7 +258,7 @@ export default function TagsPage() {
                                     required
                                 />
                                 <p className="text-xs text-muted-foreground mt-2">
-                                    Slug: {formData.name ? TagModel.generateSlug(formData.name) : '—'}
+                                    Slug: {formData.name ? generateSlug(formData.name) : '—'}
                                 </p>
                             </div>
 
