@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Save, Eye, EyeOff, Star, Image as ImageIcon, X, Loader2, Calendar, Tag, FileEdit, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useApiClient, MediaStorageModule } from "@cappuccino/web-sdk";
-import { ArticlesController, CategoriesController, TagsController, MediaController } from "@/lib/controllers";
-import { ArticleModel } from "@/lib/models/Article.model";
-import { CategoryModel } from "@/lib/models/Category.model";
-import { TagModel } from "@/lib/models/Tag.model";
-import { MediaModel } from "@/lib/models/Media.model";
-import { PostStatus } from "@/types";
+import * as ArticlesController from "@/lib/articles/Article.controller";
+import * as CategoriesController from "@/lib/categories/Category.controller";
+import * as TagsController from "@/lib/tags/Tag.controller";
+import * as MediaController from "@/lib/medias/Media.controller";
+import type { Article } from "@/lib/articles/Article.model";
+import type { Category } from "@/lib/categories/Category.model";
+import type { Tag as TagType } from "@/lib/tags/Tag.model";
+import type { Media } from "@/lib/medias/Media.model";
+import type { PostStatus } from "@/types";
 import RichTextEditor from "../../components/RichTextEditor";
 import Select from "@/components/Select";
 import Button from "@/components/Button";
@@ -20,16 +22,25 @@ import DateTimePicker from "@/components/DateTimePicker";
 import TagSelector from "../../components/TagSelector";
 import MediaPickerModal from "@/components/MediaPickerModal";
 
-const APP_NAME = "nerdcave-link-tree";
+// Helper functions
+function generateSlug(title: string): string {
+    return title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+}
+
+function calculateReadingTime(content: string): number {
+    const wordsPerMinute = 200;
+    const words = content.trim().split(/\s+/).length;
+    return Math.max(1, Math.ceil(words / wordsPerMinute));
+}
 
 export default function PostEditorPage() {
     const params = useParams();
     const router = useRouter();
-    const apiClient = useApiClient();
-    const mediastorage = useMemo(() => {
-        if (!apiClient) return null;
-        return new MediaStorageModule(apiClient);
-    }, [apiClient]);
 
     const isNew = params.id === 'new';
     const postId = isNew ? null : params.id as string;
@@ -50,8 +61,8 @@ export default function PostEditorPage() {
     const [loading, setLoading] = useState(!isNew);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [categories, setCategories] = useState<CategoryModel[]>([]);
-    const [tags, setTags] = useState<TagModel[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [tags, setTags] = useState<TagType[]>([]);
     const [showMediaPicker, setShowMediaPicker] = useState(false);
     const [showEditorMediaPicker, setShowEditorMediaPicker] = useState(false);
     const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
@@ -60,9 +71,9 @@ export default function PostEditorPage() {
 
     const loadImageUrl = useCallback(async (fileName: string, retries = 3): Promise<string | null> => {
         if (imageUrls[fileName]) return imageUrls[fileName];
-        if (!mediastorage) return null;
         try {
-            const response = await mediastorage.download(APP_NAME, fileName);
+            const response = await MediaController.downloadFile({ fileName });
+            if (!response) return null;
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             setImageUrls(prev => ({ ...prev, [fileName]: url }));
@@ -76,7 +87,7 @@ export default function PostEditorPage() {
             }
             return null;
         }
-    }, [imageUrls, mediastorage]);
+    }, [imageUrls]);
 
     useEffect(() => {
         fetchMetadata();
@@ -88,8 +99,8 @@ export default function PostEditorPage() {
     async function fetchMetadata() {
         try {
             const [cats, tgs] = await Promise.all([
-                CategoriesController.getAll(),
-                TagsController.getAll(),
+                CategoriesController.getAllCategories(),
+                TagsController.getAllTags(),
             ]);
             setCategories(cats);
             setTags(tgs);
@@ -102,7 +113,7 @@ export default function PostEditorPage() {
         if (!postId) return;
         try {
             setLoading(true);
-            const article = await ArticlesController.getById(postId);
+            const article = await ArticlesController.getArticleById({ id: postId });
             if (!article) {
                 router.push('/admin/posts');
                 return;
@@ -110,9 +121,9 @@ export default function PostEditorPage() {
 
             setTitle(article.title);
             setContent(article.content);
-            setCoverMediaId(article.coverMediaId || null);
-            setCategoryId(article.categoryId || null);
-            setSelectedTagIds(article.tagIds);
+            setCoverMediaId(article.coverMedia?._id || null);
+            setCategoryId(article.category || null);
+            setSelectedTagIds(article.tags);
             setStatus(article.status);
             setIsFeatured(article.isFeatured);
             setSeoTitle(article.seoTitle || '');
@@ -120,12 +131,9 @@ export default function PostEditorPage() {
             setScheduledAt(article.scheduledAt || '');
 
             // Carregar imagem de capa
-            if (article.coverMediaId) {
-                const media = await MediaController.getById(article.coverMediaId);
-                if (media) {
-                    const url = await loadImageUrl(media.fileName);
-                    setCoverUrl(url);
-                }
+            if (article.coverMedia) {
+                const url = await loadImageUrl(article.coverMedia.fileName);
+                setCoverUrl(url);
             }
         } catch (err) {
             setError('Erro ao carregar post');
@@ -139,7 +147,7 @@ export default function PostEditorPage() {
         setShowMediaPicker(true);
     }
 
-    async function selectCoverImage(media: MediaModel) {
+    async function selectCoverImage(media: Media) {
         setCoverMediaId(media._id);
         const url = await loadImageUrl(media.fileName);
         setCoverUrl(url);
@@ -157,7 +165,7 @@ export default function PostEditorPage() {
         setShowEditorMediaPicker(true);
     }
 
-    async function selectEditorImage(media: MediaModel) {
+    async function selectEditorImage(media: Media) {
         if (editorImageCallback) {
             const url = await loadImageUrl(media.fileName);
             if (url) {
@@ -191,27 +199,27 @@ export default function PostEditorPage() {
 
         try {
             // Gera slug automaticamente
-            const autoSlug = ArticleModel.generateSlug(title);
+            const autoSlug = generateSlug(title);
 
             const data = {
                 title,
                 slug: autoSlug,
                 content,
                 coverMediaId: coverMediaId || undefined,
-                categoryId: categoryId || undefined,
-                tagIds: selectedTagIds,
+                category: categoryId || undefined,
+                tags: selectedTagIds,
                 status,
                 isFeatured,
                 seoTitle: seoTitle || undefined,
                 seoDescription: seoDescription || undefined,
                 scheduledAt: scheduledAt || undefined,
-                readingTime: ArticleModel.calculateReadingTime(content),
+                readingTime: calculateReadingTime(content),
             };
 
             if (isNew) {
-                await ArticlesController.create(data);
+                await ArticlesController.createArticle({ data });
             } else if (postId) {
-                await ArticlesController.update(postId, data);
+                await ArticlesController.updateArticle({ id: postId, updates: data });
             }
 
             router.push('/admin/posts');
