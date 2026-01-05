@@ -1,22 +1,23 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Search, X, FileText, Loader2, LayoutGrid, List, ArrowDownAZ, Clock, FolderOpen } from "lucide-react";
+import { Plus, FileText, Loader2, LayoutGrid, List, ArrowDownAZ, Clock, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import FilterDropdown from "@/components/FilterDropdown";
 import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
 import SegmentedControl from "@/components/SegmentedControl";
+import StatusBadges from "@/components/StatusBadges";
+import Toolbar from "@/components/Toolbar";
 import { PostCardWithLoader } from "./components/PostCardWithLoader";
-import { ArticlesController, CategoriesController, MediaController } from "@/lib/controllers";
-import { ArticleModel } from "@/lib/models/Article.model";
-import { CategoryModel } from "@/lib/models/Category.model";
-import { MediaModel } from "@/lib/models/Media.model";
+import * as ArticlesController from "@/lib/articles/Article.controller";
+import * as CategoriesController from "@/lib/categories/Category.controller";
+import type { Article } from "@/lib/articles/Article.model";
+import type { Category } from "@/lib/categories/Category.model";
+import type { Media } from "@/lib/medias/Media.model";
 
 export default function PostsPage() {
-    const [articles, setArticles] = useState<ArticleModel[]>([]);
-    const [categories, setCategories] = useState<CategoryModel[]>([]);
-    const [mediaMap, setMediaMap] = useState<Record<string, MediaModel>>({});
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -32,25 +33,14 @@ export default function PostsPage() {
         try {
             setLoading(true);
             const [articlesData, categoriesData] = await Promise.all([
-                ArticlesController.getAll(),
-                CategoriesController.getAll(),
+                ArticlesController.getAllArticles(),
+                CategoriesController.getAllCategories(),
             ]);
 
             setArticles(articlesData);
             setCategories(categoriesData);
 
-            // Carregar media das capas
-            const coverIds = articlesData
-                .map(a => a.coverMediaId)
-                .filter((id): id is string => !!id);
-
-            if (coverIds.length > 0) {
-                const mediaItems = await MediaController.getByIds(coverIds);
-                const map: Record<string, MediaModel> = {};
-                mediaItems.forEach(m => { map[m._id] = m; });
-                setMediaMap(map);
-            }
-
+            // Não é mais necessário carregar media separadamente pois coverMedia já está no Article
             setError(null);
         } catch (err) {
             setError("Falha ao carregar artigos");
@@ -77,8 +67,8 @@ export default function PostsPage() {
                     const dateB = b.publishedAt || b.scheduledAt || '';
                     return new Date(dateB).getTime() - new Date(dateA).getTime();
                 case 'category':
-                    const catA = getCategoryName(a.categoryId);
-                    const catB = getCategoryName(b.categoryId);
+                    const catA = getCategoryName(a.category);
+                    const catB = getCategoryName(b.category);
                     return catA.localeCompare(catB);
                 default:
                     return 0;
@@ -90,19 +80,19 @@ export default function PostsPage() {
         if (!confirm('Tem certeza que deseja deletar este artigo?')) return;
 
         try {
-            await ArticlesController.delete(id);
+            await ArticlesController.deleteArticle({ id });
             setArticles(prev => prev.filter(a => a._id !== id));
         } catch (err) {
             console.error('Erro ao deletar:', err);
         }
     };
 
-    const handleTogglePublish = async (article: ArticleModel) => {
+    const handleTogglePublish = async (article: Article) => {
         try {
             if (article.status === 'published') {
-                await ArticlesController.unpublish(article._id);
+                await ArticlesController.unpublishArticle({ id: article._id });
             } else {
-                await ArticlesController.publish(article._id);
+                await ArticlesController.publishArticle({ id: article._id });
             }
             await fetchData();
         } catch (err) {
@@ -110,23 +100,22 @@ export default function PostsPage() {
         }
     };
 
-    const handleToggleFeatured = async (article: ArticleModel) => {
+    const handleToggleFeatured = async (article: Article) => {
         try {
-            await ArticlesController.update(article._id, { isFeatured: !article.isFeatured });
+            await ArticlesController.toggleFeatured({ id: article._id });
             await fetchData();
         } catch (err) {
             console.error('Erro ao alterar destaque:', err);
         }
     };
 
-    const getCategoryName = (categoryId?: string) => {
-        if (!categoryId) return 'Sem categoria';
-        return categories.find(c => c._id === categoryId)?.name || 'Sem categoria';
+    const getCategoryName = (category?: string) => {
+        if (!category) return 'Sem categoria';
+        return categories.find(c => c._id === category)?.name || 'Sem categoria';
     };
 
-    const getMedia = (article: ArticleModel): MediaModel | undefined => {
-        if (!article.coverMediaId) return undefined;
-        return mediaMap[article.coverMediaId];
+    const getMedia = (article: Article): Media | undefined => {
+        return article.coverMedia;
     };
 
     const formatDate = (dateStr?: string) => {
@@ -141,34 +130,21 @@ export default function PostsPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'published':
-                return <span className="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">Publicado</span>;
+                return <StatusBadges status="Publicado" bgColor="bg-green-500/20" textColor="text-green-400" />;
             case 'scheduled':
-                return <span className="px-2 py-1 text-xs rounded-full bg-yellow-500/20 text-yellow-400">Agendado</span>;
+                return <StatusBadges status="Agendado" bgColor="bg-yellow-500/20" textColor="text-yellow-400" />;
             default:
-                return <span className="px-2 py-1 text-xs rounded-full bg-gray-500/20 text-gray-400">Rascunho</span>;
+                return <StatusBadges status="Rascunho" bgColor="bg-gray-500/20" textColor="text-gray-400" />;
         }
     };
 
     return (
         <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-3 bg-card rounded-xl px-4 py-3 flex-1 max-w-md border border-border">
-                    <Search className="w-5 h-5 text-muted-foreground" />
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Buscar posts..."
-                        className="bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground flex-1"
-                    />
-                    {searchQuery && (
-                        <IconButton
-                            icon={<X />}
-                            onClick={() => setSearchQuery('')}
-                        />
-                    )}
-                </div>
-
+            <Toolbar
+                search={searchQuery}
+                onSearchChange={setSearchQuery}
+                searchPlaceholder="Buscar posts..."
+            >
                 <SegmentedControl
                     options={[
                         { value: 'all', label: 'Todos' },
@@ -180,7 +156,6 @@ export default function PostsPage() {
                     onChange={setStatusFilter}
                 />
 
-                {/* View Mode Toggle */}
                 <SegmentedControl
                     options={[
                         { value: 'list', label: 'Lista', icon: List },
@@ -203,9 +178,9 @@ export default function PostsPage() {
                 />
 
                 <Link href="/admin/posts/new" className="ml-auto">
-                    <Button icon={Plus} size="lg">Novo Post</Button>
+                    <Button icon={Plus}>Novo Post</Button>
                 </Link>
-            </div>
+            </Toolbar>
 
             {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
@@ -240,7 +215,7 @@ export default function PostsPage() {
                                 key={article._id}
                                 article={article}
                                 media={getMedia(article)}
-                                categoryName={getCategoryName(article.categoryId)}
+                                categoryName={getCategoryName(article.category)}
                                 variant="list"
                                 onDelete={handleDelete}
                                 onTogglePublish={handleTogglePublish}
@@ -257,7 +232,7 @@ export default function PostsPage() {
                                 key={article._id}
                                 article={article}
                                 media={getMedia(article)}
-                                categoryName={getCategoryName(article.categoryId)}
+                                categoryName={getCategoryName(article.category)}
                                 variant="grid"
                                 onDelete={handleDelete}
                                 onTogglePublish={handleTogglePublish}
