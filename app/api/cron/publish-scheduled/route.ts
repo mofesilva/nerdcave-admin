@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ArticlesController } from '@/lib/controllers/Articles.controller';
+import * as ArticleService from '@/lib/articles/Article.service';
 
 // Esta rota será chamada pelo Vercel Cron a cada 5 minutos
 // para verificar e publicar posts agendados
@@ -22,13 +22,13 @@ export async function GET(request: NextRequest) {
 
     try {
         const now = new Date();
-        const publishedArticles = await ArticlesController.publishScheduledArticles(now);
+        const publishedArticles = await ArticleService.publishScheduledArticles(now);
 
         return NextResponse.json({
             success: true,
             message: `${publishedArticles.length} artigo(s) publicado(s)`,
             publishedAt: now.toISOString(),
-            articles: publishedArticles.map(a => ({
+            articles: publishedArticles.map((a: { _id: string; title: string; scheduledAt?: string }) => ({
                 id: a._id,
                 title: a.title,
                 scheduledAt: a.scheduledAt,
