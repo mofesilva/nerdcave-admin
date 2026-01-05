@@ -1,0 +1,274 @@
+{
+  "purpose": "Diretriz unificada para IA aplicar corretamente o padrão MVC idiomático em TypeScript, com uso consistente de SDK via camada de Service, foco em reutilização, performance e manutenção.",
+  "core_principles": {
+    "mvc_strict": "O projeto segue estritamente o padrão MVC adaptado ao ecossistema TypeScript.",
+    "service_as_sdk_gateway": "Toda interação com SDKs e banco de dados deve ocorrer exclusivamente na camada de Service.",
+    "no_direct_sdk_usage": "Componentes e Controllers nunca devem chamar o SDK diretamente.",
+    "data_flow_clarity": "Componentes chamam Controllers, Controllers chamam Services, Services chamam SDK e banco.",
+    "conciseness": "Evitar verbosidade excessiva. Código deve ser direto, claro e intencional.",
+    "performance_first": "Priorizar eficiência de processamento, uso de banda e chamadas ao banco.",
+    "always_use_cappuccino_js_sdk": true
+  },
+  "mvc_definition": {
+    "component": {
+      "role": "Interface de usuário e interação.",
+      "allowed": [
+        "Chamar Controllers",
+        "Gerenciar estado de UI",
+        "Renderizar dados"
+      ],
+      "forbidden": [
+        "Chamar SDK",
+        "Processar dados para persistência",
+        "Conhecer estrutura de banco",
+        "Executar regras de negócio"
+      ]
+    },
+    "controller": {
+      "role": "Orquestrar fluxo entre UI e Services.",
+      "responsibilities": [
+        "Receber eventos ou ações da UI",
+        "Validar inputs básicos",
+        "Delegar execução para Services"
+      ],
+      "forbidden": [
+        "Chamar SDK diretamente",
+        "Acessar banco de dados",
+        "Conter lógica pesada de negócio"
+      ]
+    },
+    "service": {
+      "role": "Camada central de negócio e infraestrutura.",
+      "responsibilities": [
+        "Interagir com SDK",
+        "Interagir com banco de dados",
+        "Aplicar regras de negócio",
+        "Garantir integridade e segurança das operações"
+      ],
+      "rules": [
+        "Service é a única camada autorizada a chamar SDK e banco",
+        "Services devem ser reutilizáveis",
+        "Services devem ser testáveis isoladamente"
+      ]
+    },
+    "model": {
+      "role": "Definir estrutura dos dados.",
+      "rules": [
+        "Usar apenas type ou interface",
+        "Não conter métodos",
+        "Não acessar SDK ou banco"
+      ]
+    }
+  },
+  "next_js_framework": {
+    "routing": {
+      "use_app_directory": true
+    },
+    "rules": [
+      "Sempre usar o component next/image com otimização",
+      "Controllers ficam em lib/ ou em API routes (app/api/...)",
+      "Services ficam em lib/services/",
+      "Models ficam em lib/models/ ou lib/types/"
+    ],
+    "avoid": [
+      "Usar tag <img>"
+    ]
+  },
+  "sdk_usage_guidelines": {
+    "summary": "Orientações práticas para usar o SDK Cappuccino respeitando o padrão MVC e a regra 'Service as SDK gateway'.",
+    "principles": [
+      "Somente Services importam e usam o SDK (nunca Components/Controllers)",
+      "Inicializar o cliente do SDK uma vez (singleton) dentro do Service",
+      "Mapear/normalizar dados do SDK para `type`/`interface` locais antes de expor",
+      "Tratamento de erros e retries devem estar encapsulados no Service",
+      "Services expõem operações atômicas e testáveis, não primitives do SDK"
+    ],
+    "rules": [
+      "SDK só pode ser utilizado dentro de Services",
+      "SDK não deve conter lógica de apresentação",
+      "SDK deve ser tratado como dependência externa"
+    ],
+    "initialization_example": "// services/cappuccino.service.ts\nimport { createClient } from 'cappuccino-js-sdk';\nimport type { Link } from '../../types/link';\n\nexport class CappuccinoService {\n  private client = createClient({ apiKey: process.env.CAPPUCCINO_KEY });\n\n  async getLink(id: string): Promise<Link | null> {\n    const doc = await this.client.collections.get('links').get(id);\n    if (!doc) return null;\n    return { id: doc.id, title: doc.data.title, url: doc.data.url } as Link;\n  }\n}\n\nexport const cappuccinoService = new CappuccinoService();",
+    "controller_example": "// controllers/links.controller.ts\nimport { cappuccinoService } from '../services/cappuccino.service';\n\nexport async function getLinkHandler(req, res) {\n  const { id } = req.params;\n  const link = await cappuccinoService.getLink(id);\n  if (!link) return res.status(404).send({ error: 'Not found' });\n  return res.json(link);\n}",
+    "component_example": "// app/links/[id]/page.tsx (Next.js, server component)\nexport default async function Page({ params }) {\n  const res = await fetch(`/api/links/${params.id}`);\n  const link = await res.json();\n  return (<div>{link?.title}</div>);\n}\n\n// Observação: componentes chamam Controller/API, nunca o SDK direto.",
+    "best_practices": [
+      "Colocar toda lógica de mapeamento e regras de negócio dentro do Service",
+      "Evitar expor objetos brutos do SDK para outras camadas",
+      "Usar tipagens (`type` / `interface`) para contratos retornados pelo Service",
+      "Fazer injeção de dependência do client nas factories para facilitar testes",
+      "Centralizar configurações (chaves, timeouts, retries) no Service ou em um layer de infra"
+    ],
+    "testing_guidance": [
+      "Mockar o client do SDK nos testes unitários do Service",
+      "Testar controllers integrando com Services mockados",
+      "Não testar o SDK real em unit tests (usar e2e/integração separada)"
+    ]
+  },
+  "code_reuse_policy": {
+    "analysis_before_creation": [
+      "Verificar componentes existentes",
+      "Verificar controllers existentes",
+      "Verificar services existentes",
+      "Verificar utils, helpers e wrappers",
+      "Verificar qualquer código que possa ser reutilizado (não copiado)"
+    ],
+    "creation_rules": {
+      "allow_new_code_only_if": [
+        "Não existir código reutilizável",
+        "O caso for extremamente específico para aquela implementação que não vai ser usado em nenhum outro lugar",
+        "Se houver necessidade de mudar significamente a lógica de algum codigo, verificar antes "
+      ],
+      "avoid": [
+        "Componentes hardcoded únicos",
+        "Duplicação de lógica",
+        "Soluções ad-hoc"
+      ]
+    }
+  },
+  "code_implementation_and_refactor": {
+    "best_practices": [
+      "Manter funções e métodos curtos e focados",
+      "Resposabilidade única de componentes e metodos",
+      "Evitar aninhamento profundo de código",
+      "Tratar erros de forma consistente",
+      "Usar nomes descritivos para variáveis, funções e classes",
+      "Adicionar comentários apenas quando necessário para clarificar intenções",
+      "Seguir convenções de codificação do TypeScript"
+    ],
+    "refactor_guidelines": [
+      "Refatorar código duplicado para funções reutilizáveis",
+      "Melhorar legibilidade sem alterar funcionalidade",
+      "Atualizar documentação associada ao código refatorado"
+    ]
+  },
+  "component_design": {
+    "prefer_reusable_components": true,
+    "one_component_per_file": true,
+    "focus_on_readability": true,
+    "directions": [
+      "Verificar se já existe componentes similares antes de criar novos",
+      "Separar componentes em arquivos distintos para melhorar visibilidade, leitura e manutenção",
+      "Componentes genéricos que podems ser usados em todo o aplicativo, devem ficar no diretorio componentes a nivel app",
+      "Componentes específicos de uma view, devem ficar dentro do diretorio componetes"
+    ]
+  },
+  "performance_and_safety": {
+    "database_safeguards": [
+      "Evitar chamadas recursivas",
+      "Implementar guards contra loops",
+      "Controlar concorrência",
+      "Buscar dados por paginação"
+    ],
+    "pagination_best_practices": [
+      "Usar cursores quando possível",
+      "Definir limites razoáveis para páginas",
+      "Fornecer metadados de paginação na resposta",
+      "Paginação máximas de 50 itens por página"
+    ],
+    "optimization": [
+      "Minimizar chamadas ao banco",
+      "Evitar overfetching",
+      "Reduzir payloads",
+      "Evitar processamento desnecessário"
+    ]
+  },
+  "code_documentation_guidelines": {
+    "purpose": "Padronizar a documentação de arquivos, módulos, componentes e services, garantindo clareza, rastreabilidade e manutenção do código ao longo do tempo.",
+    "mandatory_template": {
+      "title": "{Título}",
+      "location": "{path}",
+      "sections": [
+        {
+          "name": "Resumo",
+          "description": "Uma linha resumindo o que este arquivo, módulo ou componente faz."
+        },
+        {
+          "name": "Propósito",
+          "description": "Por que este código existe e quais responsabilidades possui."
+        },
+        {
+          "name": "Conceitos-chave",
+          "description": "Bullets curtos com termos de domínio, padrões ou conceitos importantes."
+        },
+        {
+          "name": "API Pública / Símbolos Exportados",
+          "description": "Lista de funções, hooks, componentes e métodos exportados com suas assinaturas."
+        },
+        {
+          "name": "Props / Parâmetros",
+          "description": "Para componentes e funções: nome, tipo, valor padrão (se houver) e descrição."
+        },
+        {
+          "name": "Estado Interno / Armazenamento",
+          "description": "Estados internos, refs, caches ou estruturas mantidas pelo módulo."
+        },
+        {
+          "name": "Fluxo / Sequência",
+          "description": "Descrição passo a passo dos fluxos principais do módulo."
+        },
+        {
+          "name": "Exemplos",
+          "description": "Exemplos mínimos de uso com trechos de código copiáveis."
+        },
+        {
+          "name": "Tratamento de Erros",
+          "description": "Falhas conhecidas, exceções e como são expostas aos chamadores."
+        },
+        {
+          "name": "Considerações de Desempenho e Segurança",
+          "description": "Notas sobre caching, memória, rede, autenticação e permissões."
+        },
+        {
+          "name": "Boas Práticas",
+          "description": "Recomendações para uso seguro, eficiente e correto do módulo."
+        },
+        {
+          "name": "Arquivos Relacionados / Onde é Usado",
+          "description": "Lista de arquivos que utilizam este módulo e referências importantes."
+        },
+        {
+          "name": "Testes",
+          "description": "Como testar o módulo (unitários, integração) e mocks necessários."
+        },
+        {
+          "name": "TODOs / Perguntas em Aberto",
+          "description": "Pendências, melhorias futuras ou decisões não resolvidas."
+        },
+        {
+          "name": "Registro de Alterações",
+          "description": "Log curto de mudanças relevantes (data + resumo)."
+        }
+      ]
+    },
+    "rules": [
+      "Manter todas as seções curtas e objetivas.",
+      "Incluir trechos de código quando agregarem clareza.",
+      "Sempre incluir o campo Location com caminho relativo ao workspace.",
+      "Usar exemplos que possam ser copiados e colados sem adaptação.",
+      "Criar links para documentação relacionada em docs/codebase/ quando aplicável."
+    ],
+    "ai_behavior": {
+      "when_to_apply": [
+        "Ao criar novos arquivos",
+        "Ao refatorar código existente de forma significativa",
+        "Ao introduzir novas responsabilidades em um módulo",
+        "O app sempre deve encaixar no SDK e nunca o SDK no app"
+      ],
+      "avoid": [
+        "Documentação excessivamente verbosa",
+        "Texto genérico sem relação com o código real",
+        "Seções vazias sem justificativa",
+        "Voltar codigos antigos via git",
+        "Tentar workaround complexos e sem passar pelo SDK",
+        "Ignorar diretrizes especificamente",
+        "Alterar dados no SDK"
+      ]
+    }
+  },
+  "ai_behavior_rules": {
+    "analyze_existing_code_first": true,
+    "prefer_reuse_over_new_code": true,
+    "never_violate_mvc": true,
+    "keep_code_concise": true
+  }
+}
