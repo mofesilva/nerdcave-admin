@@ -27,14 +27,14 @@ export default function IconButton({
   disabled = false,
   className,
 }: IconButtonProps) {
-  const base = "p-2 rounded-lg transition-colors flex items-center justify-center";
+  const base = "p-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer";
 
   // Clone the icon to ensure consistent sizing while preserving any provided classes
   const cloned = React.isValidElement(icon)
-    ? React.cloneElement(icon, {
-      className: join((icon.props as any)?.className, "w-5 h-5"),
+    ? React.cloneElement(icon as React.ReactElement<{ className?: string }>, {
+      className: join((icon.props as { className?: string })?.className, "w-5 h-5"),
       'aria-hidden': true,
-    })
+    } as React.HTMLAttributes<HTMLElement>)
     : icon;
 
   return (
