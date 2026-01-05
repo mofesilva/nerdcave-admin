@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LinksController } from "@/lib/controllers";
-import type { Link } from "@/types";
+import * as LinkController from "@/lib/links/Link.controller";
+import type { Link } from "@/lib/links/Link.model";
 import {
     Facebook,
     Twitter,
@@ -29,11 +29,10 @@ export default function SocialLinks() {
     useEffect(() => {
         async function loadSocials() {
             try {
-                const models = await LinksController.getAll();
-                const socials = models
-                    .map((m: any) => m.toJSON())
-                    .filter((link: any) => link.type === 'social' && link.isActive)
-                    .sort((a: any, b: any) => a.order - b.order);
+                const links = await LinkController.getSocialLinks();
+                const socials = links
+                    .filter((link) => link.isActive)
+                    .sort((a, b) => a.order - b.order);
                 setSocialLinks(socials);
             } catch (error) {
                 console.error('Error loading social links:', error);
