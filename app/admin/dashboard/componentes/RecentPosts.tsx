@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { FileText, Clock, Star, ExternalLink } from "lucide-react";
-import { ArticleModel } from "@/lib/models/Article.model";
+import type { Article } from "@/lib/articles/Article.model";
 
 interface RecentPostsProps {
-    posts: ArticleModel[];
+    posts: Article[];
 }
 
 export default function RecentPosts({ posts }: RecentPostsProps) {
@@ -33,8 +33,8 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
                             </h3>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <span className={`px-1.5 py-0.5 rounded ${post.status === 'published' ? 'bg-emerald-500/10 text-emerald-500' :
-                                        post.status === 'draft' ? 'bg-yellow-500/10 text-yellow-500' :
-                                            'bg-blue-500/10 text-blue-500'
+                                    post.status === 'draft' ? 'bg-yellow-500/10 text-yellow-500' :
+                                        'bg-blue-500/10 text-blue-500'
                                     }`}>
                                     {post.status === 'published' ? 'Publicado' : post.status === 'draft' ? 'Rascunho' : 'Agendado'}
                                 </span>
