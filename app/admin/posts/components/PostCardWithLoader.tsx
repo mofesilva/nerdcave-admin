@@ -1,24 +1,23 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useApiClient, MediaStorageModule } from "@cappuccino/web-sdk";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FileText, Star, Edit2, Trash2, Eye, EyeOff, Calendar, Loader2 } from "lucide-react";
 import IconButton from "@/components/IconButton";
-import { ArticleModel } from "@/lib/models/Article.model";
-import { MediaModel } from "@/lib/models/Media.model";
-
-const APP_NAME = "nerdcave-link-tree";
+import type { Article } from "@/lib/articles/Article.model";
+import type { Media } from "@/lib/medias/Media.model";
+import * as MediaController from "@/lib/medias/Media.controller";
+import { getExcerpt } from "@/lib/utils";
 
 interface PostCardWithLoaderProps {
-    article: ArticleModel;
-    media?: MediaModel;
+    article: Article;
+    media?: Media;
     categoryName: string;
     variant: "list" | "grid";
     onDelete: (id: string) => void;
-    onTogglePublish: (article: ArticleModel) => void;
-    onToggleFeatured: (article: ArticleModel) => void;
+    onTogglePublish: (article: Article) => void;
+    onToggleFeatured: (article: Article) => void;
     formatDate: (dateStr?: string) => string;
     getStatusBadge: (status: string) => React.ReactNode;
 }
@@ -34,86 +33,18 @@ export function PostCardWithLoader({
     formatDate,
     getStatusBadge,
 }: PostCardWithLoaderProps) {
-    const apiClient = useApiClient();
-    const mediastorage = useMemo(() => {
-        if (!apiClient) return null;
-        return new MediaStorageModule(apiClient);
-    }, [apiClient]);
+    const coverUrl = media?.fileName
+        ? MediaController.getMediaUrl({ fileName: media.fileName })
+        : '';
 
-    const [coverUrl, setCoverUrl] = useState<string | undefined>(undefined);
-    const [isLoading, setIsLoading] = useState(!!media?.fileName);
+    const [isLoading, setIsLoading] = useState(!!coverUrl);
+    const [hasError, setHasError] = useState(false);
 
-    // Carregar imagem quando o componente monta
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadImage = async () => {
-            if (!media?.fileName || !mediastorage) {
-                setIsLoading(false);
-                return;
-            }
-
-            try {
-                const response = await mediastorage.download(APP_NAME, media.fileName);
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-
-                if (isMounted) {
-                    setCoverUrl(url);
-                    setIsLoading(false);
-                }
-            } catch (err) {
-                console.error('Erro ao baixar imagem:', media.fileName, err);
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-
-        loadImage();
-
-        return () => {
-            isMounted = false;
-            if (coverUrl) {
-                URL.revokeObjectURL(coverUrl);
-            }
-        };
-    }, [media?.fileName, mediastorage]);
-
-    // Skeleton para modo lista
-    if (isLoading && variant === "list") {
-        return (
-            <div className="bg-card rounded-xl border border-border p-4 flex gap-4 animate-pulse">
-                <div className="w-32 h-24 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                    <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-                </div>
-                <div className="flex-1 space-y-3">
-                    <div className="flex gap-2">
-                        <div className="h-5 w-16 bg-muted rounded-full" />
-                        <div className="h-5 w-20 bg-muted rounded" />
-                    </div>
-                    <div className="h-5 w-3/4 bg-muted rounded" />
-                    <div className="h-4 w-1/2 bg-muted rounded" />
-                </div>
-            </div>
-        );
-    }
-
-    // Skeleton para modo grid
-    if (isLoading && variant === "grid") {
-        return (
-            <div className="bg-card rounded-xl border border-border overflow-hidden animate-pulse">
-                <div className="aspect-video bg-muted flex items-center justify-center">
-                    <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
-                </div>
-                <div className="p-4 space-y-3">
-                    <div className="h-5 w-16 bg-muted rounded-full" />
-                    <div className="h-5 w-full bg-muted rounded" />
-                    <div className="h-4 w-3/4 bg-muted rounded" />
-                </div>
-            </div>
-        );
-    }
+    const handleLoad = () => setIsLoading(false);
+    const handleError = () => {
+        setIsLoading(false);
+        setHasError(true);
+    };
 
     // Modo lista
     if (variant === "list") {
@@ -121,14 +52,19 @@ export function PostCardWithLoader({
             <div className="bg-card rounded-xl border border-border p-4 flex gap-4 hover:border-primary/30 transition cursor-pointer">
                 {/* Cover Image */}
                 <div className="w-32 h-24 rounded-lg overflow-hidden bg-muted shrink-0 flex items-center justify-center relative">
-                    {coverUrl ? (
+                    {isLoading && (
+                        <Loader2 className="w-5 h-5 text-muted-foreground animate-spin absolute z-10" />
+                    )}
+                    {coverUrl && !hasError ? (
                         <Image
                             src={coverUrl}
                             alt={article.title}
                             fill
-                            quality={85}
+                            unoptimized
                             sizes="128px"
-                            className="object-cover"
+                            className={`object-cover transition-opacity ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                            onLoad={handleLoad}
+                            onError={handleError}
                         />
                     ) : (
                         <FileText className="w-8 h-8 text-muted-foreground" />
@@ -150,7 +86,7 @@ export function PostCardWithLoader({
                             </div>
                             <h3 className="font-semibold text-foreground truncate">{article.title}</h3>
                             <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {article.getExcerpt(100) || 'Sem resumo'}
+                                {getExcerpt(article.content, 100) || 'Sem resumo'}
                             </p>
                         </div>
 
@@ -205,14 +141,19 @@ export function PostCardWithLoader({
         <div className="bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition group">
             {/* Cover Image */}
             <div className="aspect-video bg-muted flex items-center justify-center relative">
-                {coverUrl ? (
+                {isLoading && (
+                    <Loader2 className="w-6 h-6 text-muted-foreground animate-spin absolute z-10" />
+                )}
+                {coverUrl && !hasError ? (
                     <Image
                         src={coverUrl}
                         alt={article.title}
                         fill
-                        quality={85}
+                        unoptimized
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover"
+                        className={`object-cover transition-opacity ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                        onLoad={handleLoad}
+                        onError={handleError}
                     />
                 ) : (
                     <FileText className="w-12 h-12 text-muted-foreground" />
@@ -260,7 +201,7 @@ export function PostCardWithLoader({
                 </div>
                 <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{article.title}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2">
-                    {article.getExcerpt(80) || 'Sem resumo'}
+                    {getExcerpt(article.content, 80) || 'Sem resumo'}
                 </p>
                 <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
                     <span>{categoryName}</span>
