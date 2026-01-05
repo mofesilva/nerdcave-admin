@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { dataStore } from '@/lib/data/store';
+import * as LinksController from '@/lib/links/Link.controller';
 
 // GET - Buscar todos os links
 export async function GET() {
   try {
-    const links = await dataStore.getLinks();
+    const links = await LinksController.getAllLinks();
     return NextResponse.json({ success: true, links });
   } catch (error) {
     console.error('Error fetching links:', error);
@@ -29,19 +29,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Buscar todos os links para determinar a ordem
-    const allLinks = await dataStore.getLinks();
+    const allLinks = await LinksController.getAllLinks();
     const maxOrder = allLinks.length > 0
-      ? Math.max(...allLinks.map(l => l.order || 0))
+      ? Math.max(...allLinks.map((l) => l.order || 0))
       : 0;
 
-    const newLink = await dataStore.createLink({
-      title: body.title,
-      description: body.description || '',
-      url: body.url,
-      gradient: body.gradient || 'from-purple-500 to-pink-500',
-      isActive: body.isActive !== undefined ? body.isActive : true,
-      order: maxOrder + 1,
-      clicks: 0,
+    const newLink = await LinksController.createLink({
+      data: {
+        title: body.title,
+        description: body.description || '',
+        url: body.url,
+        gradient: body.gradient || 'from-purple-500 to-pink-500',
+        isActive: body.isActive !== undefined ? body.isActive : true,
+        order: maxOrder + 1,
+        clicks: 0,
+        type: body.type || 'main',
+      }
     });
 
     return NextResponse.json({ success: true, link: newLink }, { status: 201 });
