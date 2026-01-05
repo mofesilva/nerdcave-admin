@@ -3,18 +3,18 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { User } from "lucide-react";
-import { ProfileController } from "@/lib/controllers";
-import { ProfileModel } from "@/lib/models/Profile.model";
+import * as ProfileController from "@/lib/profiles/Profile.controller";
+import type { Profile } from "@/lib/profiles/Profile.model";
 
 export default function ProfileSection() {
-    const [profile, setProfile] = useState<ProfileModel | null>(null);
+    const [profile, setProfile] = useState<Profile | null>(null);
 
     useEffect(() => {
         async function loadProfile() {
             try {
-                const profileModel = await ProfileController.get();
-                if (profileModel) {
-                    setProfile(profileModel);
+                const profileData = await ProfileController.getProfile();
+                if (profileData) {
+                    setProfile(profileData);
                 }
             } catch (error) {
                 console.error('Error loading profile:', error);
@@ -36,10 +36,10 @@ export default function ProfileSection() {
 
     return (
         <div className="flex flex-col items-center text-center">
-            {((profile as any)?.avatarUrl) ? (
+            {profile?.avatarUrl ? (
                 <div className="w-32 h-32 rounded-full mb-4 relative overflow-hidden">
                     <Image
-                        src={(profile as any).avatarUrl}
+                        src={profile.avatarUrl}
                         alt={profile.name}
                         fill
                         className="object-cover"
