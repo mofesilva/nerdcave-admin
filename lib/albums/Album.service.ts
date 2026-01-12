@@ -16,8 +16,6 @@ interface AlbumParametersProps {
     updates?: Partial<Album>;
 }
 
-export type CreateAlbumInput = Omit<Album, '_id' | 'deleted'>;
-
 function generateSlug(title: string): string {
     return title
         .toLowerCase()
@@ -41,11 +39,14 @@ export async function getPublishedAlbums(): Promise<Album[]> {
     return result.documents.map(doc => albumFromDocument(doc));
 }
 
-export async function getAlbumById({ id }: AlbumParametersProps): Promise<Album | null> {
+export async function getAlbumById({ id }: AlbumParametersProps): Promise<Album> {
     const albums = getAlbumsCollection();
-    const result = await albums.findById(id!);
-    if (result.error || !result.document) return null;
-    return albumFromDocument(result.document);
+    try {
+        const result = await albums.findById(id!);
+        return albumFromDocument(result.document);
+    } catch (error) {
+        throw error;
+    }
 }
 
 export async function getAlbumBySlug({ slug }: AlbumParametersProps): Promise<Album | null> {
