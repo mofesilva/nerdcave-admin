@@ -13,7 +13,6 @@ import {
     publishAlbum,
     unpublishAlbum,
     deleteAlbum,
-    type CreateAlbumInput,
 } from './Album.service';
 import type { Album } from './Album.model';
 import type { Media } from '@/lib/medias/Media.model';
@@ -26,7 +25,7 @@ export const getAlbumBySlugController = ({ slug }: { slug: string }) => getAlbum
 export const getAlbumsByCategoryController = ({ categoryId }: { categoryId: string }) => getAlbumsByCategory({ categoryId });
 
 // Create / Update
-export const createAlbumController = ({ data }: { data: CreateAlbumInput }) => createAlbum({ data });
+export const createAlbumController = ({ data }: { data: Omit<Album, '_id' | 'deleted'> }) => createAlbum({ data });
 export const updateAlbumController = ({ id, updates }: { id: string; updates: Partial<Album> }) => updateAlbum({ id, updates });
 
 // Media
