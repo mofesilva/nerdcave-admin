@@ -39,9 +39,9 @@ export function PostCardWithLoader({
     // Modo lista
     if (variant === "list") {
         return (
-            <div className="bg-card rounded-xl border border-border p-4 flex gap-4 hover:border-primary/30 transition cursor-pointer">
+            <div className="bg-card rounded-md border border-border p-4 flex gap-4 hover:border-primary/30 transition cursor-pointer">
                 {/* Cover Image */}
-                <div className="w-32 h-24 rounded-lg overflow-hidden bg-muted shrink-0 flex items-center justify-center relative">
+                <div className="w-32 h-24 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center relative">
                     {coverUrl ? (
                         <SkeletonImage
                             src={coverUrl}
@@ -92,7 +92,7 @@ export function PostCardWithLoader({
                             />
                             <Link
                                 href={`/admin/posts/${article._id}`}
-                                className="p-2 rounded-lg bg-card hover:bg-muted text-muted-foreground transition"
+                                className="p-2 rounded-md bg-card hover:bg-muted text-muted-foreground transition"
                                 title="Editar"
                             >
                                 <Edit2 className="w-4 h-4" />
@@ -122,7 +122,7 @@ export function PostCardWithLoader({
 
     // Modo grid
     return (
-        <div className="bg-card rounded-xl border border-border overflow-hidden hover:border-primary/30 transition group">
+        <div className="bg-card rounded-md border border-border overflow-hidden hover:border-primary/30 transition group">
             {/* Cover Image */}
             <div className="aspect-video bg-muted flex items-center justify-center relative">
                 {coverUrl ? (
@@ -154,7 +154,7 @@ export function PostCardWithLoader({
                     />
                     <Link
                         href={`/admin/posts/${article._id}`}
-                        className="p-2 rounded-lg text-white hover:bg-white/20 transition"
+                        className="p-2 rounded-md text-white hover:bg-white/20 transition"
                         title="Editar"
                     >
                         <Edit2 className="w-5 h-5" />
