@@ -36,7 +36,7 @@ type LogoField = "loginPageLogo" | "sideBarLogoDark" | "sideBarLogoLight";
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function ThemePage() {
-    const { refreshSettings } = useSettings();
+    const { updateSettingsOptimistic } = useSettings();
     const [activeTab, setActiveTab] = useState<ThemeType>("admin");
     const [adminSettings, setAdminSettings] = useState<ThemeSettings | null>(null);
     const [blogSettings, setBlogSettings] = useState<ThemeSettings | null>(null);
@@ -93,14 +93,9 @@ export default function ThemePage() {
 
         setSaving(true);
         try {
-            const updated = await ThemeSettingsController.updateThemeSettings({
-                id: adminSettings._id,
-                updates,
-            });
-            if (updated) {
-                setAdminSettings(updated);
-                await refreshSettings();
-            }
+            // Atualiza UI imediatamente (otimista) + salva no banco em background
+            updateSettingsOptimistic(updates);
+            setAdminSettings({ ...adminSettings, ...updates });
         } catch (error) {
             console.error("Erro ao salvar:", error);
         } finally {
