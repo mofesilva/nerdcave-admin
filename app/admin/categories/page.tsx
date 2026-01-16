@@ -314,9 +314,8 @@ export default function CategoriesPage() {
         return (
             <div key={category._id}>
                 <div
-                    className={`bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group ${
-                        level > 0 ? 'ml-8 border-l-2 border-l-primary/30' : ''
-                    }`}
+                    className={`bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group ${level > 0 ? 'ml-8 border-l-2 border-l-primary/30' : ''
+                        }`}
                 >
                     <div className="flex items-center gap-4">
                         {/* Toggle para expandir/colapsar */}
@@ -326,9 +325,8 @@ export default function CategoriesPage() {
                                 className="p-1 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                             >
                                 <ChevronRight
-                                    className={`w-5 h-5 transition-transform duration-200 ${
-                                        isExpanded ? 'rotate-90' : ''
-                                    }`}
+                                    className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''
+                                        }`}
                                 />
                             </button>
                         ) : (
