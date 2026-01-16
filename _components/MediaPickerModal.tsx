@@ -165,13 +165,13 @@ export default function MediaPickerModal({
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col border border-border shadow-xl">
+            <div className="bg-card rounded-md w-full max-w-5xl max-h-[85vh] flex flex-col border border-border shadow-xl">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border">
                     <h2 className="text-xl font-bold text-foreground">Selecionar Mídia</h2>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                        className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -202,7 +202,7 @@ export default function MediaPickerModal({
                     <>
                         {/* Search */}
                         <div className="p-4 border-b border-border">
-                            <div className="flex items-center gap-3 bg-secondary rounded-xl px-4 py-3">
+                            <div className="flex items-center gap-3 bg-secondary rounded-md px-4 py-3">
                                 <Search className="w-5 h-5 text-muted-foreground" />
                                 <input
                                     type="text"
@@ -241,7 +241,7 @@ export default function MediaPickerModal({
                                         <button
                                             key={item._id}
                                             onClick={() => handleSelect(item)}
-                                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all bg-muted ${selectedItems.has(item._id)
+                                            className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all bg-muted ${selectedItems.has(item._id)
                                                 ? "border-primary ring-2 ring-primary/20"
                                                 : "border-transparent hover:border-primary/30"
                                                 }`}
@@ -285,7 +285,7 @@ export default function MediaPickerModal({
                             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                             onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
                             onClick={() => !uploading && fileInputRef.current?.click()}
-                            className={`w-full max-w-md border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${isDragging ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"} ${uploading ? "opacity-50 cursor-wait" : ""}`}
+                            className={`w-full max-w-md border-2 border-dashed rounded-md p-12 text-center cursor-pointer transition-all ${isDragging ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"} ${uploading ? "opacity-50 cursor-wait" : ""}`}
                         >
                             {uploading ? (
                                 <>
@@ -301,7 +301,7 @@ export default function MediaPickerModal({
                             )}
                         </div>
                         {uploadError && (
-                            <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-xl text-sm">
+                            <div className="mt-4 bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-md text-sm">
                                 {uploadError}
                             </div>
                         )}
@@ -319,7 +319,7 @@ export default function MediaPickerModal({
                                         value={urlInput}
                                         onChange={(e) => setUrlInput(e.target.value)}
                                         placeholder="https://exemplo.com/imagem.jpg"
-                                        className="flex-1 bg-secondary rounded-xl px-4 py-3 text-foreground placeholder:text-muted-foreground border border-border focus:border-primary focus:outline-none"
+                                        className="flex-1 bg-secondary rounded-md px-4 py-3 text-foreground placeholder:text-muted-foreground border border-border focus:border-primary focus:outline-none"
                                     />
                                     <Button onClick={handleUrlImport} disabled={!urlInput.trim() || urlLoading} loading={urlLoading}>
                                         Importar
@@ -327,7 +327,7 @@ export default function MediaPickerModal({
                                 </div>
                             </div>
                             {urlError && (
-                                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-xl text-sm">
+                                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-md text-sm">
                                     {urlError}
                                 </div>
                             )}
