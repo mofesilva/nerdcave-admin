@@ -198,7 +198,7 @@ export default function AlbumsPage() {
     const renderGridCard = (album: Album) => (
         <div
             key={album._id}
-            className="bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/30 transition-all group"
+            className="bg-card rounded-md overflow-hidden border border-border hover:border-primary/30 transition-all group"
         >
             {/* Cover Image */}
             <Link href={`/admin/albums/${album._id}`}>
@@ -274,7 +274,7 @@ export default function AlbumsPage() {
                     />
                     <Link
                         href={`/admin/albums/${album._id}`}
-                        className="ml-auto px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-colors"
+                        className="ml-auto px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-colors"
                     >
                         Gerenciar Fotos
                     </Link>
@@ -287,12 +287,12 @@ export default function AlbumsPage() {
     const renderListItem = (album: Album) => (
         <div
             key={album._id}
-            className="bg-card rounded-2xl p-4 border border-border hover:border-primary/30 transition-all group"
+            className="bg-card rounded-md p-4 border border-border hover:border-primary/30 transition-all group"
         >
             <div className="flex items-center gap-4">
                 {/* Thumbnail */}
                 <Link href={`/admin/albums/${album._id}`} className="shrink-0">
-                    <div className="w-32 h-20 bg-secondary rounded-xl relative overflow-hidden">
+                    <div className="w-32 h-20 bg-secondary rounded-md relative overflow-hidden">
                         {album.coverMedia ? (
                             <Image
                                 src={MediaController.getMediaUrl({ fileName: album.coverMedia.fileName })}
@@ -361,7 +361,7 @@ export default function AlbumsPage() {
 
                 <Link
                     href={`/admin/albums/${album._id}`}
-                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-colors"
+                    className="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-colors"
                 >
                     Gerenciar
                 </Link>
@@ -437,7 +437,7 @@ export default function AlbumsPage() {
 
             {/* Error */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
                     {error}
                 </div>
             )}
@@ -449,7 +449,7 @@ export default function AlbumsPage() {
                     <p className="text-muted-foreground mt-4">Carregando álbuns...</p>
                 </div>
             ) : sortedAlbums.length === 0 ? (
-                <div className="text-center py-12 bg-card rounded-2xl border border-border">
+                <div className="text-center py-12 bg-card rounded-md border border-border">
                     <FolderOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
                         {searchQuery || statusFilter !== 'all' ? 'Nenhum álbum encontrado' : 'Nenhum álbum criado ainda'}
@@ -491,7 +491,7 @@ export default function AlbumsPage() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-card rounded-2xl p-6 w-full max-w-md border border-border shadow-xl">
+                    <div className="bg-card rounded-md p-6 w-full max-w-md border border-border shadow-xl">
                         <h2 className="text-xl font-bold text-foreground mb-6">
                             {editingAlbum ? 'Editar Álbum' : 'Novo Álbum'}
                         </h2>
@@ -505,7 +505,7 @@ export default function AlbumsPage() {
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
                                     placeholder="Título do álbum"
                                     required
                                 />
@@ -518,7 +518,7 @@ export default function AlbumsPage() {
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none resize-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none resize-none"
                                     placeholder="Descrição do álbum"
                                     rows={3}
                                 />
@@ -531,7 +531,7 @@ export default function AlbumsPage() {
                                 <select
                                     value={formData.categoryId}
                                     onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
                                     required
                                 >
                                     <option value="">Selecione uma categoria</option>
