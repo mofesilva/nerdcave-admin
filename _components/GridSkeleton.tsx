@@ -34,7 +34,7 @@ export default function GridSkeleton({
             {Array.from({ length: count }).map((_, i) => (
                 <div
                     key={i}
-                    className={`bg-card rounded-xl overflow-hidden border border-border ${itemClassName}`}
+                    className={`bg-card rounded-md overflow-hidden border border-border ${itemClassName}`}
                 >
                     <div className={`${aspectClasses[aspectRatio]} bg-muted animate-pulse`} />
                 </div>
