@@ -4,7 +4,9 @@ import { useState, FormEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@cappuccino/web-sdk';
 import Image from 'next/image';
-import Button from '@/components/Button';
+import Button from '@/_components/Button';
+import { useSettings } from '@/lib/contexts/SettingsContext';
+import { getMediaUrl } from '@/lib/medias/Media.controller';
 
 export default function LoginPage() {
   const [login, setLogin] = useState('');
@@ -14,6 +16,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { signIn, user, initializing } = useAuth();
+  const { loginPageLogo } = useSettings();
+
+  // URL da logo: usa do banco se existir, senão usa fallback
+  const logoUrl = loginPageLogo?.fileName
+    ? getMediaUrl({ fileName: loginPageLogo.fileName })
+    : '/images/logos/nerdcave-white.png';
 
   // Carregar credenciais salvas se existirem
   useEffect(() => {
@@ -69,8 +77,8 @@ export default function LoginPage() {
           {/* Logo/Header */}
           <div className="text-center mb-8">
             <Image
-              src="/images/logos/nerdcave-white.png"
-              alt="Nerdcave"
+              src={logoUrl}
+              alt="Logo"
               width={200}
               height={80}
               className="mx-auto mb-4"
