@@ -14,9 +14,11 @@ interface FilterDropdownProps {
     onChange: (value: string) => void;
     options: FilterOption[];
     label?: string;
+    /** Ícone customizado para o botão trigger (padrão: ArrowUpDown) */
+    icon?: LucideIcon;
 }
 
-export default function FilterDropdown({ value, onChange, options, label = "Ordenar" }: FilterDropdownProps) {
+export default function FilterDropdown({ value, onChange, options, label = "Ordenar", icon: TriggerIcon = ArrowUpDown }: FilterDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -45,17 +47,17 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 title={selectedOption?.label || label}
-                className={`flex items-center justify-center p-4 bg-card border border-border rounded-2xl text-sm font-medium transition-all duration-200 cursor-pointer ${isOpen
+                className={`flex items-center justify-center p-4 bg-card border border-border rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${isOpen
                     ? 'border-primary text-foreground'
                     : 'text-muted-foreground hover:text-foreground hover:border-muted-foreground/50'
                     }`}
             >
-                <ArrowUpDown className="w-5 h-5" />
+                <TriggerIcon className="w-5 h-5" />
             </button>
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute z-50 left-0 mt-2 min-w-[200px] py-1 bg-card border border-border rounded-xl overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="absolute z-50 left-0 mt-2 min-w-[200px] py-1 bg-card border border-border rounded-md overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150">
                     <div className="px-3 py-2 text-xs text-muted-foreground font-medium uppercase tracking-wider border-b border-border">
                         {label}
                     </div>
