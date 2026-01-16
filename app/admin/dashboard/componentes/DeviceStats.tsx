@@ -1,6 +1,7 @@
 "use client";
 
 import { PieChart } from "lucide-react";
+import CardTitleSection from "@/_components/CardTitleSection";
 
 interface DeviceStatsProps {
     desktop: number;
@@ -11,7 +12,7 @@ interface DeviceStatsProps {
 
 export default function DeviceStats({ desktop, mobile, tablet, totalClicks }: DeviceStatsProps) {
     const total = desktop + mobile + tablet;
-    
+
     const devices = [
         { label: 'Desktop', value: desktop, color: 'bg-blue-500' },
         { label: 'Mobile', value: mobile, color: 'bg-purple-500' },
@@ -25,14 +26,12 @@ export default function DeviceStats({ desktop, mobile, tablet, totalClicks }: De
     };
 
     return (
-        <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-lg font-bold text-foreground">Dispositivos</h2>
-                    <p className="text-sm text-muted-foreground">Por tipo de acesso</p>
-                </div>
-                <PieChart className="w-5 h-5 text-muted-foreground" />
-            </div>
+        <div className="bg-card rounded-md border border-border p-6">
+            <CardTitleSection
+                title="Dispositivos"
+                subtitle="Por tipo de acesso"
+                trailing={<PieChart className="w-5 h-5 text-muted-foreground" />}
+            />
 
             <div className="space-y-4">
                 {devices.map((device) => {
