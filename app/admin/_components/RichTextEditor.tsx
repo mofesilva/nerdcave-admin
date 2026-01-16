@@ -72,7 +72,7 @@ export default function RichTextEditor({ content, onChange, onInsertImage, place
             }),
             Image.configure({
                 HTMLAttributes: {
-                    class: 'rounded-lg max-w-full',
+                    class: 'rounded-md max-w-full',
                 },
             }),
             Placeholder.configure({
@@ -114,7 +114,7 @@ export default function RichTextEditor({ content, onChange, onInsertImage, place
 
     if (!editor) {
         return (
-            <div className="border border-border rounded-xl overflow-hidden bg-card p-4 min-h-[500px] flex items-center justify-center">
+            <div className="border border-border rounded-md overflow-hidden bg-card p-4 min-h-[500px] flex items-center justify-center">
                 <div className="text-muted-foreground">Carregando editor...</div>
             </div>
         );
@@ -150,7 +150,7 @@ export default function RichTextEditor({ content, onChange, onInsertImage, place
     );
 
     return (
-        <div className="border border-border rounded-xl overflow-hidden bg-card">
+        <div className="border border-border rounded-md overflow-hidden bg-card">
             {/* Toolbar */}
             <div className="flex flex-wrap items-center gap-1 p-2 border-b border-border bg-muted/30">
                 {/* Undo/Redo */}
@@ -339,7 +339,7 @@ export default function RichTextEditor({ content, onChange, onInsertImage, place
                         <LinkIcon className="w-4 h-4" />
                     </ToolbarButton>
                     {showLinkInput && (
-                        <div className="absolute top-full left-0 mt-2 z-10 bg-card border border-border rounded-lg p-2 flex gap-2 shadow-lg">
+                        <div className="absolute top-full left-0 mt-2 z-10 bg-card border border-border rounded-md p-2 flex gap-2 shadow-lg">
                             <input
                                 type="url"
                                 value={linkUrl}
