@@ -14,13 +14,14 @@ import type { Category } from "@/lib/categories/Category.model";
 import type { Tag as TagType } from "@/lib/tags/Tag.model";
 import type { Media } from "@/lib/medias/Media.model";
 import type { PostStatus } from "@/types";
-import RichTextEditor from "../../components/RichTextEditor";
-import Select from "@/components/Select";
-import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
-import DateTimePicker from "@/components/DateTimePicker";
-import TagSelector from "../../components/TagSelector";
-import MediaPickerModal from "@/components/MediaPickerModal";
+import RichTextEditor from "../../_components/RichTextEditor";
+import Select from "@/_components/Select";
+import Button from "@/_components/Button";
+import IconButton from "@/_components/IconButton";
+import DateTimePicker from "@/_components/DateTimePicker";
+import TagSelector from "../../_components/TagSelector";
+import Toolbar from "@/_components/Toolbar";
+import MediaPickerModal from "@/_components/MediaPickerModal";
 
 // Helper functions
 function generateSlug(title: string): string {
@@ -259,13 +260,13 @@ export default function PostEditorPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <Toolbar hideSearch>
                     <IconButton
                         icon={<Star className={isFeatured ? 'fill-yellow-400' : ''} />}
                         onClick={() => setIsFeatured(!isFeatured)}
                         colorClass={isFeatured ? 'text-yellow-400' : 'text-muted-foreground'}
                         hoverClass={isFeatured ? 'hover:bg-yellow-500/30' : 'hover:bg-muted'}
-                        className={`!p-3.5 rounded-xl ${isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
+                        className={`aspect-square ${isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
                         title={isFeatured ? 'Remover destaque' : 'Destacar'}
                     />
 
@@ -274,21 +275,20 @@ export default function PostEditorPage() {
                         onChange={(value) => setStatus(value as PostStatus)}
                         options={[
                             { value: 'draft', label: 'Rascunho', icon: FileEdit },
-                            { value: 'published', label: 'Publicado', icon: Eye },
-                            { value: 'scheduled', label: 'Agendado', icon: Clock },
+                            { value: 'published', label: 'Publicar', icon: Eye },
+                            { value: 'scheduled', label: 'Agendar', icon: Clock },
                         ]}
-                        className="w-40"
+                        className="h-full"
                     />
 
                     <Button
                         onClick={handleSave}
                         icon={Save}
                         loading={saving}
-                        size="lg"
                     >
                         Salvar
                     </Button>
-                </div>
+                </Toolbar>
             </div>
 
             {error && (
@@ -407,6 +407,7 @@ export default function PostEditorPage() {
                                 { value: '', label: 'Sem categoria' },
                                 ...categories.map(cat => ({ value: cat._id, label: cat.name }))
                             ]}
+                            className="h-13"
                         />
                     </div>
 
