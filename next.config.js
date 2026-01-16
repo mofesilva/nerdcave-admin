@@ -2,10 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    // Não precisa de remotePatterns porque usamos proxy local /api/media/
-    // O Next Image vai otimizar as imagens que passam pelo nosso proxy
-    unoptimized: false,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.cappuccino.app',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.dzign-e.app',
+      },
+    ],
   },
+  transpilePackages: ['@cappuccino/web-sdk'],
 };
 
 module.exports = nextConfig;

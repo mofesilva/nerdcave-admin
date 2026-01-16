@@ -1,118 +1,119 @@
-# Nerdcave Link Tree 🚀
+# Nerdcave CMS 🚀
 
-A modern, state-of-the-art link aggregator built with Next.js 14, TypeScript, and Tailwind CSS. This app provides a beautiful, responsive interface for all your important links, inspired by Linktree and Bento.
+Headless CMS / Backoffice para gerenciamento de conteúdo do Nerdcave Studio.
 
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?style=flat-square&logo=tailwind-css)
 
 ## ✨ Features
 
-- 🎨 **Modern Design**: Beautiful gradient backgrounds and glassmorphism effects
-- 📱 **Fully Responsive**: Perfect on mobile, tablet, and desktop
-- ⚡ **Fast Performance**: Built with Next.js for optimal speed
-- 🎭 **Smooth Animations**: Engaging hover effects and transitions
-- 🎯 **SEO Optimized**: Complete metadata and Open Graph support
-- 🔗 **Multiple Link Types**: Support for various content categories
-- 🌐 **Social Media Integration**: Connect all your social platforms
-- 🎨 **Customizable**: Easy to modify colors, gradients, and content
+- 📝 **Posts/Artigos**: Criar, editar, publicar artigos com rich text editor
+- 📸 **Álbuns/Galeria**: Gerenciar galerias de fotos
+- 🏷️ **Categorias & Tags**: Organizar conteúdo
+- 📁 **Media Library**: Upload e gerenciamento de imagens
+- 🔗 **Links**: Gerenciar links do linktree
+- 👤 **Perfil**: Configurações de perfil
+- 📊 **Analytics**: Dashboard com métricas
+- ⚙️ **Settings**: Configurações do site (cores, SEO, etc)
 
-## 🚀 Getting Started
+## 📁 Estrutura
 
-### Prerequisites
+```
+nerdcave-link-tree/
+├── app/
+│   ├── admin/            # Backoffice/CMS
+│   │   ├── posts/        # Gerenciamento de artigos
+│   │   ├── albums/       # Gerenciamento de álbuns
+│   │   ├── categories/   # Gerenciamento de categorias
+│   │   ├── tags/         # Gerenciamento de tags
+│   │   ├── media/        # Biblioteca de mídia
+│   │   ├── links/        # Gerenciamento de links
+│   │   ├── profile/      # Perfil do usuário
+│   │   ├── analytics/    # Dashboard de analytics
+│   │   └── settings/     # Configurações
+│   ├── api/              # API routes
+│   └── login/            # Página de login
+├── lib/
+│   ├── cappuccino/       # Cliente Cappuccino (BaaS)
+│   ├── articles/         # Módulo de artigos
+│   ├── albums/           # Módulo de álbuns
+│   ├── categories/       # Módulo de categorias
+│   ├── tags/             # Módulo de tags
+│   ├── medias/           # Módulo de mídias
+│   ├── links/            # Módulo de links
+│   ├── profiles/         # Módulo de perfis
+│   ├── settings/         # Módulo de configurações
+│   └── contexts/         # Contexts React
+└── components/           # Componentes compartilhados
+```
 
-- Node.js 18.x or higher
-- npm or yarn
+## 🚀 Configuração
 
-### Installation
+### Pré-requisitos
 
-1. Clone the repository:
+- Node.js 18.x ou superior
+- npm ou yarn
+
+### Instalação
+
+1. Clone o repositório:
 ```bash
 git clone https://github.com/mofesilva/nerdcave-link-tree.git
 cd nerdcave-link-tree
 ```
 
-2. Install dependencies:
+2. Instale as dependências:
 ```bash
 npm install
 ```
 
-3. Run the development server:
+3. Configure as variáveis de ambiente:
+```bash
+cp .env.local.example .env.local
+```
+
+Edite `.env.local` com suas credenciais:
+- `NEXT_PUBLIC_CAPPUCCINO_API_URL`: URL do backend Cappuccino
+- `NEXT_PUBLIC_CAPPUCCINO_API_KEY`: API Key do tenant
+
+4. Rode o servidor de desenvolvimento:
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Abra [http://localhost:3000](http://localhost:3000) - será redirecionado para /admin
 
-## 🛠️ Built With
+## 🛠️ Tecnologias
 
-- **[Next.js 14](https://nextjs.org/)** - React framework for production
-- **[TypeScript](https://www.typescriptlang.org/)** - Type safety and better DX
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[React 19](https://react.dev/)** - Latest React features
+- **[Next.js 16](https://nextjs.org/)** - React framework
+- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - Estilos utilitários
+- **[Cappuccino SDK](https://github.com/cappuccino)** - Backend as a Service
+- **[TipTap](https://tiptap.dev/)** - Rich text editor
+- **[Lucide React](https://lucide.dev/)** - Ícones
 
-## 📝 Customization
+## 🔗 Projetos Relacionados
 
-### Updating Links
+- **nerdcave-site**: Site público que consome os dados deste CMS
+- **cappuccino-js-sdk**: SDK JavaScript para o backend Cappuccino
 
-Edit the `links` array in `app/page.tsx`:
+## 📝 Arquitetura
 
-```typescript
-const links = [
-  {
-    title: "Your Title",
-    description: "Your description",
-    url: "https://your-url.com",
-    gradient: "from-color-500 to-color-500",
-  },
-  // Add more links...
-];
+Este projeto segue uma arquitetura em camadas:
+
+```
+Model (tipos)
+    ↓
+Collection (acesso ao banco via Cappuccino SDK)
+    ↓
+Mapper (conversão de dados)
+    ↓
+Service (lógica de negócios)
+    ↓
+Controller (interface de acesso)
+    ↓
+UI (componentes React)
 ```
 
-### Changing Profile Information
-
-Modify the profile section in `components/ProfileSection.tsx`:
-- Update the emoji or add an image
-- Change the name and title
-- Edit bio text and stats
-
-### Customizing Social Links
-
-Edit the `socials` array in `components/SocialLinks.tsx` to add or remove social platforms.
-
-### Styling
-
-The color scheme and animations can be customized in:
-- `app/globals.css` - Global styles
-- `tailwind.config.ts` - Theme configuration
-
-## 📦 Build for Production
-
-```bash
-npm run build
-npm start
-```
-
-## 🎨 Design Features
-
-- **Gradient Backgrounds**: Multiple color gradients for visual appeal
-- **Glassmorphism**: Modern frosted glass effect on cards
-- **Hover Effects**: Interactive animations on all clickable elements
-- **Responsive Grid**: Adapts beautifully to all screen sizes
-- **Dark Mode**: Built-in dark theme for better accessibility
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-## 💬 Support
-
-For support, email contact@nerdcave.com or join our Discord community.
-
----
-
-Made with ❤️ by Nerdcave
+Isso permite que a lógica de negócios seja facilmente reutilizada em outros projetos que consumam o mesmo backend Cappuccino.
