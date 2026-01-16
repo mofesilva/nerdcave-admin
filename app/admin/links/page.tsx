@@ -137,11 +137,11 @@ export default function LinksPage() {
             <p className="text-muted-foreground">Carregando seus links...</p>
           </div>
         ) : error ? (
-          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center text-destructive">
+          <div className="bg-destructive/10 border border-destructive/20 rounded-md p-6 text-center text-destructive">
             {error}
           </div>
         ) : links.length === 0 ? (
-          <div className="bg-card border border-border border-dashed rounded-2xl p-12 text-center">
+          <div className="bg-card border border-border border-dashed rounded-md p-12 text-center">
             <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mx-auto mb-4">
               <Plus className="w-8 h-8 text-muted-foreground" />
             </div>
@@ -159,7 +159,7 @@ export default function LinksPage() {
             {links.map((link) => (
               <div
                 key={link._id}
-                className="group bg-card hover:bg-accent/50 border border-border rounded-xl p-4 transition-all duration-200 hover:shadow-md flex items-center gap-4"
+                className="group bg-card hover:bg-accent/50 border border-border rounded-md p-4 transition-all duration-200 hover:shadow-md flex items-center gap-4"
               >
                 {/* Drag Handle */}
                 <IconButton
@@ -220,7 +220,7 @@ export default function LinksPage() {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100]" onClick={handleCloseModal}>
-          <div className="bg-card border border-border rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-card border border-border rounded-md max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200" onClick={(e) => e.stopPropagation()}>
             <div className="p-8">
               <h2 className="text-2xl font-bold text-foreground mb-2">
                 {editingLink ? 'Editar Link' : 'Novo Link'}
@@ -237,7 +237,7 @@ export default function LinksPage() {
                       type="text"
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
+                      className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
                       placeholder="Ex: Meu Canal do YouTube"
                       required
                     />
@@ -250,7 +250,7 @@ export default function LinksPage() {
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all resize-none"
+                      className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all resize-none"
                       placeholder="Uma breve descrição sobre este link..."
                       rows={3}
                       required
@@ -265,13 +265,13 @@ export default function LinksPage() {
                       type="url"
                       value={formData.url}
                       onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                      className="w-full px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
+                      className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
                       placeholder="https://..."
                       required
                     />
                   </div>
 
-                  <div className="flex items-center p-4 bg-background rounded-xl border border-border">
+                  <div className="flex items-center p-4 bg-background rounded-md border border-border">
                     <input
                       type="checkbox"
                       id="isActive"
