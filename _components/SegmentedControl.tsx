@@ -50,11 +50,11 @@ export default function SegmentedControl<T extends string>({
     return (
         <div
             ref={containerRef}
-            className="relative flex items-center gap-1 px-1.5 py-1.5 bg-card border border-border rounded-xl"
+            className="relative flex items-center px-1.25 py-1.25 bg-card border border-border rounded-xl"
         >
             {/* Sliding indicator */}
             <div
-                className={`absolute top-1.5 bottom-1.5 bg-primary rounded-md ${hasInteracted ? 'transition-all duration-300 ease-out' : ''}`}
+                className={`absolute top-1.25 bottom-1.25 bg-primary rounded-sm ${hasInteracted ? 'transition-all duration-300 ease-out' : ''}`}
                 style={{
                     left: indicatorStyle.left,
                     width: indicatorStyle.width,
