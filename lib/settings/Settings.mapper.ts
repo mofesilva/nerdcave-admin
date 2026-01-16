@@ -37,5 +37,8 @@ export function settingsFromDocument(doc: any): Settings {
         sessionTimeoutMinutes: data.sessionTimeoutMinutes,
         maxLoginAttempts: data.maxLoginAttempts,
         requireEmailVerification: data.requireEmailVerification,
+
+        // Layout
+        fullWidthLayout: data.fullWidthLayout,
     };
 }
