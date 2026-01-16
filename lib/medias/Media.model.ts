@@ -4,4 +4,5 @@ export type Media = {
     title: string;
     altText?: string;
     deleted: boolean;
+    createdAt?: string;
 };
