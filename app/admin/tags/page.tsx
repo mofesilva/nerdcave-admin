@@ -172,9 +172,8 @@ export default function TagsPage() {
         >
             <Tag className="w-4 h-4 text-primary" />
             <span className="font-medium text-foreground">{tag.name}</span>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${
-                tag.usageCount > 0 ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
-            }`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${tag.usageCount > 0 ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
+                }`}>
                 {tag.usageCount} uso{tag.usageCount !== 1 ? 's' : ''}
             </span>
 
@@ -211,9 +210,8 @@ export default function TagsPage() {
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3">
                         <h3 className="font-semibold text-foreground truncate">{tag.name}</h3>
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                            tag.usageCount > 0 ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
-                        }`}>
+                        <span className={`text-xs px-2 py-1 rounded-full ${tag.usageCount > 0 ? 'bg-primary/20 text-primary' : 'bg-secondary text-muted-foreground'
+                            }`}>
                             {tag.usageCount} uso{tag.usageCount !== 1 ? 's' : ''}
                         </span>
                     </div>
