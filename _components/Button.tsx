@@ -49,7 +49,7 @@ export default function Button({
     onClick,
     type = 'button',
     variant = 'primary',
-    size = 'md',
+    size = 'lg',
     icon: Icon,
     iconPosition = 'left',
     loading = false,
@@ -76,7 +76,7 @@ export default function Button({
             onClick={onClick}
             disabled={isDisabled}
             className={`
-                inline-flex items-center justify-center font-semibold rounded-xl
+                inline-flex items-center justify-center font-semibold rounded-md
                 transition-all duration-200 ease-out
                 active:scale-95
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer
