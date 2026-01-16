@@ -155,11 +155,11 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                     key={day}
                     type="button"
                     onClick={() => handleSelectDay(day)}
-                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors cursor-pointer ${isSelected
-                            ? 'bg-primary text-primary-foreground'
-                            : isToday
-                                ? 'bg-nerdcave-lime/20 text-nerdcave-lime'
-                                : 'text-foreground hover:bg-muted'
+                    className={`w-9 h-9 rounded-md text-sm font-medium transition-colors cursor-pointer ${isSelected
+                        ? 'bg-primary text-primary-foreground'
+                        : isToday
+                            ? 'bg-nerdcave-lime/20 text-nerdcave-lime'
+                            : 'text-foreground hover:bg-muted'
                         }`}
                 >
                     {day}
@@ -184,9 +184,9 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                                 key={hour}
                                 type="button"
                                 onClick={() => handleSelectHour(hour)}
-                                className={`w-full py-2 text-sm rounded-lg transition-colors cursor-pointer ${hour === selectedDate.hour
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'text-foreground hover:bg-muted'
+                                className={`w-full py-2 text-sm rounded-md transition-colors cursor-pointer ${hour === selectedDate.hour
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-foreground hover:bg-muted'
                                     }`}
                             >
                                 {hour.toString().padStart(2, '0')}
@@ -202,9 +202,9 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                                 key={minute}
                                 type="button"
                                 onClick={() => handleSelectMinute(minute)}
-                                className={`w-full py-2 text-sm rounded-lg transition-colors cursor-pointer ${minute === selectedDate.minute
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'text-foreground hover:bg-muted'
+                                className={`w-full py-2 text-sm rounded-md transition-colors cursor-pointer ${minute === selectedDate.minute
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'text-foreground hover:bg-muted'
                                     }`}
                             >
                                 {minute.toString().padStart(2, '0')}
@@ -222,7 +222,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
             <button
                 type="button"
                 onClick={() => { setIsOpen(!isOpen); setView('date'); }}
-                className={`w-full flex items-center justify-between gap-2 px-4 py-3 bg-background border border-border rounded-xl text-left transition-all duration-200 cursor-pointer ${isOpen ? 'border-primary' : 'hover:border-muted-foreground/50'
+                className={`w-full flex items-center justify-between gap-2 px-4 py-3 bg-background border border-border rounded-md text-left transition-all duration-200 cursor-pointer ${isOpen ? 'border-primary' : 'hover:border-muted-foreground/50'
                     }`}
             >
                 <span className="flex items-center gap-2">
@@ -235,7 +235,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                     <button
                         type="button"
                         onClick={handleClear}
-                        className="p-1 hover:bg-muted rounded-lg transition-colors"
+                        className="p-1 hover:bg-muted rounded-md transition-colors"
                     >
                         <X className="w-4 h-4 text-muted-foreground" />
                     </button>
@@ -244,15 +244,15 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute z-50 w-80 mt-2 bg-card border border-border rounded-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="absolute z-50 w-80 mt-2 bg-card border border-border rounded-md overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
                     {/* Tabs */}
                     <div className="flex border-b border-border">
                         <button
                             type="button"
                             onClick={() => setView('date')}
                             className={`flex-1 py-3 text-sm font-medium transition-colors cursor-pointer ${view === 'date'
-                                    ? 'text-primary border-b-2 border-primary'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'text-primary border-b-2 border-primary'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             <Calendar className="w-4 h-4 inline-block mr-2" />
@@ -262,8 +262,8 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                             type="button"
                             onClick={() => setView('time')}
                             className={`flex-1 py-3 text-sm font-medium transition-colors cursor-pointer ${view === 'time'
-                                    ? 'text-primary border-b-2 border-primary'
-                                    : 'text-muted-foreground hover:text-foreground'
+                                ? 'text-primary border-b-2 border-primary'
+                                : 'text-muted-foreground hover:text-foreground'
                                 }`}
                         >
                             <Clock className="w-4 h-4 inline-block mr-2" />
@@ -279,7 +279,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                                     <button
                                         type="button"
                                         onClick={handlePrevMonth}
-                                        className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer"
+                                        className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
                                     </button>
@@ -289,7 +289,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                                     <button
                                         type="button"
                                         onClick={handleNextMonth}
-                                        className="p-2 hover:bg-muted rounded-lg transition-colors cursor-pointer"
+                                        className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
                                     >
                                         <ChevronRight className="w-4 h-4" />
                                     </button>
@@ -316,7 +316,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
 
                     {/* Preview + Confirm */}
                     <div className="px-4 pb-4 space-y-3">
-                        <div className="bg-muted rounded-lg p-3 text-center">
+                        <div className="bg-muted rounded-md p-3 text-center">
                             <p className="text-sm text-foreground font-medium">
                                 {formatPreview()}
                             </p>
@@ -324,7 +324,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                         <button
                             type="button"
                             onClick={handleConfirm}
-                            className="w-full py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-primary text-primary-foreground rounded-md font-semibold hover:bg-primary/90 transition-colors cursor-pointer flex items-center justify-center gap-2"
                         >
                             <Check className="w-4 h-4" />
                             Confirmar
