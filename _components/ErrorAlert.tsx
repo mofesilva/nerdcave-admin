@@ -34,7 +34,7 @@ export default function ErrorAlert({
     if (!message) return null;
 
     return (
-        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${variantStyles[variant]} ${className}`}>
+        <div className={`flex items-center gap-3 px-4 py-3 rounded-md border ${variantStyles[variant]} ${className}`}>
             <Icon className="w-5 h-5 shrink-0" />
             <span className="flex-1">{message}</span>
             {onDismiss && (
