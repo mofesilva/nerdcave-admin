@@ -36,6 +36,17 @@ export async function getAllMedias(): Promise<Media[]> {
     return result.documents.map(doc => mediaFromDocument(doc));
 }
 
+export async function getRecentMedias(limit: number = 5): Promise<Media[]> {
+    const medias = getMediasCollection();
+    const result = await medias.aggregate([
+        { $match: { deleted: false } },
+        { $sort: { created_at: -1 } },
+        { $limit: limit }
+    ]);
+    if (result.error || !result.documents) return [];
+    return result.documents.map(doc => mediaFromDocument(doc));
+}
+
 export async function getMediasPaginated({ page = 1, pageSize = DEFAULT_PAGE_SIZE, query }: MediaParametersProps): Promise<PaginatedResult<Media>> {
     const medias = getMediasCollection();
     const skip = (page - 1) * pageSize;
