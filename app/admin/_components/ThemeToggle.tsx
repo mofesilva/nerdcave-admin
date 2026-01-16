@@ -17,15 +17,15 @@ export default function ThemeToggle() {
             aria-checked={isDark}
             onClick={toggle}
             title={isDark ? 'Switch to light' : 'Switch to dark'}
-            className="relative w-20 h-10 rounded-2xl focus:outline-none cursor-pointer"
+            className="relative w-20 h-10 rounded-md focus:outline-none cursor-pointer"
         >
             {/* background */}
-            <span className="absolute inset-0 rounded-2xl bg-card" />
+            <span className="absolute inset-0 rounded-md bg-card" />
 
             {/* knob */}
             <span
                 data-theme-toggle-knob
-                className="absolute top-1 w-8 h-8 bg-primary rounded-xl shadow-lg"
+                className="absolute top-1 w-8 h-8 bg-primary rounded-md shadow-lg"
                 style={{
                     left: isDark ? '44px' : '4px',
                     transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
