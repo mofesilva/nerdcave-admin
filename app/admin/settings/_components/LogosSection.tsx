@@ -25,7 +25,7 @@ export default function LogosSection({
     onRemove,
 }: LogosSectionProps) {
     return (
-        <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+        <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
             <h2 className="text-xl font-bold text-foreground mb-2">Logos</h2>
             <p className="text-muted-foreground mb-6">
                 Configure as logos do painel administrativo para temas claro e escuro
