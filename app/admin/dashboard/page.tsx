@@ -20,6 +20,10 @@ import DeviceStats from "./componentes/DeviceStats";
 import RecentPosts from "./componentes/RecentPosts";
 import TopPosts from "./componentes/TopPosts";
 import TopLinks from "./componentes/TopLinks";
+import SectionSeparator from "./componentes/SectionSeparator";
+import RecentUploads from "./componentes/RecentUploads";
+import QuickActions from "./componentes/QuickActions";
+import { BarChart3, Newspaper, Link as LinkIcon, Activity } from "lucide-react";
 
 interface Analytics {
   totalClicks: number;
@@ -35,6 +39,7 @@ interface DashboardData {
   articles: Article[];
   albums: Album[];
   media: Media[];
+  recentMedia: Media[];
   totalCategories: number;
 }
 
@@ -45,6 +50,7 @@ export default function DashboardPage() {
     articles: [],
     albums: [],
     media: [],
+    recentMedia: [],
     totalCategories: 0
   });
   const [loading, setLoading] = useState(true);
@@ -52,11 +58,12 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [links, articles, albums, media, categories] = await Promise.all([
+        const [links, articles, albums, media, recentMedia, categories] = await Promise.all([
           LinksController.getAllLinks(),
           ArticlesController.getAllArticles(),
           AlbumsController.getAllAlbumsController(),
           MediaController.getAllMedias(),
+          MediaController.getRecentMedias(5),
           CategoriesController.getAllCategories()
         ]);
         setData({
@@ -65,6 +72,7 @@ export default function DashboardPage() {
           articles,
           albums,
           media,
+          recentMedia,
           totalCategories: categories.length
         });
       } catch (error) {
@@ -78,6 +86,8 @@ export default function DashboardPage() {
 
   // Computed stats
   const stats = useMemo(() => {
+
+    //TODO: Buscar essas informações direto do banco de dados ao invés de usar filter aqui
     const activeLinks = data.links.filter(l => l.isActive).length;
     const publishedPosts = data.articles.filter(a => a.status === 'published').length;
     const draftPosts = data.articles.filter(a => a.status === 'draft').length;
@@ -131,20 +141,19 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-3">
-      {/* Welcome Banner */}
-      <WelcomeBanner
-        publishedPosts={stats.publishedPosts}
-        totalViews={formatNumber(stats.totalViews)}
+      {/* Seção: Visão Geral */}
+      <SectionSeparator 
+        title="Visão Geral" 
+        description="Resumo do seu hub"
+        icon={Activity}
       />
-
-      {/* Main Stats Grid */}
+      {/* <QuickActions /> */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         <StatCard
           icon={FileText}
           label="Posts"
           value={data.articles.length}
           sublabel={`${stats.publishedPosts} publicados`}
-          color="blue"
           href="/admin/posts"
         />
         <StatCard
@@ -152,14 +161,12 @@ export default function DashboardPage() {
           label="Views"
           value={formatNumber(stats.totalViews)}
           trend="+12%"
-          color="emerald"
         />
         <StatCard
           icon={Link2}
           label="Links"
           value={data.links.length}
           sublabel={`${stats.activeLinks} ativos`}
-          color="purple"
           href="/admin/links"
         />
         <StatCard
@@ -167,7 +174,6 @@ export default function DashboardPage() {
           label="Álbuns"
           value={data.albums.length}
           sublabel={`${stats.publicAlbums} públicos`}
-          color="orange"
           href="/admin/albums"
         />
         <StatCard
@@ -175,7 +181,6 @@ export default function DashboardPage() {
           label="Mídia"
           value={stats.totalMedia}
           sublabel="arquivos"
-          color="pink"
           href="/admin/media"
         />
         <StatCard
@@ -183,11 +188,26 @@ export default function DashboardPage() {
           label="Visitantes"
           value={formatNumber(data.analytics?.uniqueVisitors || 0)}
           trend="+8%"
-          color="cyan"
         />
       </div>
 
-      {/* Analytics Row */}
+      {/* Seção: Conteúdo */}
+      <SectionSeparator 
+        title="Conteúdo" 
+        description="Posts recentes e uploads"
+        icon={Newspaper}
+      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <RecentPosts posts={recentPosts} />
+        <RecentUploads media={data.recentMedia} />
+      </div>
+
+      {/* Seção: Analytics */}
+      <SectionSeparator 
+        title="Analytics" 
+        description="Tráfego, dispositivos e performance"
+        icon={BarChart3}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <TrafficChart data={data.analytics?.clicksByDate || []} />
         <DeviceStats
@@ -197,22 +217,9 @@ export default function DashboardPage() {
           totalClicks={data.analytics?.totalClicks || 0}
         />
       </div>
-
-      {/* Content Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <RecentPosts posts={recentPosts} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
         <TopPosts posts={topPosts} />
-      </div>
-
-      {/* Top Links */}
-      <TopLinks links={data.analytics?.topLinks || []} />
-
-      {/* Quick Stats Footer */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <QuickStat icon={Star} label="Posts Destacados" value={stats.featuredPosts} />
-        <QuickStat icon={FileText} label="Rascunhos" value={stats.draftPosts} />
-        <QuickStat icon={FolderOpen} label="Categorias" value={data.totalCategories} />
-        <QuickStat icon={Target} label="Links Ativos" value={stats.activeLinks} />
+        <TopLinks links={data.analytics?.topLinks || []} />
       </div>
     </div>
   );
