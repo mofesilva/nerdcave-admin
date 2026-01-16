@@ -142,8 +142,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-3">
       {/* Seção: Visão Geral */}
-      <SectionSeparator 
-        title="Visão Geral" 
+      <SectionSeparator
+        title="Visão Geral"
         description="Resumo do seu hub"
         icon={Activity}
       />
@@ -192,8 +192,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Seção: Conteúdo */}
-      <SectionSeparator 
-        title="Conteúdo" 
+      <SectionSeparator
+        title="Conteúdo"
         description="Posts recentes e uploads"
         icon={Newspaper}
       />
@@ -203,8 +203,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Seção: Analytics */}
-      <SectionSeparator 
-        title="Analytics" 
+      <SectionSeparator
+        title="Analytics"
         description="Tráfego, dispositivos e performance"
         icon={BarChart3}
       />
