@@ -10,7 +10,7 @@ interface TagSelectorProps {
 
 export default function TagSelector({ tags, selectedTagIds, onToggle }: TagSelectorProps) {
     return (
-        <div className="bg-card rounded-xl border border-border p-6">
+        <div className="bg-card rounded-md border border-border p-6">
             <h3 className="font-semibold text-foreground mb-4">Tags</h3>
             <div className="flex flex-wrap gap-2">
                 {tags.map(tag => (
