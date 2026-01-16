@@ -26,7 +26,7 @@ export default function EmptyState({
     className = "",
 }: EmptyStateProps) {
     return (
-        <div className={`text-center py-16 bg-card rounded-2xl border border-border ${className}`}>
+        <div className={`text-center py-16 bg-card rounded-md border border-border ${className}`}>
             <Icon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <p className="text-lg text-muted-foreground">{title}</p>
             {description && (
