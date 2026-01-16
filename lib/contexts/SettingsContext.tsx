@@ -1,66 +1,106 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
-import * as SettingsController from "@/lib/settings/Settings.controller";
-import type { Settings } from "@/lib/settings/Settings.model";
+import * as ThemeSettingsController from "@/lib/theme-settings/ThemeSettings.controller";
+import type { ThemeSettings } from "@/lib/theme-settings/ThemeSettings.model";
+import type { Media } from "@/lib/medias/Media.model";
+import { useAutoLogin } from "./AutoLoginContext";
 
 interface SettingsContextType {
-    settings: Settings | null;
-    primaryColor: string;
+    settings: ThemeSettings | null;
+    accentColor: string;
+    accentTextColor: string;
+    loginPageLogo: Media | undefined;
+    sideBarLogoDark: Media | undefined;
+    sideBarLogoLight: Media | undefined;
     loading: boolean;
-    updatePrimaryColor: (color: string) => Promise<void>;
+    updateAccentColor: (color: string) => Promise<void>;
     refreshSettings: () => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
-const DEFAULT_PRIMARY_COLOR = "#0067ff";
+const DEFAULT_ACCENT_COLOR = "#0067ff";
+const DEFAULT_ACCENT_TEXT_COLOR = "#ffffff";
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-    const [settings, setSettings] = useState<Settings | null>(null);
-    const [primaryColor, setPrimaryColor] = useState(DEFAULT_PRIMARY_COLOR);
+    const { isReady: isAuthReady } = useAutoLogin();
+    const [settings, setSettings] = useState<ThemeSettings | null>(null);
+    const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT_COLOR);
+    const [accentTextColor, setAccentTextColor] = useState(DEFAULT_ACCENT_TEXT_COLOR);
+    const [loginPageLogo, setLoginPageLogo] = useState<Media | undefined>(undefined);
+    const [sideBarLogoDark, setSideBarLogoDark] = useState<Media | undefined>(undefined);
+    const [sideBarLogoLight, setSideBarLogoLight] = useState<Media | undefined>(undefined);
     const [loading, setLoading] = useState(true);
 
-    const applyPrimaryColor = useCallback((color: string) => {
-        // Aplica a cor como CSS variable no :root
-        document.documentElement.style.setProperty("--primary", color);
-        document.documentElement.style.setProperty("--ring", color);
-        document.documentElement.style.setProperty("--sidebar-primary", color);
-        document.documentElement.style.setProperty("--sidebar-ring", color);
-        setPrimaryColor(color);
+    const applyColors = useCallback((color: string, textColor: string) => {
+        console.log('[SettingsContext] applyColors called with:', color, textColor);
+        if (typeof document !== 'undefined') {
+            document.documentElement.style.setProperty("--primary", color);
+            document.documentElement.style.setProperty("--primary-foreground", textColor);
+            document.documentElement.style.setProperty("--ring", color);
+            document.documentElement.style.setProperty("--sidebar-primary", color);
+            document.documentElement.style.setProperty("--sidebar-ring", color);
+            console.log('[SettingsContext] CSS variables set!');
+        }
+        setAccentColor(color);
+        setAccentTextColor(textColor);
     }, []);
 
     const fetchSettings = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await SettingsController.getSettings();
+            console.log('[SettingsContext] Fetching settings...');
+            const data = await ThemeSettingsController.getOrCreateThemeSettings();
+            console.log('[SettingsContext] Got data:', data);
             if (data) {
                 setSettings(data);
-                applyPrimaryColor(data.primaryColor);
+                console.log('[SettingsContext] Applying colors:', data.accentColor, data.accentTextColor);
+                console.log('[SettingsContext] Logos:', { loginPageLogo: data.loginPageLogo, sideBarLogoDark: data.sideBarLogoDark, sideBarLogoLight: data.sideBarLogoLight });
+                applyColors(
+                    data.accentColor || DEFAULT_ACCENT_COLOR,
+                    data.accentTextColor || DEFAULT_ACCENT_TEXT_COLOR
+                );
+                setLoginPageLogo(data.loginPageLogo);
+                setSideBarLogoDark(data.sideBarLogoDark);
+                setSideBarLogoLight(data.sideBarLogoLight);
             } else {
-                // Settings não existe ainda - usa valores padrão
-                // (será criado quando admin acessar pela primeira vez)
-                applyPrimaryColor(DEFAULT_PRIMARY_COLOR);
+                console.log('[SettingsContext] No data, using defaults');
+                applyColors(DEFAULT_ACCENT_COLOR, DEFAULT_ACCENT_TEXT_COLOR);
             }
         } catch (error) {
-            console.error("Erro ao carregar settings:", error);
-            applyPrimaryColor(DEFAULT_PRIMARY_COLOR);
+            console.error("[SettingsContext] Erro ao carregar settings:", error);
+            applyColors(DEFAULT_ACCENT_COLOR, DEFAULT_ACCENT_TEXT_COLOR);
         } finally {
             setLoading(false);
         }
-    }, [applyPrimaryColor]);
+    }, [applyColors]);
 
     useEffect(() => {
-        fetchSettings();
-    }, [fetchSettings]);
+        // Só carrega settings após o guest login estar pronto
+        if (isAuthReady) {
+            fetchSettings();
+        }
+    }, [isAuthReady, fetchSettings]);
 
-    const updatePrimaryColor = async (color: string) => {
+    // Re-aplica cores quando settings mudar
+    useEffect(() => {
+        if (settings?.accentColor) {
+            console.log('[SettingsContext] Re-applying colors from settings:', settings.accentColor);
+            applyColors(settings.accentColor, settings.accentTextColor || DEFAULT_ACCENT_TEXT_COLOR);
+        }
+    }, [settings, applyColors]);
+
+    const updateAccentColor = async (color: string) => {
         if (!settings) return;
 
         try {
-            await SettingsController.updatePrimaryColor({ color });
-            applyPrimaryColor(color);
-            setSettings({ ...settings, primaryColor: color });
+            await ThemeSettingsController.updateThemeSettings({
+                id: settings._id,
+                updates: { accentColor: color }
+            });
+            applyColors(color, accentTextColor);
+            setSettings({ ...settings, accentColor: color });
         } catch (error) {
             console.error("Erro ao atualizar cor:", error);
         }
@@ -74,9 +114,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         <SettingsContext.Provider
             value={{
                 settings,
-                primaryColor,
+                accentColor,
+                accentTextColor,
+                loginPageLogo,
+                sideBarLogoDark,
+                sideBarLogoLight,
                 loading,
-                updatePrimaryColor,
+                updateAccentColor,
                 refreshSettings,
             }}
         >
