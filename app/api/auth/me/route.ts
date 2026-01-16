@@ -1,26 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerClient } from '@/lib/cappuccino/server';
+/**
+ * API Route: GET /api/auth/me
+ * 
+ * Retorna o usuário atual autenticado.
+ */
 
-export async function GET(request: NextRequest) {
+import { NextResponse } from 'next/server';
+import * as AuthService from '@/lib/auth/Auth.server.service';
+
+export async function GET() {
   try {
-    const { apiClient } = await getServerClient();
+    const result = await AuthService.getCurrentUser();
 
-    // Buscar o usuário atual usando o token dos cookies
-    const result = await apiClient.get('/dbauth/me');
-
-    if (!result || result.error) {
+    if (!result.success) {
       return NextResponse.json(
-        { error: 'Usuário não encontrado' },
+        { error: result.error },
         { status: 404 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      user: result.document,
+      user: result.user,
     });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error('Get user route error:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar usuário' },
       { status: 500 }
