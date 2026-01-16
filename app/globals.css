@@ -4,6 +4,23 @@
 /* Safelist para classes dinâmicas de cores nerdcave */
 @source "../../safelist.txt";
 
+/* Transição suave para troca de tema - apenas cores, não afeta outras transições */
+.theme-transition,
+.theme-transition *:not([data-theme-toggle-knob]) {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.15s ease !important;
+}
+
+/* Esconde scrollbar globalmente */
+html {
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+html::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Edge */
+}
+
 /* Outfit helpers */
 :root {
   --font-outfit: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
@@ -87,6 +104,19 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Animação shimmer para skeleton loading */
+  --animate-shimmer: shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 :root {
