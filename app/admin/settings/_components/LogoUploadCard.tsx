@@ -36,7 +36,7 @@ export default function LogoUploadCard({
                 <button
                     onClick={onSelect}
                     className={cn(
-                        "w-28 h-28 rounded-xl flex flex-col items-center justify-center transition-all",
+                        "w-28 h-28 rounded-md flex flex-col items-center justify-center transition-all",
                         isDark ? "bg-zinc-900" : "bg-white border-zinc-300",
                         media
                             ? "border border-border hover:border-primary"
@@ -49,7 +49,7 @@ export default function LogoUploadCard({
                             alt={label || "Logo"}
                             width={100}
                             height={100}
-                            className="object-contain rounded-lg p-1"
+                            className="object-contain rounded-md p-1"
                         />
                     ) : (
                         <>
