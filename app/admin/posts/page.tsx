@@ -3,12 +3,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { Plus, FileText, Loader2, LayoutGrid, List, ArrowDownAZ, Clock, FolderOpen } from "lucide-react";
 import Link from "next/link";
-import FilterDropdown from "@/components/FilterDropdown";
-import Button from "@/components/Button";
-import SegmentedControl from "@/components/SegmentedControl";
-import StatusBadges from "@/components/StatusBadges";
-import Toolbar from "@/components/Toolbar";
-import { PostCardWithLoader } from "./components/PostCardWithLoader";
+import FilterDropdown from "@/_components/FilterDropdown";
+import Button from "@/_components/Button";
+import SegmentedControl from "@/_components/SegmentedControl";
+import StatusBadges from "@/_components/StatusBadges";
+import Toolbar from "@/_components/Toolbar";
+import { PostCardWithLoader } from "./_components/PostCardWithLoader";
 import * as ArticlesController from "@/lib/articles/Article.controller";
 import * as CategoriesController from "@/lib/categories/Category.controller";
 import type { Article } from "@/lib/articles/Article.model";
@@ -130,7 +130,7 @@ export default function PostsPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'published':
-                return <StatusBadges status="Publicado" bgColor="bg-green-500/20" textColor="text-green-400" />;
+                return <StatusBadges status="Publicado" bgColor="bg-primary/20" textColor="text-primary" />;
             case 'scheduled':
                 return <StatusBadges status="Agendado" bgColor="bg-yellow-500/20" textColor="text-yellow-400" />;
             default:
