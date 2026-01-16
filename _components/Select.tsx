@@ -62,7 +62,7 @@ export default function Select({
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 title={iconOnly ? (selectedOption?.label || placeholder) : undefined}
-                className={`flex items-center justify-center gap-2 bg-card border border-border rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer h-full ${iconOnly
+                className={`flex items-center justify-center gap-2 bg-card border border-border rounded-md text-sm font-medium transition-all duration-200 cursor-pointer h-13 ${iconOnly
                     ? 'px-4'
                     : 'px-4'
                     } ${isOpen
@@ -89,7 +89,7 @@ export default function Select({
 
             {/* Dropdown */}
             {isOpen && (
-                <div className={`absolute z-50 mt-2 min-w-[200px] py-1 bg-card border border-border rounded-xl overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150 ${iconOnly ? 'right-0' : 'left-0'
+                <div className={`absolute z-50 mt-2 min-w-[200px] py-1 bg-card border border-border rounded-md overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150 ${iconOnly ? 'right-0' : 'left-0'
                     }`}>
                     {label && (
                         <div className="px-3 py-2 text-xs text-muted-foreground font-medium uppercase tracking-wider border-b border-border">
