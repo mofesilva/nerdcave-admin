@@ -73,9 +73,9 @@ export default function Pagination({
                     <button
                         key={p}
                         onClick={() => onPageChange(p)}
-                        className={`min-w-[36px] h-9 rounded-lg text-sm font-medium transition-colors ${p === page
-                                ? "bg-primary text-primary-foreground"
-                                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                        className={`min-w-[36px] h-9 rounded-md text-sm font-medium transition-colors ${p === page
+                            ? "bg-primary text-primary-foreground"
+                            : "hover:bg-muted text-muted-foreground hover:text-foreground"
                             }`}
                     >
                         {p}
