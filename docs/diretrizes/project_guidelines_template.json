@@ -1,0 +1,505 @@
+{
+  "purpose": "Template de diretrizes para IA aplicar padrões arquiteturais e boas práticas em qualquer projeto de software.",
+  "project_specifics": {
+    "project_name": "Cappuccino Blog Headless CMS",
+    "language": "Typescript",
+    "framework": "Next.js",
+    "architecture_pattern": "MVC com separação clara de camadas",
+    "description": "O Cappuccino Blog Headless CMS é uma aplicação web construída com Next.js que serve como um sistema de gerenciamento de conteúdo (CMS) para blogs de forma headless, desacoplada do site público. Ele permite que os usuários criem, editem e publiquem posts de blog, gerenciem categorias e tags, e visualizem estatísticas de engajamento. A aplicação segue o padrão arquitetural MVC (Model-View-Controller) com uma separação clara entre as camadas de apresentação, controle, negócio e dados. O frontend é desenvolvido com React, enquanto o backend utiliza Next.js API Routes para lidar com a lógica de negócio e interações com o banco de dados. A aplicação integra-se com o SDK do Cappuccino Cloud Database para funcionalidades de operações CRUD. O banco de dados utilizado é MongoDB, acessado através de uma camada de infraestrutura que abstrai os detalhes de persistência. O sistema é projetado para ser escalável, modular e fácil de manter, seguindo princípios de Clean Architecture e boas práticas de desenvolvimento.",
+    "tech_stack": {
+      "backend": "Node.js, Express",
+      "frontend": "Next.js, React",
+      "database": "MongoDB",
+      "external_services": "Akamai Cloud, Cappuccino Cloud Database SDK"
+    }
+  },
+  "reference_files": {
+    "description": "Arquivos de referência essenciais para entender e trabalhar no projeto. A IA deve consultar estes recursos antes de fazer mudanças significativas.",
+    "project_structure": {
+      "description": "Estrutura de diretórios e organização do projeto",
+      "files": [
+        {
+          "path": "[ex: /docs/project-structure.md]",
+          "description": "[Descrição da estrutura de pastas]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /docs/architecture-diagram.png]",
+          "description": "[Diagrama visual da arquitetura]",
+          "priority": "[alta|média|baixa]"
+        }
+      ]
+    },
+    "documentation": {
+      "description": "Documentação técnica e de negócio",
+      "files": [
+        {
+          "path": "[ex: /docs/README.md]",
+          "description": "[Documentação geral do projeto]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /docs/API.md]",
+          "description": "[Documentação de APIs]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /docs/CONTRIBUTING.md]",
+          "description": "[Guia de contribuição]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /docs/business-rules.md]",
+          "description": "[Regras de negócio]",
+          "priority": "[alta|média|baixa]"
+        }
+      ]
+    },
+    "design_references": {
+      "description": "Designs, mockups e referências visuais",
+      "files": [
+        {
+          "path": "[ex: /design/mockups/]",
+          "description": "[Pasta com mockups de UI]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /design/style-guide.pdf]",
+          "description": "[Guia de estilo visual]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /design/user-flow.png]",
+          "description": "[Fluxo de usuário]",
+          "priority": "[alta|média|baixa]"
+        }
+      ]
+    },
+    "technical_specs": {
+      "description": "Especificações técnicas e diagramas",
+      "files": [
+        {
+          "path": "[ex: /docs/database-schema.png]",
+          "description": "[Esquema do banco de dados]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /docs/sequence-diagrams/]",
+          "description": "[Diagramas de sequência]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /docs/data-flow.md]",
+          "description": "[Fluxo de dados no sistema]",
+          "priority": "[alta|média|baixa]"
+        }
+      ]
+    },
+    "code_examples": {
+      "description": "Exemplos de código e padrões estabelecidos",
+      "files": [
+        {
+          "path": "[ex: /examples/component-pattern.tsx]",
+          "description": "[Exemplo de como criar componentes]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /examples/service-pattern.ts]",
+          "description": "[Exemplo de como criar services]",
+          "priority": "[alta|média|baixa]"
+        }
+      ]
+    },
+    "configuration_files": {
+      "description": "Arquivos de configuração importantes",
+      "files": [
+        {
+          "path": "[ex: package.json]",
+          "description": "[Dependências e scripts do projeto]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: tsconfig.json]",
+          "description": "[Configuração do TypeScript]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: .env.example]",
+          "description": "[Variáveis de ambiente]",
+          "priority": "[alta|média|baixa]"
+        }
+      ]
+    },
+    "testing_references": {
+      "description": "Referências sobre testes e qualidade",
+      "files": [
+        {
+          "path": "[ex: /docs/testing-strategy.md]",
+          "description": "[Estratégia de testes]",
+          "priority": "[alta|média|baixa]"
+        },
+        {
+          "path": "[ex: /tests/examples/]",
+          "description": "[Exemplos de testes]",
+          "priority": "[alta|média|baixa]"
+        }
+      ]
+    },
+    "additional_resources": {
+      "description": "Outros recursos relevantes",
+      "files": [
+        {
+          "path": "[CAMINHO_DO_ARQUIVO]",
+          "description": "[DESCRIÇÃO]",
+          "priority": "[alta|média|baixa]",
+          "type": "[markdown|image|pdf|code|other]",
+          "notes": "[NOTAS_ADICIONAIS_SE_NECESSÁRIO]"
+        }
+      ]
+    },
+    "usage_instructions": {
+      "for_ai": [
+        "Consultar arquivos de prioridade ALTA antes de fazer mudanças arquiteturais",
+        "Verificar exemplos de código antes de criar novos padrões",
+        "Seguir estrutura de projeto documentada",
+        "Respeitar convenções estabelecidas na documentação",
+        "Usar design references para implementações de UI",
+        "Consultar technical specs para entender fluxos e dados"
+      ]
+    }
+  },
+  "core_principles": {
+    "kiss_principle": {
+      "priority": "Keep It Simple, Stupid",
+      "description": "Simplicidade e minimalismo sempre vem primeiro..",
+      "rules": [
+        "Código simples e de fácil leitura é melhor que código 'elegante' complexo",
+        "Não precisa de muito contexto para entender o que o código faz",
+        "Abstrações devem resolver problemas reais, não problemas imaginários",
+        "Se está ficando complexo, provavelmente está errado"
+      ],
+      "avoid": [
+        "Overengineering",
+        "Abstrações desnecessárias",
+        "Padrões de design complicados sem necessidade",
+        "Soluções 'inteligentes' que sacrificam clareza"
+      ]
+    },
+    "core_priorities": {
+      "simplicity_and_readability": "Código DEVE ser simples e de fácil leitura. Qualquer desenvolvedor deve entender rapidamente sem precisar de muito contexto.",
+      "efficiency": "Código DEVE ser eficiente. Evitar processamento desnecessário e uso excessivo de recursos.",
+      "single_responsibility": "Cada método ou função DEVE ter responsabilidade única e bem definida.",
+      "layer_separation": "DEVE seguir rigorosamente a separação de camadas da arquitetura definida no projeto."
+    },
+    "pragmatic_approach": {
+      "scale_matters": "A aplicação do SOLID, Clean Code e Clean Architecture deve ser proporcional ao tamanho e complexidade do projeto.",
+      "small_projects": "Em projetos pequenos, priorize KISS. Não crie abstrações elaboradas se não há necessidade real.",
+      "medium_projects": "Aplique princípios progressivamente conforme a complexidade aumenta.",
+      "large_projects": "Em projetos grandes, SOLID, Clean Code e Clean Architecture são essenciais para manutenibilidade.",
+      "golden_rule": "Use bom senso. Se uma abstração torna o código mais difícil de entender, ela não é necessária.",
+      "avoid": [
+        "Forçar aplicação completa de SOLID em projetos pequenos",
+        "Criar múltiplas camadas desnecessárias",
+        "Abstrair prematuramente sem casos de uso claros",
+        "Complicar soluções simples com padrões elaborados"
+      ]
+    },
+    "solid_principles": {
+      "single_responsibility": "Cada módulo, classe ou função deve ter uma única responsabilidade bem definida.",
+      "open_closed": "Entidades devem ser abertas para extensão, mas fechadas para modificação.",
+      "liskov_substitution": "Objetos de uma superclasse devem poder ser substituídos por objetos de suas subclasses sem quebrar a aplicação.",
+      "interface_segregation": "Clientes não devem ser forçados a depender de interfaces que não utilizam.",
+      "dependency_inversion": "Depender de abstrações, não de implementações concretas."
+    },
+    "clean_code": {
+      "note": "Aplicar proporcionalmente ao tamanho do projeto. Clean Code NÃO significa criar abstrações excessivas.",
+      "meaningful_names": {
+        "principles": [
+          "Nomes devem ser descritivos e expressar claramente o propósito e intenção da variável, método ou classe",
+          "Usar convenções de nomenclatura consistentes"
+        ],
+        "avoid": [
+          "Nomes vagos como 'data', 'info', 'temp'",
+          "Abreviações que não são universalmente compreendidas",
+          "Nomes excessivamente longos que dificultam a leitura"
+        ]
+      },
+      "small_functions": "Funções devem fazer uma coisa só e fazê-la bem.",
+      "no_duplication": "DRY (Don't Repeat Yourself) - eliminar duplicação de código.",
+      "clear_intent": "Código deve expressar claramente sua intenção.",
+      "minimal_comments": "Código auto-explicativo é melhor que comentários. Comentários devem explicar 'por quê', não 'o quê'.",
+      "warning": "Não sacrificar simplicidade por abstrações. Se a abstração complica, não use."
+    },
+    "clean_architecture": {
+      "note": "Aplicar proporcionalmente ao tamanho do projeto. Em projetos pequenos, separação básica de camadas pode ser suficiente.",
+      "independence": "Arquitetura deve ser independente de frameworks, UI, banco de dados e agentes externos.",
+      "testability": "Regras de negócio devem ser testáveis sem UI, banco, servidor web ou qualquer elemento externo.",
+      "ui_independence": "UI pode mudar sem alterar o resto do sistema.",
+      "database_independence": "Banco de dados pode ser trocado sem impactar regras de negócio.",
+      "framework_independence": "Arquitetura não deve depender de features de frameworks."
+    },
+    "code_reusability": "Sempre priorizar reutilização de código existente. Criar abstrações reutilizáveis ao invés de soluções específicas.",
+    "no_redundancy": "Eliminar código redundante. Cada lógica deve existir em um único lugar.",
+    "no_dead_code": "Remover código não utilizado, funções obsoletas, imports desnecessários e comentários desatualizados.",
+    "architectural_consistency": "O projeto segue estritamente o padrão arquitetural definido.",
+    "separation_of_concerns": "Cada camada tem responsabilidades bem definidas e não deve ultrapassar seus limites.",
+    "dependency_direction": "Dependências devem fluir sempre na mesma direção, respeitando a hierarquia da arquitetura.",
+    "conciseness": "Evitar verbosidade excessiva. Código deve ser direto, claro e intencional.",
+    "performance_first": "Priorizar eficiência de processamento, uso de recursos e chamadas externas.",
+    "code_decouplement": "Ao escrever código, buscar sempre que ele esteja desacoplado o suficiente para uso em novos contexto sem introduzir dependências desnecessárias."
+  },
+  "architecture_layers": {
+    "presentation_layer": {
+      "role": "Interface de usuário e interação.",
+      "allowed": [
+        "Renderizar dados",
+        "Capturar eventos do usuário",
+        "Gerenciar estado de UI local",
+        "Chamar camada de controle/apresentação"
+      ],
+      "forbidden": [
+        "Acessar APIs externas diretamente",
+        "Processar dados para persistência",
+        "Conhecer estrutura de banco de dados",
+        "Executar regras de negócio complexas"
+      ]
+    },
+    "control_layer": {
+      "role": "Orquestrar fluxo entre apresentação e domínio/negócio.",
+      "responsibilities": [
+        "Receber eventos ou ações da camada de apresentação",
+        "Validar inputs básicos",
+        "Delegar execução para camada de negócio",
+        "Tratar erros e retornar respostas apropriadas"
+      ],
+      "forbidden": [
+        "Acessar APIs externas diretamente",
+        "Acessar banco de dados diretamente",
+        "Conter lógica pesada de negócio"
+      ]
+    },
+    "business_layer": {
+      "role": "Camada central de negócio e lógica de domínio.",
+      "responsibilities": [
+        "Implementar regras de negócio",
+        "Orquestrar operações complexas",
+        "Interagir com camada de dados/infraestrutura",
+        "Garantir integridade das operações"
+      ],
+      "rules": [
+        "Deve ser independente de frameworks de UI",
+        "Deve ser reutilizável e testável isoladamente",
+        "Deve validar dados de negócio"
+      ]
+    },
+    "data_infrastructure_layer": {
+      "role": "Gerenciar persistência e integrações externas.",
+      "responsibilities": [
+        "Interagir com banco de dados",
+        "Integrar com APIs e SDKs externos",
+        "Implementar repositórios e adapters",
+        "Garantir segurança nas operações de I/O"
+      ],
+      "rules": [
+        "Única camada autorizada a acessar recursos externos",
+        "Deve abstrair detalhes de implementação",
+        "Deve ser facilmente substituível (princípio da inversão de dependência)"
+      ]
+    },
+    "model_layer": {
+      "role": "Definir estrutura dos dados e entidades de domínio.",
+      "rules": [
+        "Usar estruturas de dados adequadas à linguagem",
+        "Não conter lógica de acesso a dados",
+        "Não depender de frameworks externos",
+        "Representar conceitos do domínio"
+      ]
+    }
+  },
+  "external_integrations": {
+    "isolation_principle": "Toda interação com sistemas externos deve ser isolada em uma camada específica.",
+    "rules": [
+      "SDKs e APIs externas só podem ser utilizados na camada de dados/infraestrutura",
+      "Criar wrappers/adapters para facilitar testes",
+      "Tratar erros de integração adequadamente",
+      "Documentar dependências externas"
+    ],
+    "specific_integrations": {
+      "[NOME_SDK_OU_API]": {
+        "purpose": "[DESCRIÇÃO_DO_USO]",
+        "layer": "[CAMADA_AUTORIZADA]",
+        "wrapper_location": "[CAMINHO_DO_WRAPPER]"
+      }
+    }
+  },
+  "code_reuse_policy": {
+    "mandatory_analysis": "OBRIGATÓRIO: Antes de criar qualquer código novo, a IA DEVE analisar todo o código existente no projeto.",
+    "analysis_before_creation": [
+      "Verificar componentes/módulos existentes que possam ser reutilizados",
+      "Verificar utilitários e helpers já implementados",
+      "Verificar bibliotecas internas disponíveis",
+      "Avaliar possibilidade de refatoração do código existente",
+      "Identificar padrões similares já implementados",
+      "Buscar abstrações que possam ser estendidas"
+    ],
+    "reuse_priority": "SEMPRE priorizar reutilização sobre criação.",
+    "creation_rules": {
+      "allow_new_code_only_if": [
+        "NÃO existir código reutilizável de forma alguma",
+        "O caso for extremamente específico e único",
+        "A abstração atual não suporta o caso de uso e seria quebrada pela extensão",
+        "Refatorar o código existente resultaria em complexidade desnecessária"
+      ],
+      "strictly_avoid": [
+        "Componentes/módulos hardcoded únicos sem necessidade",
+        "Duplicação de lógica já existente",
+        "Soluções ad-hoc quando existe solução genérica",
+        "Copy-paste de código entre arquivos",
+        "Reimplementação de funcionalidades já existentes",
+        "Código redundante que faz a mesma coisa de forma diferente"
+      ]
+    },
+    "refactoring_first": "Sempre preferir refatorar código existente a criar duplicatas. Se código similar existe, extrair abstração comum."
+  },
+  "code_cleanup_strategies": {
+    "dead_code_elimination": {
+      "continuous_cleanup": "Remover código morto proativamente durante qualquer modificação.",
+      "what_to_remove": [
+        "Funções não utilizadas em nenhum lugar",
+        "Imports não referenciados",
+        "Variáveis declaradas mas nunca usadas",
+        "Código comentado antigo",
+        "Comentários TODO/FIXME resolvidos",
+        "Testes de código que não existe mais",
+        "Dependências não utilizadas"
+      ]
+    },
+    "redundancy_elimination": {
+      "detect_and_refactor": "Identificar e eliminar código redundante através de abstrações.",
+      "strategies": [
+        "Extrair funções comuns",
+        "Criar utilitários compartilhados",
+        "Implementar padrões de design apropriados",
+        "Usar composição ao invés de duplicação",
+        "Centralizar lógica repetida"
+      ]
+    }
+  },
+  "code_design_principles": {
+    "modularity": "Código deve ser organizado em módulos coesos e fracamente acoplados.",
+    "reusability": "Priorizar componentes e funções reutilizáveis.",
+    "readability": "Código deve ser auto-explicativo. Comentários devem explicar 'por quê', não 'o quê'.",
+    "testability": "Código deve ser facilmente testável em isolamento.",
+    "one_responsibility_per_file": "Cada arquivo deve ter uma responsabilidade clara e única."
+  },
+  "performance_and_safety": {
+    "database_safeguards": [
+      "Evitar N+1 queries",
+      "Implementar paginação quando apropriado",
+      "Usar índices adequadamente",
+      "Evitar chamadas recursivas sem limite",
+      "Implementar guards contra loops infinitos",
+      "Controlar concorrência",
+      "Priorizar uso de UUID juntamente com ID sequenciais (MySQL) ou ObjectId (MongoDB) para evitar exposição direta de chaves primárias e facilitar replicação e sharding"
+    ],
+    "api_optimization": [
+      "Minimizar número de chamadas",
+      "Implementar cache quando apropriado",
+      "Evitar overfetching",
+      "Reduzir payloads",
+      "Implementar retry logic com backoff"
+    ],
+    "general_optimization": [
+      "Evitar processamento desnecessário",
+      "Usar estruturas de dados apropriadas",
+      "Considerar complexidade algorítmica",
+      "Monitorar uso de memória"
+    ]
+  },
+  "error_handling": {
+    "principles": [
+      "Tratar erros em camadas apropriadas",
+      "Não silenciar erros sem logging",
+      "Retornar mensagens de erro claras para o desenvolvedor e para o usuário final",
+      "Implementar fallbacks quando possível",
+      "Logar contexto suficiente para debug"
+    ]
+  },
+  "testing_strategy": {
+    "requirements": [
+      "Testes unitários para lógica de negócio",
+      "Testes de integração para fluxos críticos",
+      "Mocks para dependências externas",
+      "Cobertura mínima de código definida"
+    ]
+  },
+  "naming_conventions": {
+    "general": "[CONVENÇÃO_DO_PROJETO]",
+    "files": "[ex: camelCase, kebab-case, PascalCase]",
+    "functions": "[ex: camelCase, snake_case]",
+    "classes": "[ex: PascalCase]",
+    "constants": "[ex: UPPER_SNAKE_CASE]",
+    "private_members": "[ex: _prefixo, #private]"
+  },
+  "project_specific_rules": {
+    "custom_rule_1": {
+      "description": "[DESCRIÇÃO_DA_REGRA]",
+      "applies_to": "[CAMADA_OU_MÓDULO]",
+      "examples": [
+        "[EXEMPLO_1]",
+        "[EXEMPLO_2]"
+      ]
+    },
+    "custom_rule_2": {
+      "description": "[DESCRIÇÃO_DA_REGRA]",
+      "applies_to": "[CAMADA_OU_MÓDULO]",
+      "examples": [
+        "[EXEMPLO_1]",
+        "[EXEMPLO_2]"
+      ]
+    }
+  },
+  "ai_behavior_rules": {
+    "consult_references_first": "OBRIGATÓRIO: Consultar reference_files antes de fazer mudanças significativas, especialmente arquivos de prioridade ALTA.",
+    "kiss_first": "PRIORIDADE #1: Keep It Simple. Sempre escolher a solução mais simples que funcione.",
+    "readability_over_cleverness": "Código legível e direto é melhor que código 'inteligente' e complexo.",
+    "context_minimal": "Código deve ser compreensível sem precisar entender todo o sistema (exceto em casos complexos inevitáveis).",
+    "analyze_existing_code_first": "OBRIGATÓRIO: Sempre analisar TODO o código existente antes de criar ou modificar qualquer código.",
+    "prefer_refactor_over_new_code": "PRIORIDADE ALTA: Refatoração e reutilização são sempre preferíveis à criação de código novo.",
+    "respect_architecture": "Nunca violar os princípios arquiteturais e separação de camadas definidos.",
+    "apply_solid_pragmatically": "Aplicar SOLID proporcionalmente ao tamanho do projeto. Não forçar abstrações desnecessárias.",
+    "apply_clean_code_pragmatically": "Aplicar Clean Code com bom senso. Simplicidade > Abstrações elaboradas.",
+    "single_responsibility_always": "SEMPRE garantir responsabilidade única em métodos e funções.",
+    "efficiency_always": "SEMPRE priorizar eficiência. Evitar processamento e recursos desnecessários.",
+    "keep_code_concise": "Manter código conciso, direto ao ponto e sem verbosidade desnecessária.",
+    "eliminate_redundancy": "Identificar e eliminar ativamente código redundante através de refatoração.",
+    "remove_dead_code": "Remover proativamente código morto, imports não usados e comentários obsoletos.",
+    "reuse_aggressively": "Buscar agressivamente por código existente que possa ser reutilizado antes de criar novo.",
+    "create_reusable_abstractions": "Ao criar código novo, criar abstrações reutilizáveis APENAS se houver necessidade real.",
+    "ask_for_clarification": "Quando houver ambiguidade, perguntar antes de assumir.",
+    "document_decisions": "Documentar decisões arquiteturais importantes e justificar quando criar código novo.",
+    "suggest_improvements": "Sugerir ativamente melhorias quando identificar violações de princípios ou código duplicado.",
+    "continuous_refactoring": "Propor refatorações contínuas para melhorar qualidade, eliminar duplicação e aumentar reutilização.",
+    "validate_before_create": {
+      "checklist": [
+        "✓ Consultei os reference_files relevantes?",
+        "✓ A solução é SIMPLES e LEGÍVEL?",
+        "✓ Analisei todo código existente?",
+        "✓ Existe código similar que posso reutilizar?",
+        "✓ Posso refatorar código existente ao invés de criar novo?",
+        "✓ Cada função/método tem responsabilidade única?",
+        "✓ O código é EFICIENTE?",
+        "✓ Estou respeitando a separação de camadas?",
+        "✓ As abstrações são realmente necessárias ou estou complicando?",
+        "✓ Removi todo código morto?",
+        "✓ Eliminei redundâncias?",
+        "✓ O código novo é realmente necessário?"
+      ]
+    }
+  },
+  "documentation_requirements": {
+    "code_comments": "[QUANDO_E_COMO_COMENTAR]",
+    "api_documentation": "[FERRAMENTA_OU_PADRÃO]",
+    "architectural_decisions": "[ONDE_DOCUMENTAR_ADRs]"
+  }
+}
