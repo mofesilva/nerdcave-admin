@@ -8,8 +8,8 @@ interface QuickStatProps {
 
 export default function QuickStat({ icon: Icon, label, value }: QuickStatProps) {
     return (
-        <div className="bg-card/50 rounded-xl border border-border/50 p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+        <div className="bg-card/50 rounded-md border border-border/50 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
                 <Icon className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
