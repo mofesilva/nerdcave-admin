@@ -21,6 +21,10 @@ export async function getAllMedias(): Promise<Media[]> {
     return MediaService.getAllMedias();
 }
 
+export async function getRecentMedias(limit: number = 5): Promise<Media[]> {
+    return MediaService.getRecentMedias(limit);
+}
+
 export async function getMediasPaginated({ page, pageSize, query }: MediaControllerProps): Promise<PaginatedResult<Media>> {
     return MediaService.getMediasPaginated({ page, pageSize, query });
 }
