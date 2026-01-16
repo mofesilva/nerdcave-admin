@@ -26,7 +26,7 @@ export default function AccentTextColorSection({
     onColorSelect,
 }: AccentTextColorSectionProps) {
     return (
-        <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+        <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
             <h2 className="text-xl font-bold text-foreground mb-2">Cor do Texto de Destaque</h2>
             <p className="text-muted-foreground mb-6">
                 Cor do texto sobre a cor de destaque (botões, badges, etc)
@@ -42,7 +42,7 @@ export default function AccentTextColorSection({
                                 onClick={() => onColorSelect(hex)}
                                 disabled={saving}
                                 className={cn(
-                                    "w-8 h-8 rounded-lg transition-transform hover:scale-110 border border-border",
+                                    "w-8 h-8 rounded-md transition-transform hover:scale-110 border border-border",
                                     isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-card"
                                 )}
                                 style={{ backgroundColor: hex }}
