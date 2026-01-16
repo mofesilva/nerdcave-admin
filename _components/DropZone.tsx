@@ -62,9 +62,9 @@ export default function DropZone({
         <div
             onDrop={handleDrop}
             onDragOver={handleDragOver}
-            className={`border-2 border-dashed border-border rounded-2xl p-8 text-center transition-colors ${disabled
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:border-primary/50 cursor-pointer"
+            className={`border-2 border-dashed border-border rounded-md p-8 text-center transition-colors ${disabled
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:border-primary/50 cursor-pointer"
                 } ${className}`}
             onClick={() => !disabled && inputRef.current?.click()}
         >
