@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, Eye, EyeOff, GripVertical } from "lucide-react";
 import type { Link, LinkType } from "@/lib/links/Link.model";
 import * as LinksController from "@/lib/links/Link.controller";
-import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
+import Button from "@/_components/Button";
+import IconButton from "@/_components/IconButton";
 
 export default function LinksPage() {
   const [links, setLinks] = useState<Link[]>([]);
