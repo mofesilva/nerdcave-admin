@@ -10,7 +10,7 @@ interface WelcomeBannerProps {
 
 export default function WelcomeBanner({ publishedPosts, totalViews }: WelcomeBannerProps) {
     return (
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/70 rounded-2xl p-8 text-primary-foreground">
+        <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/70 rounded-md p-8 text-primary-foreground">
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
             <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
@@ -29,14 +29,14 @@ export default function WelcomeBanner({ publishedPosts, totalViews }: WelcomeBan
                 <div className="flex gap-3 mt-6">
                     <Link
                         href="/admin/posts/new"
-                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all"
+                        className="bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all"
                     >
                         <FileText className="w-4 h-4" />
                         Novo Post
                     </Link>
                     <Link
                         href="/admin/media"
-                        className="bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-all"
+                        className="bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-all"
                     >
                         <ImageIcon className="w-4 h-4" />
                         Upload Mídia
