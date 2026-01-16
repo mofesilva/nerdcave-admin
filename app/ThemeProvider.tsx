@@ -28,6 +28,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
 
     const apply = (t: Theme) => {
+      // Adiciona classe de transição antes de mudar
+      root.classList.add("theme-transition");
+
       if (t === "system") {
         const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
         if (prefersDark) root.classList.add("dark");
@@ -37,6 +40,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       } else {
         root.classList.remove("dark");
       }
+
+      // Remove classe de transição após animação
+      setTimeout(() => {
+        root.classList.remove("theme-transition");
+      }, 350);
     };
 
     apply(theme);
