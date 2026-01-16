@@ -1,4 +1,4 @@
-export type SettingsCategory = 'general' | 'content' | 'uploads' | 'notifications' | 'security';
+export type SettingsCategory = 'general' | 'content' | 'uploads' | 'notifications' | 'security' | 'layout';
 
 export type Settings = {
     _id: string;
@@ -33,6 +33,9 @@ export type Settings = {
     sessionTimeoutMinutes?: number;
     maxLoginAttempts?: number;
     requireEmailVerification?: boolean;
+
+    // Layout Settings
+    fullWidthLayout?: boolean;
 };
 
 export const DEFAULT_GENERAL_SETTINGS: Omit<Settings, '_id'> = {
@@ -75,10 +78,16 @@ export const DEFAULT_SECURITY_SETTINGS: Omit<Settings, '_id'> = {
     requireEmailVerification: false,
 };
 
+export const DEFAULT_LAYOUT_SETTINGS: Omit<Settings, '_id'> = {
+    category: 'layout',
+    fullWidthLayout: false,
+};
+
 export const DEFAULT_SETTINGS_BY_CATEGORY: Record<SettingsCategory, Omit<Settings, '_id'>> = {
     general: DEFAULT_GENERAL_SETTINGS,
     content: DEFAULT_CONTENT_SETTINGS,
     uploads: DEFAULT_UPLOAD_SETTINGS,
     notifications: DEFAULT_NOTIFICATION_SETTINGS,
     security: DEFAULT_SECURITY_SETTINGS,
+    layout: DEFAULT_LAYOUT_SETTINGS,
 };
