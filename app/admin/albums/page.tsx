@@ -8,8 +8,9 @@ import type { Album } from "@/lib/albums/Album.model";
 import type { Category } from "@/lib/categories/Category.model";
 import * as AlbumsController from "@/lib/albums/Album.controller";
 import * as CategoriesController from "@/lib/categories/Category.controller";
-import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
+import * as MediaController from "@/lib/medias/Media.controller";
+import Button from "@/_components/Button";
+import IconButton from "@/_components/IconButton";
 
 export default function AlbumsPage() {
     const [albums, setAlbums] = useState<Album[]>([]);
@@ -188,7 +189,7 @@ export default function AlbumsPage() {
                                 <div className="aspect-video bg-secondary relative cursor-pointer">
                                     {album.coverMedia ? (
                                         <Image
-                                            src={`/api/media/${album.coverMedia.fileName}`}
+                                            src={MediaController.getMediaUrl({ fileName: album.coverMedia.fileName })}
                                             alt={album.title}
                                             fill
                                             className="object-cover"
@@ -206,7 +207,7 @@ export default function AlbumsPage() {
 
                                     {/* Status badge */}
                                     <div className={`absolute top-3 left-3 text-xs px-2 py-1 rounded-full ${album.status === 'published'
-                                        ? 'bg-green-500/20 text-green-400'
+                                        ? 'bg-primary/20 text-primary'
                                         : 'bg-yellow-500/20 text-yellow-400'
                                         }`}>
                                         {album.status === 'published' ? 'Publicado' : 'Rascunho'}
