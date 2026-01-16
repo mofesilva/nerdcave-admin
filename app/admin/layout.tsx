@@ -3,9 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@cappuccino/web-sdk';
-import AdminLayout from './components/AdminLayout';
+import AdminLayout from './_components/AdminLayout';
 import { MediaPickerProvider } from '@/lib/contexts/MediaPickerContext';
-import { SettingsProvider } from '@/lib/contexts/SettingsContext';
 
 export default function AdminRootLayout({
   children,
@@ -42,10 +41,8 @@ export default function AdminRootLayout({
   }
 
   return (
-    <SettingsProvider>
-      <MediaPickerProvider>
-        <AdminLayout>{children}</AdminLayout>
-      </MediaPickerProvider>
-    </SettingsProvider>
+    <MediaPickerProvider>
+      <AdminLayout>{children}</AdminLayout>
+    </MediaPickerProvider>
   );
 }
