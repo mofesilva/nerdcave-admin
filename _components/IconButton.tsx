@@ -27,7 +27,7 @@ export default function IconButton({
   disabled = false,
   className,
 }: IconButtonProps) {
-  const base = "p-2 rounded-lg transition-colors flex items-center justify-center cursor-pointer";
+  const base = "p-2 rounded-md transition-colors flex items-center justify-center cursor-pointer";
 
   // Clone the icon to ensure consistent sizing while preserving any provided classes
   const cloned = React.isValidElement(icon)
