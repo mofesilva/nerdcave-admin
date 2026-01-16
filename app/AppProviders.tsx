@@ -7,6 +7,7 @@ import { getCappuccinoClient } from "@/lib/cappuccino/client";
 import ThemeProvider from "./ThemeProvider";
 import { AutoLoginProvider, useAutoLogin } from "@/lib/contexts/AutoLoginContext";
 import { SettingsProvider, useSettings } from "@/lib/contexts/SettingsContext";
+import { SystemSettingsProvider } from "@/lib/contexts/SystemSettingsContext";
 
 interface AppProvidersProps {
     children: ReactNode;
@@ -40,9 +41,11 @@ export function AppProviders({ children }: AppProvidersProps) {
             >
                 <AutoLoginProvider>
                     <SettingsProvider>
-                        <AppReady>
-                            {children}
-                        </AppReady>
+                        <SystemSettingsProvider>
+                            <AppReady>
+                                {children}
+                            </AppReady>
+                        </SystemSettingsProvider>
                     </SettingsProvider>
                 </AutoLoginProvider>
             </CappuccinoProvider>
