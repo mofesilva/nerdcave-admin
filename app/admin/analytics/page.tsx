@@ -6,7 +6,7 @@ import * as AnalyticController from "@/lib/analytics/Analytic.controller";
 import * as LinkController from "@/lib/links/Link.controller";
 import { MousePointerClick, Users, TrendingUp, Globe, Download, FileText } from "lucide-react";
 import type { Link } from "@/lib/links/Link.model";
-import Button from "@/components/Button";
+import Button from "@/_components/Button";
 
 // Tipo para estatísticas agregadas
 interface AnalyticsData {
