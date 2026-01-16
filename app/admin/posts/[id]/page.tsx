@@ -250,7 +250,7 @@ export default function PostEditorPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Link href="/admin/posts" className="p-3.5 rounded-xl bg-card border border-border hover:bg-muted transition">
+                    <Link href="/admin/posts" className="p-3.5 rounded-md bg-card border border-border hover:bg-muted transition">
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div>
@@ -266,7 +266,7 @@ export default function PostEditorPage() {
                         onClick={() => setIsFeatured(!isFeatured)}
                         colorClass={isFeatured ? 'text-yellow-400' : 'text-muted-foreground'}
                         hoverClass={isFeatured ? 'hover:bg-yellow-500/30' : 'hover:bg-muted'}
-                        className={`aspect-square ${isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
+                        className={`h-13 w-13 rounded-md ${isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
                         title={isFeatured ? 'Remover destaque' : 'Destacar'}
                     />
 
@@ -278,7 +278,7 @@ export default function PostEditorPage() {
                             { value: 'published', label: 'Publicar', icon: Eye },
                             { value: 'scheduled', label: 'Agendar', icon: Clock },
                         ]}
-                        className="h-full"
+                        label="Status"
                     />
 
                     <Button
@@ -292,7 +292,7 @@ export default function PostEditorPage() {
             </div>
 
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
                     {error}
                 </div>
             )}
@@ -301,7 +301,7 @@ export default function PostEditorPage() {
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-3">
                     {/* Title */}
-                    <div className="bg-card rounded-xl border border-border p-6">
+                    <div className="bg-card rounded-md border border-border p-6">
                         <input
                             type="text"
                             value={title}
@@ -312,7 +312,7 @@ export default function PostEditorPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="bg-card rounded-xl border border-border overflow-hidden">
+                    <div className="bg-card rounded-md border border-border overflow-hidden">
                         <RichTextEditor
                             content={content}
                             onChange={setContent}
@@ -322,7 +322,7 @@ export default function PostEditorPage() {
                     </div>
 
                     {/* SEO */}
-                    <div className="bg-card rounded-xl border border-border p-6">
+                    <div className="bg-card rounded-md border border-border p-6">
                         <h3 className="font-semibold text-foreground mb-4">SEO</h3>
                         <div className="space-y-4">
                             <div>
@@ -334,7 +334,7 @@ export default function PostEditorPage() {
                                     value={seoTitle}
                                     onChange={(e) => setSeoTitle(e.target.value)}
                                     placeholder={title || 'Título para mecanismos de busca'}
-                                    className="w-full bg-transparent border border-border rounded-lg p-3 text-foreground placeholder:text-muted-foreground"
+                                    className="w-full bg-transparent border border-border rounded-md p-3 text-foreground placeholder:text-muted-foreground"
                                 />
                             </div>
                             <div>
@@ -346,7 +346,7 @@ export default function PostEditorPage() {
                                     onChange={(e) => setSeoDescription(e.target.value)}
                                     placeholder={'Descrição para mecanismos de busca'}
                                     rows={3}
-                                    className="w-full bg-transparent border border-border rounded-lg p-3 text-foreground placeholder:text-muted-foreground resize-none"
+                                    className="w-full bg-transparent border border-border rounded-md p-3 text-foreground placeholder:text-muted-foreground resize-none"
                                 />
                             </div>
                         </div>
@@ -356,10 +356,10 @@ export default function PostEditorPage() {
                 {/* Sidebar */}
                 <div className="space-y-3">
                     {/* Cover Image */}
-                    <div className="bg-card rounded-xl border border-border p-6">
+                    <div className="bg-card rounded-md border border-border p-6">
                         <h3 className="font-semibold text-foreground mb-4">Imagem de Capa</h3>
                         {coverUrl ? (
-                            <div className="relative aspect-video rounded-lg overflow-hidden">
+                            <div className="relative aspect-video rounded-md overflow-hidden">
                                 <Image
                                     src={coverUrl}
                                     alt="Capa"
@@ -378,7 +378,7 @@ export default function PostEditorPage() {
                             <Button
                                 onClick={openMediaPicker}
                                 variant="ghost"
-                                className="w-full aspect-video border-2 text-center content-center self-center border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 hover:border-primary/50"
+                                className="w-full aspect-video border-2 text-center content-center self-center border-dashed border-border rounded-md flex flex-col items-center justify-center gap-2 hover:border-primary/50"
                             >
                                 <ImageIcon className="w-8 h-8 self-center justify-center align-center text-muted-foreground" />
                                 <span className="text-sm text-muted-foreground">Selecionar imagem</span>
@@ -397,7 +397,7 @@ export default function PostEditorPage() {
                     </div>
 
                     {/* Category */}
-                    <div className="bg-card rounded-xl border border-border p-6">
+                    <div className="bg-card rounded-md border border-border p-6">
                         <h3 className="font-semibold text-foreground mb-4">Categoria</h3>
                         <Select
                             value={categoryId || ''}
@@ -420,7 +420,7 @@ export default function PostEditorPage() {
 
                     {/* Schedule */}
                     {status === 'scheduled' && (
-                        <div className="bg-card rounded-xl border border-border p-6">
+                        <div className="bg-card rounded-md border border-border p-6">
                             <h3 className="font-semibold text-foreground mb-4">Agendar Publicação</h3>
                             <DateTimePicker
                                 value={scheduledAt}
