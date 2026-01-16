@@ -116,13 +116,13 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Click Trends Chart */}
-      <div className="bg-card rounded-xl p-6 shadow-sm border border-border/50 backdrop-blur-sm">
+      <div className="bg-card rounded-md p-6 shadow-sm border border-border/50 backdrop-blur-sm">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-bold text-foreground">Click Trends</h2>
             <p className="text-sm text-muted-foreground">Daily click activity over the last 7 days</p>
           </div>
-          <select className="px-4 py-2 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground text-sm">
+          <select className="px-4 py-2 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary text-foreground text-sm">
             <option>Last 7 days</option>
             <option>Last 30 days</option>
             <option>Last 90 days</option>
@@ -140,7 +140,7 @@ export default function AnalyticsPage() {
                     className="w-full bg-gradient-to-t from-primary to-primary/60 rounded-t-lg group-hover:from-primary group-hover:to-primary/80 transition-all duration-300 cursor-pointer"
                     style={{ height: `${Math.max(height, 10)}%` }}
                   />
-                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-popover text-popover-foreground px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border z-10">
+                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-popover text-popover-foreground px-3 py-2 rounded-md text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border z-10">
                     {day.clicks} clicks
                     <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-full border-4 border-transparent border-t-popover" />
                   </div>
@@ -156,7 +156,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Performance by Link */}
-      <div className="bg-card rounded-xl p-6 shadow-sm border border-border/50 backdrop-blur-sm">
+      <div className="bg-card rounded-md p-6 shadow-sm border border-border/50 backdrop-blur-sm">
         <h2 className="text-lg font-bold text-foreground mb-6">Performance by Link</h2>
         <div className="space-y-6">
           {links.map((link) => {
@@ -189,13 +189,13 @@ export default function AnalyticsPage() {
       {/* Device & Location Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Device Breakdown */}
-        <div className="bg-card rounded-xl p-6 shadow-sm border border-border/50 backdrop-blur-sm">
+        <div className="bg-card rounded-md p-6 shadow-sm border border-border/50 backdrop-blur-sm">
           <h2 className="text-lg font-bold text-foreground mb-6">Device Breakdown</h2>
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                  <div className="w-10 h-10 bg-primary/10 rounded-md flex items-center justify-center text-primary">
                     <span className="text-xl">📱</span>
                   </div>
                   <div>
@@ -216,7 +216,7 @@ export default function AnalyticsPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center text-emerald-500">
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-md flex items-center justify-center text-emerald-500">
                     <span className="text-xl">💻</span>
                   </div>
                   <div>
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center text-amber-500">
+                  <div className="w-10 h-10 bg-amber-500/10 rounded-md flex items-center justify-center text-amber-500">
                     <span className="text-xl">📲</span>
                   </div>
                   <div>
@@ -258,7 +258,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Top Countries */}
-        <div className="bg-card rounded-xl p-6 shadow-sm border border-border/50 backdrop-blur-sm">
+        <div className="bg-card rounded-md p-6 shadow-sm border border-border/50 backdrop-blur-sm">
           <h2 className="text-lg font-bold text-foreground mb-6">Top Countries</h2>
           <div className="space-y-6">
             {[
@@ -290,7 +290,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Export Section */}
-      <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl p-8 border border-primary/20 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-md p-8 border border-primary/20 relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
         <div className="flex items-center justify-between relative z-10">
           <div>
