@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import MediaPickerModal from "@/components/MediaPickerModal";
+import MediaPickerModal from "@/_components/MediaPickerModal";
 import { Media } from "@/lib/medias/Media.model";
 
 interface MediaPickerContextType {
