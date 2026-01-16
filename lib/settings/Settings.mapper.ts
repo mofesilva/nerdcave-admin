@@ -1,20 +1,41 @@
-import { Settings } from './Settings.model';
+import { Settings, SettingsCategory } from './Settings.model';
 import { toCamelCaseKeys } from '../utils';
 
 export function settingsFromDocument(doc: any): Settings {
-    // Converte todas as chaves de snake_case para camelCase recursivamente
     const data = toCamelCaseKeys(doc) as any;
 
     return {
         _id: data._id ?? '',
-        primaryColor: data.primaryColor ?? '#3b82f6',
-        secondaryColor: data.secondaryColor,
-        accentColor: data.accentColor,
-        cardColor: data.cardColor,
-        backgroundColor: data.backgroundColor,
-        backgroundImgUrl: data.backgroundImgUrl,
+        category: (data.category ?? 'general') as SettingsCategory,
+
+        // General
         siteName: data.siteName,
-        siteDescription: data.siteDescription,
-        siteKeywords: data.siteKeywords,
+        siteUrl: data.siteUrl,
+        adminEmail: data.adminEmail,
+        defaultLanguage: data.defaultLanguage,
+        timezone: data.timezone,
+
+        // Content
+        postsPerPage: data.postsPerPage,
+        enableComments: data.enableComments,
+        moderateComments: data.moderateComments,
+        enableDrafts: data.enableDrafts,
+        autoSaveDrafts: data.autoSaveDrafts,
+        autoSaveIntervalSec: data.autoSaveIntervalSec,
+
+        // Uploads
+        maxUploadSizeMb: data.maxUploadSizeMb,
+        allowedFileTypes: data.allowedFileTypes,
+        imageQuality: data.imageQuality,
+
+        // Notifications
+        emailNotifications: data.emailNotifications,
+        notifyOnNewComment: data.notifyOnNewComment,
+        notifyOnNewUser: data.notifyOnNewUser,
+
+        // Security
+        sessionTimeoutMinutes: data.sessionTimeoutMinutes,
+        maxLoginAttempts: data.maxLoginAttempts,
+        requireEmailVerification: data.requireEmailVerification,
     };
 }
