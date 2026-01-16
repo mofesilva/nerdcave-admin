@@ -103,13 +103,13 @@ export default function MediaPicker({
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-card rounded-2xl w-full max-w-4xl max-h-[80vh] flex flex-col border border-border shadow-xl">
+            <div className="bg-card rounded-md w-full max-w-4xl max-h-[80vh] flex flex-col border border-border shadow-xl">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border">
                     <h2 className="text-xl font-bold text-foreground">Selecionar Mídia</h2>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                        className="p-2 rounded-md hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -117,7 +117,7 @@ export default function MediaPicker({
 
                 {/* Search */}
                 <div className="p-4 border-b border-border">
-                    <div className="flex items-center gap-3 bg-secondary rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-3 bg-secondary rounded-md px-4 py-3">
                         <Search className="w-5 h-5 text-muted-foreground" />
                         <input
                             type="text"
@@ -153,7 +153,7 @@ export default function MediaPicker({
                                 <button
                                     key={item._id}
                                     onClick={() => toggleSelection(item)}
-                                    className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedItems.has(item._id)
+                                    className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all ${selectedItems.has(item._id)
                                         ? 'border-primary ring-2 ring-primary/20'
                                         : 'border-transparent hover:border-primary/30'
                                         }`}
@@ -188,14 +188,14 @@ export default function MediaPicker({
                         <div className="flex gap-3">
                             <button
                                 onClick={onClose}
-                                className="px-4 py-2 rounded-xl bg-secondary text-foreground font-medium hover:bg-secondary/80 transition-colors"
+                                className="px-4 py-2 rounded-md bg-secondary text-foreground font-medium hover:bg-secondary/80 transition-colors"
                             >
                                 Cancelar
                             </button>
                             <button
                                 onClick={handleConfirmMultiple}
                                 disabled={selectedItems.size === 0}
-                                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-colors disabled:opacity-50"
+                                className="px-4 py-2 rounded-md bg-primary text-primary-foreground font-medium hover:opacity-90 transition-colors disabled:opacity-50"
                             >
                                 Confirmar
                             </button>
