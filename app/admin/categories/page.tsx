@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, FolderTree, GripVertical } from "lucide-react";
 import type { Category, CategoryType } from "@/lib/categories/Category.model";
 import * as CategoriesController from "@/lib/categories/Category.controller";
-import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
+import Button from "@/_components/Button";
+import IconButton from "@/_components/IconButton";
 
 // Helper function to generate slug
 function generateSlug(name: string): string {
