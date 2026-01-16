@@ -312,12 +312,12 @@ export default function CategoriesPage() {
         const hasChildCategories = children.length > 0;
 
         return (
-            <div key={category._id} className={level > 0 ? 'pl-8' : ''}>
+            <div key={category._id}>
                 <div
-                    className={`bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group ${level > 0 ? 'border-l-4 border-l-primary/50' : ''
+                    className={`bg-card rounded-2xl border border-border hover:border-primary/30 transition-all group ${level > 0 ? 'border-l-4 border-l-primary/50' : ''
                         }`}
                 >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 p-5">
                         {/* Toggle para expandir/colapsar */}
                         {hasChildCategories ? (
                             <button
@@ -376,14 +376,55 @@ export default function CategoriesPage() {
                             />
                         </div>
                     </div>
-                </div>
 
-                {/* Subcategorias (aninhadas) */}
-                {hasChildCategories && isExpanded && (
-                    <div className="mt-2 space-y-2">
-                        {children.map(child => renderListItem(child, level + 1))}
-                    </div>
-                )}
+                    {/* Subcategorias DENTRO do card pai */}
+                    {hasChildCategories && isExpanded && (
+                        <div className="px-5 pb-5 pt-0 space-y-2 border-t border-border/50 mt-0">
+                            {children.map(child => (
+                                <div key={child._id} className="pl-8">
+                                    <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border-l-4 border-l-primary/50">
+                                        <div className="cursor-grab text-muted-foreground hover:text-foreground">
+                                            <GripVertical className="w-4 h-4" />
+                                        </div>
+
+                                        <div className={`p-2 rounded-lg ${getTypeBadgeColor(child.type)}`}>
+                                            {getTypeIcon(child.type)}
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-medium text-foreground truncate">{child.name}</h4>
+                                                <span className={`text-xs px-2 py-0.5 rounded-full ${getTypeBadgeColor(child.type)}`}>
+                                                    {getTypeLabel(child.type)}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground mt-0.5">
+                                                /{child.slug}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center gap-1">
+                                            <IconButton
+                                                icon={<Edit2 className="w-4 h-4" />}
+                                                onClick={() => handleOpenModal(child)}
+                                                colorClass="text-foreground"
+                                                hoverClass="hover:bg-secondary/80"
+                                                title="Editar"
+                                            />
+                                            <IconButton
+                                                icon={<Trash2 className="w-4 h-4" />}
+                                                onClick={() => handleDelete(child._id)}
+                                                colorClass="text-red-400"
+                                                hoverClass="hover:bg-red-500/20"
+                                                title="Deletar"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     };
