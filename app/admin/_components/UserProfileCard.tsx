@@ -20,7 +20,7 @@ export default function UserProfileCard({
 }: UserProfileCardProps) {
     return (
         <div className="mt-auto w-full px-3">
-            <div className="bg-zinc-800 rounded-2xl border border-zinc-700 overflow-hidden">
+            <div className="bg-zinc-800 rounded-md border border-zinc-700 overflow-hidden">
                 {/* User info */}
                 <div
                     className="flex items-center h-14"
