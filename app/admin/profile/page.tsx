@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Save, Upload, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Button from "@/components/Button";
+import Button from "@/_components/Button";
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
