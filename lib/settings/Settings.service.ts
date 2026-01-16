@@ -1,69 +1,88 @@
+'use client';
+
 import { getSettingsCollection } from './Settings.collection';
 import { settingsFromDocument } from './Settings.mapper';
-import { Settings, DEFAULT_SETTINGS } from './Settings.model';
+import {
+    Settings,
+    SettingsCategory,
+    DEFAULT_SETTINGS_BY_CATEGORY,
+} from './Settings.model';
 
-interface SettingsParametersProps {
-    id?: string;
-    color?: string;
-    updates?: Partial<Settings>;
+// ─── QUERIES ─────────────────────────────────────────────────────────────────
+
+export async function getSettingsByCategory({ category }: { category: SettingsCategory }): Promise<Settings | null> {
+    const collection = getSettingsCollection();
+    const result = await collection.find({ query: { category } });
+
+    if (result.error || !result.documents?.length) {
+        return getDefaultSettings({ category });
+    }
+
+    return settingsFromDocument(result.documents[0]);
 }
 
-let cachedSettingsId: string | null = null;
+export async function getAllSettings(): Promise<Settings[]> {
+    const collection = getSettingsCollection();
+    const result = await collection.find({ query: {} });
 
-// ─── CRUD ────────────────────────────────────────────────────────────────────
+    if (result.error || !result.documents?.length) {
+        return [];
+    }
 
-export async function getSettings(): Promise<Settings | null> {
-    const settings = getSettingsCollection();
-    const result = await settings.find();
-    if (result.error || !result.documents || result.documents.length === 0) {
+    return result.documents.map(settingsFromDocument);
+}
+
+// ─── MUTATIONS ───────────────────────────────────────────────────────────────
+
+export async function updateSettingsByCategory({
+    category,
+    updates,
+}: {
+    category: SettingsCategory;
+    updates: Partial<Settings>;
+}): Promise<Settings | null> {
+    const collection = getSettingsCollection();
+    const existing = await collection.find({ query: { category } });
+
+    if (existing.documents?.length) {
+        const result = await collection.updateOne(existing.documents[0]._id, {
+            ...updates,
+            category,
+        });
+
+        if (result.error || !result.document) {
+            console.error('Erro ao atualizar settings:', result.error);
+            return null;
+        }
+
+        return settingsFromDocument(result.document);
+    }
+
+    // Criar novo se não existir
+    const result = await collection.insertOne({
+        ...DEFAULT_SETTINGS_BY_CATEGORY[category],
+        ...updates,
+        category,
+    });
+
+    if (result.error || !result.document) {
+        console.error('Erro ao criar settings:', result.error);
         return null;
     }
-    const doc = result.documents[0];
-    cachedSettingsId = doc._id;
-    return settingsFromDocument(doc);
-}
 
-export async function getOrCreateSettings(): Promise<Settings> {
-    const existing = await getSettings();
-    if (existing) return existing;
-
-    // Double-check (race condition)
-    const settings = getSettingsCollection();
-    const checkResult = await settings.find();
-    if (!checkResult.error && checkResult.documents && checkResult.documents.length > 0) {
-        const doc = checkResult.documents[0];
-        cachedSettingsId = doc._id;
-        return settingsFromDocument(doc);
-    }
-
-    const result = await settings.insertOne(DEFAULT_SETTINGS as any);
-    if (result.error || !result.document) {
-        throw new Error(result.errorMsg || 'Failed to create settings');
-    }
-    cachedSettingsId = result.document._id;
     return settingsFromDocument(result.document);
 }
 
-export async function updateSettings({ id, updates }: SettingsParametersProps): Promise<Settings | null> {
-    if (!updates) return null;
-    const settings = getSettingsCollection();
-    const result = await settings.updateOne(id!, updates);
-    if (result.error) return null;
-    return getSettings();
+export async function resetSettingsByCategory({ category }: { category: SettingsCategory }): Promise<Settings | null> {
+    const defaults = DEFAULT_SETTINGS_BY_CATEGORY[category];
+    if (!defaults) return null;
+
+    return updateSettingsByCategory({ category, updates: defaults });
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
-export async function updatePrimaryColor({ color }: SettingsParametersProps): Promise<Settings | null> {
-    const current = await getOrCreateSettings();
-    return updateSettings({ id: current._id, updates: { primaryColor: color } });
-}
-
-export async function updateSiteInfo({ updates }: SettingsParametersProps): Promise<Settings | null> {
-    const current = await getOrCreateSettings();
-    return updateSettings({ id: current._id, updates });
-}
-
-export function getCachedSettingsId(): string | null {
-    return cachedSettingsId;
+export function getDefaultSettings({ category }: { category: SettingsCategory }): Settings {
+    const defaults = DEFAULT_SETTINGS_BY_CATEGORY[category];
+    return { _id: '', ...defaults } as Settings;
 }
