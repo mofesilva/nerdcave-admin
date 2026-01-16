@@ -47,7 +47,7 @@ export default function ProfilePage() {
         {/* Profile Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Avatar Section */}
-          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+          <div className="bg-card rounded-md p-8 shadow-sm border border-border/50 backdrop-blur-sm">
             <h2 className="text-xl font-bold text-foreground mb-6">Profile Picture</h2>
             <div className="flex items-center gap-8">
               <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full shadow-xl shadow-primary/20 ring-4 ring-background">
@@ -67,7 +67,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Basic Information */}
-          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+          <div className="bg-card rounded-md p-8 shadow-sm border border-border/50 backdrop-blur-sm">
             <h2 className="text-xl font-bold text-foreground mb-6">Basic Information</h2>
             <div className="space-y-6">
               <div>
@@ -78,7 +78,7 @@ export default function ProfilePage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -91,7 +91,7 @@ export default function ProfilePage() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -103,7 +103,7 @@ export default function ProfilePage() {
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50 resize-none"
+                  className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50 resize-none"
                   rows={4}
                   required
                 />
@@ -112,7 +112,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Stats */}
-          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+          <div className="bg-card rounded-md p-8 shadow-sm border border-border/50 backdrop-blur-sm">
             <h2 className="text-xl font-bold text-foreground mb-6">Statistics</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
@@ -123,7 +123,7 @@ export default function ProfilePage() {
                   type="number"
                   value={formData.followers}
                   onChange={(e) => setFormData({ ...formData, followers: e.target.value })}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -136,7 +136,7 @@ export default function ProfilePage() {
                   type="number"
                   value={formData.videos}
                   onChange={(e) => setFormData({ ...formData, videos: e.target.value })}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -149,7 +149,7 @@ export default function ProfilePage() {
                   type="number"
                   value={formData.views}
                   onChange={(e) => setFormData({ ...formData, views: e.target.value })}
-                  className="w-full px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                  className="w-full px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -157,7 +157,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Social Links */}
-          <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50 backdrop-blur-sm">
+          <div className="bg-card rounded-md p-8 shadow-sm border border-border/50 backdrop-blur-sm">
             <h2 className="text-xl font-bold text-foreground mb-6">Social Media Links</h2>
             <div className="space-y-4">
               {socialLinks.map((social, index) => (
@@ -178,7 +178,7 @@ export default function ProfilePage() {
                     type="url"
                     value={social.url}
                     onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
-                    className="flex-1 px-4 py-3 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
+                    className="flex-1 px-4 py-3 bg-background border border-border rounded-md focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground placeholder:text-muted-foreground/50"
                     placeholder={`https://${social.platform.toLowerCase()}.com/...`}
                   />
                 </div>
@@ -188,7 +188,7 @@ export default function ProfilePage() {
 
           {/* Save Button */}
           <div className="sticky bottom-6 z-10">
-            <div className="flex items-center justify-between bg-card/80 backdrop-blur-md rounded-xl p-4 shadow-lg border border-border/50">
+            <div className="flex items-center justify-between bg-card/80 backdrop-blur-md rounded-md p-4 shadow-lg border border-border/50">
               <div>
                 {isSaved && (
                   <p className="text-emerald-500 font-medium flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
