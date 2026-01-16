@@ -4,16 +4,17 @@ import { useState, useEffect, useRef } from "react";
 import { Upload, Trash2, Image as ImageIcon, Grid, List } from "lucide-react";
 import * as MediaController from "@/lib/medias/Media.controller";
 import type { Media } from "@/lib/medias/Media.model";
-import Button from "@/components/Button";
-import SegmentedControl from "@/components/SegmentedControl";
-import Select from "@/components/Select";
-import Toolbar from "@/components/Toolbar";
-import Pagination from "@/components/Pagination";
-import DropZone from "@/components/DropZone";
-import EmptyState from "@/components/EmptyState";
-import ErrorAlert from "@/components/ErrorAlert";
-import GridSkeleton from "@/components/GridSkeleton";
-import MediaCard from "./components/MediaCard";
+import Button from "@/_components/Button";
+import SegmentedControl from "@/_components/SegmentedControl";
+import Select from "@/_components/Select";
+import Toolbar from "@/_components/Toolbar";
+import Pagination from "@/_components/Pagination";
+import DropZone from "@/_components/DropZone";
+import EmptyState from "@/_components/EmptyState";
+import ErrorAlert from "@/_components/ErrorAlert";
+import GridSkeleton from "@/_components/GridSkeleton";
+import ImageLightbox from "@/_components/ImageLightbox";
+import MediaCard from "./_components/MediaCard";
 
 const PAGE_SIZES = [
     { value: "15", label: "15" },
@@ -38,6 +39,7 @@ export default function MediaPage() {
     const [pageSize, setPageSize] = useState(15);
     const [totalPages, setTotalPages] = useState(1);
     const loadedRef = useRef(false);
+    const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
     // Carrega dados
     useEffect(() => {
@@ -162,30 +164,43 @@ export default function MediaPage() {
                 <EmptyState icon={ImageIcon} title="Nenhum arquivo" />
             ) : viewMode === "grid" ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {media.map((item) => (
+                    {media.map((item, index) => (
                         <MediaCard
                             key={item._id}
                             src={MediaController.getMediaUrl({ fileName: item.fileName })}
                             title={item.title}
                             selected={selected.has(item._id)}
-                            onClick={() => toggle(item._id)}
+                            onSelect={() => toggle(item._id)}
+                            onView={() => setLightboxIndex(index)}
                             variant="grid"
                         />
                     ))}
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {media.map((item) => (
+                    {media.map((item, index) => (
                         <MediaCard
                             key={item._id}
                             src={MediaController.getMediaUrl({ fileName: item.fileName })}
                             title={item.title}
                             selected={selected.has(item._id)}
-                            onClick={() => toggle(item._id)}
+                            onSelect={() => toggle(item._id)}
+                            onView={() => setLightboxIndex(index)}
                             variant="list"
                         />
                     ))}
                 </div>
+            )}
+
+            {/* Lightbox */}
+            {lightboxIndex !== null && media[lightboxIndex] && (
+                <ImageLightbox
+                    src={MediaController.getMediaUrl({ fileName: media[lightboxIndex].fileName })}
+                    alt={media[lightboxIndex].title}
+                    onClose={() => setLightboxIndex(null)}
+                    onPrev={lightboxIndex > 0 ? () => setLightboxIndex(lightboxIndex - 1) : undefined}
+                    onNext={lightboxIndex < media.length - 1 ? () => setLightboxIndex(lightboxIndex + 1) : undefined}
+                />
             )}
 
             {/* Pagination */}
