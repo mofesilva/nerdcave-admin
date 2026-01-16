@@ -314,9 +314,8 @@ export default function CategoriesPage() {
         return (
             <div key={category._id} className={level > 0 ? 'pl-8' : ''}>
                 <div
-                    className={`bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group ${
-                        level > 0 ? 'border-l-4 border-l-primary/50' : ''
-                    }`}
+                    className={`bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group ${level > 0 ? 'border-l-4 border-l-primary/50' : ''
+                        }`}
                 >
                     <div className="flex items-center gap-4">
                         {/* Toggle para expandir/colapsar */}
