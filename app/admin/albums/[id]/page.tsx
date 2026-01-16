@@ -205,7 +205,7 @@ export default function AlbumDetailPage() {
         <div className="space-y-8">
             {/* Header */}
             <div className="flex items-center gap-4">
-                <Link href="/admin/albums" className="p-2 rounded-lg bg-secondary hover:bg-secondary/80">
+                <Link href="/admin/albums" className="p-2 rounded-md bg-secondary hover:bg-secondary/80">
                     <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <div className="flex-1">
@@ -215,7 +215,7 @@ export default function AlbumDetailPage() {
                     </p>
                 </div>
 
-                <label className={`bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold flex items-center gap-2 cursor-pointer ${uploading ? 'opacity-50' : 'hover:opacity-90'}`}>
+                <label className={`bg-primary text-primary-foreground px-6 py-3 rounded-md font-semibold flex items-center gap-2 cursor-pointer ${uploading ? 'opacity-50' : 'hover:opacity-90'}`}>
                     <Upload className="w-5 h-5" />
                     {uploading ? `${uploadProgress}%` : 'Upload'}
                     <input type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" disabled={uploading} />
@@ -223,7 +223,7 @@ export default function AlbumDetailPage() {
             </div>
 
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl flex justify-between">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md flex justify-between">
                     <span>{error}</span>
                     <IconButton
                         icon={<X />}
@@ -235,7 +235,7 @@ export default function AlbumDetailPage() {
             )}
 
             {selectionMode && (
-                <div className="bg-card rounded-xl border border-border p-4 flex justify-between">
+                <div className="bg-card rounded-md border border-border p-4 flex justify-between">
                     <div className="flex items-center gap-4">
                         <span>{selectedMedia.size} selecionada(s)</span>
                         <Button onClick={() => setSelectedMedia(new Set(mediaItems.map(m => m._id)))} variant="ghost" size="sm">Todas</Button>
@@ -261,10 +261,10 @@ export default function AlbumDetailPage() {
             )}
 
             {mediaItems.length === 0 ? (
-                <div className="text-center py-12 bg-card rounded-2xl border border-border">
+                <div className="text-center py-12 bg-card rounded-md border border-border">
                     <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground mb-4">Nenhuma imagem</p>
-                    <label className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl cursor-pointer">
+                    <label className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-md cursor-pointer">
                         <Upload className="w-5 h-5" />Upload
                         <input type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" />
                     </label>
@@ -279,7 +279,7 @@ export default function AlbumDetailPage() {
                         {mediaItems.map((media) => (
                             <div
                                 key={media._id}
-                                className={`relative group aspect-square rounded-xl overflow-hidden bg-secondary cursor-pointer ${selectedMedia.has(media._id) ? 'ring-2 ring-primary' : ''
+                                className={`relative group aspect-square rounded-md overflow-hidden bg-secondary cursor-pointer ${selectedMedia.has(media._id) ? 'ring-2 ring-primary' : ''
                                     }`}
                                 onClick={() => selectionMode && toggleSelection(media._id)}
                             >
@@ -339,7 +339,7 @@ export default function AlbumDetailPage() {
 
             {uploading && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-card rounded-2xl p-8 text-center border border-border">
+                    <div className="bg-card rounded-md p-8 text-center border border-border">
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-primary mx-auto mb-4"></div>
                         <p className="text-2xl font-bold text-primary">{uploadProgress}%</p>
                     </div>
