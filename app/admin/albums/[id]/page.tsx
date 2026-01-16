@@ -9,8 +9,8 @@ import type { Album } from "@/lib/albums/Album.model";
 import type { Media } from "@/lib/medias/Media.model";
 import * as AlbumsController from "@/lib/albums/Album.controller";
 import * as MediaController from "@/lib/medias/Media.controller";
-import Button from "@/components/Button";
-import IconButton from "@/components/IconButton";
+import Button from "@/_components/Button";
+import IconButton from "@/_components/IconButton";
 
 export default function AlbumDetailPage() {
     const params = useParams();
