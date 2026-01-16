@@ -14,10 +14,10 @@ export default function TopLinkItem({ link, index, maxClicks }: TopLinkItemProps
     return (
         <div
             key={link.linkId}
-            className="flex items-center gap-4 p-3 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer group"
+            className="flex items-center gap-4 p-3 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer group"
         >
             <div
-                className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base ${index === 0 ? "bg-primary group-hover:bg-secondary text-primary-foreground group-hover:text-secondary-foreground" : index === 1 ? "bg-neutral-800 text-white" : "bg-neutral-200 text-neutral-700"
+                className={`w-10 h-10 rounded-md flex items-center justify-center font-bold text-base ${index === 0 ? "bg-primary group-hover:bg-secondary text-primary-foreground group-hover:text-secondary-foreground" : index === 1 ? "bg-neutral-800 text-white" : "bg-neutral-200 text-neutral-700"
                     }`}
                 aria-hidden
             >
