@@ -168,7 +168,7 @@ export default function TagsPage() {
     const renderGridItem = (tag: TagType) => (
         <div
             key={tag._id}
-            className="group bg-card rounded-xl px-4 py-3 border border-border hover:border-primary/30 transition-all flex items-center gap-3"
+            className="group bg-card rounded-md px-4 py-3 border border-border hover:border-primary/30 transition-all flex items-center gap-3"
         >
             <Tag className="w-4 h-4 text-primary" />
             <span className="font-medium text-foreground">{tag.name}</span>
@@ -200,10 +200,10 @@ export default function TagsPage() {
     const renderListItem = (tag: TagType) => (
         <div
             key={tag._id}
-            className="group bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all"
+            className="group bg-card rounded-md p-5 border border-border hover:border-primary/30 transition-all"
         >
             <div className="flex items-center gap-4">
-                <div className="p-2.5 rounded-xl bg-primary/20">
+                <div className="p-2.5 rounded-md bg-primary/20">
                     <Hash className="w-5 h-5 text-primary" />
                 </div>
 
@@ -310,7 +310,7 @@ export default function TagsPage() {
 
             {/* Error Message */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
                     {error}
                 </div>
             )}
@@ -322,7 +322,7 @@ export default function TagsPage() {
                     <p className="text-muted-foreground mt-4">Carregando tags...</p>
                 </div>
             ) : sortedTags.length === 0 ? (
-                <div className="text-center py-12 bg-card rounded-2xl border border-border">
+                <div className="text-center py-12 bg-card rounded-md border border-border">
                     <Tag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
                         {searchQuery || usageFilter !== 'all' ? 'Nenhuma tag encontrada' : 'Nenhuma tag criada ainda'}
@@ -363,26 +363,26 @@ export default function TagsPage() {
 
             {/* Stats */}
             {tags.length > 0 && (
-                <div className="bg-card rounded-2xl p-6 border border-border">
+                <div className="bg-card rounded-md p-6 border border-border">
                     <h3 className="font-semibold text-foreground mb-4">Estatísticas</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-secondary rounded-xl p-4">
+                        <div className="bg-secondary rounded-md p-4">
                             <p className="text-2xl font-bold text-foreground">{tags.length}</p>
                             <p className="text-sm text-muted-foreground">Total de Tags</p>
                         </div>
-                        <div className="bg-secondary rounded-xl p-4">
+                        <div className="bg-secondary rounded-md p-4">
                             <p className="text-2xl font-bold text-foreground">
                                 {tags.reduce((acc, tag) => acc + tag.usageCount, 0)}
                             </p>
                             <p className="text-sm text-muted-foreground">Total de Usos</p>
                         </div>
-                        <div className="bg-secondary rounded-xl p-4">
+                        <div className="bg-secondary rounded-md p-4">
                             <p className="text-2xl font-bold text-foreground">
                                 {tags.filter(t => t.usageCount > 0).length}
                             </p>
                             <p className="text-sm text-muted-foreground">Tags em Uso</p>
                         </div>
-                        <div className="bg-secondary rounded-xl p-4">
+                        <div className="bg-secondary rounded-md p-4">
                             <p className="text-2xl font-bold text-foreground">
                                 {tags.filter(t => t.usageCount === 0).length}
                             </p>
@@ -395,7 +395,7 @@ export default function TagsPage() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-card rounded-2xl p-6 w-full max-w-md border border-border shadow-xl">
+                    <div className="bg-card rounded-md p-6 w-full max-w-md border border-border shadow-xl">
                         <h2 className="text-xl font-bold text-foreground mb-6">
                             {editingTag ? 'Editar Tag' : 'Nova Tag'}
                         </h2>
@@ -409,7 +409,7 @@ export default function TagsPage() {
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
                                     placeholder="Nome da tag"
                                     required
                                 />
