@@ -154,19 +154,19 @@ export default function ColorPicker({ value, onChange }: ColorPickerProps) {
             {/* Trigger Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 via-green-500 to-blue-500 cursor-pointer hover:scale-110 transition-transform flex items-center justify-center"
+                className="w-8 h-8 rounded-md bg-gradient-to-br from-red-500 via-green-500 to-blue-500 cursor-pointer hover:scale-110 transition-transform flex items-center justify-center"
             >
                 <span className="text-white text-lg font-bold drop-shadow">+</span>
             </button>
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 z-50 bg-card border-2 border-border rounded-xl shadow-2xl shadow-black/50 w-64 p-4 space-y-3">
+                <div className="absolute top-full left-0 mt-2 z-50 bg-card border-2 border-border rounded-md shadow-2xl shadow-black/50 w-64 p-4 space-y-3">
                     {/* Saturation/Lightness */}
                     <div
                         ref={saturationRef}
                         onMouseDown={handleSaturationMouseDown}
-                        className="relative w-full h-32 rounded-lg cursor-crosshair select-none"
+                        className="relative w-full h-32 rounded-md cursor-crosshair select-none"
                         style={{
                             background: `linear-gradient(to bottom, white, transparent, black), linear-gradient(to right, gray, hsl(${hue}, 100%, 50%))`,
                         }}
@@ -185,7 +185,7 @@ export default function ColorPicker({ value, onChange }: ColorPickerProps) {
                     <div
                         ref={hueRef}
                         onMouseDown={handleHueMouseDown}
-                        className="relative w-full h-3 rounded-lg cursor-pointer select-none"
+                        className="relative w-full h-3 rounded-md cursor-pointer select-none"
                         style={{
                             background: `linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)`,
                         }}
@@ -202,14 +202,14 @@ export default function ColorPicker({ value, onChange }: ColorPickerProps) {
                     {/* Preview & Hex */}
                     <div className="flex items-center gap-2">
                         <div
-                            className="w-10 h-10 rounded-lg border border-border"
+                            className="w-10 h-10 rounded-md border border-border"
                             style={{ backgroundColor: previewColor }}
                         />
                         <input
                             type="text"
                             value={hexInput.toUpperCase()}
                             onChange={(e) => handleHexChange(e.target.value)}
-                            className="flex-1 px-2 py-1.5 bg-background border border-border rounded-lg font-mono text-xs text-foreground uppercase"
+                            className="flex-1 px-2 py-1.5 bg-background border border-border rounded-md font-mono text-xs text-foreground uppercase"
                             maxLength={7}
                         />
                     </div>
