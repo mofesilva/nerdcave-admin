@@ -46,7 +46,7 @@ export default function Toolbar({
     return (
         <div className={`flex flex-wrap items-stretch gap-3 ${className}`}>
             {!hideSearch && (
-                <div className={`flex items-center gap-3 bg-card rounded-xl px-4 ${height} min-w-[200px] flex-1 max-w-md border border-border`}>
+                <div className={`flex items-center gap-3 bg-card rounded-md px-4 ${height} min-w-[200px] flex-1 max-w-md border border-border focus-within:border-primary transition-colors`}>
                     <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                     <input
                         type="text"
