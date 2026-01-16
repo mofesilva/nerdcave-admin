@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Edit2, Trash2, FolderTree, GripVertical, LayoutGrid, List, ArrowDownAZ, ArrowUpAZ, Loader2, FileText, Image as ImageIcon, ChevronRight, ArrowUpDown } from "lucide-react";
+import { Plus, Edit2, Trash2, FolderTree, GripVertical, LayoutGrid, List, ArrowDownAZ, ArrowUpAZ, Loader2, FileText, Image as ImageIcon, ChevronRight, ArrowUpDown, Rows3 } from "lucide-react";
 import type { Category, CategoryType } from "@/lib/categories/Category.model";
 import * as CategoriesController from "@/lib/categories/Category.controller";
 import Button from "@/_components/Button";
@@ -259,10 +259,10 @@ export default function CategoriesPage() {
         return (
             <div
                 key={category._id}
-                className="bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group flex flex-col"
+                className="bg-card rounded-md p-5 border border-border hover:border-primary/30 transition-all group flex flex-col"
             >
                 <div className="flex items-start justify-between mb-3">
-                    <div className={`p-3 rounded-xl ${getTypeBadgeColor(category.type)}`}>
+                    <div className={`p-3 rounded-md ${getTypeBadgeColor(category.type)}`}>
                         {getTypeIcon(category.type)}
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -314,7 +314,7 @@ export default function CategoriesPage() {
         return (
             <div key={category._id}>
                 <div
-                    className={`bg-card rounded-2xl border border-border hover:border-primary/30 transition-all group ${level > 0 ? 'border-l-4 border-l-primary/50' : ''
+                    className={`bg-card rounded-md border border-border hover:border-primary/30 transition-all group ${level > 0 ? 'border-l-4 border-l-primary/50' : ''
                         }`}
                 >
                     <div className="flex items-center gap-4 p-5">
@@ -322,7 +322,7 @@ export default function CategoriesPage() {
                         {hasChildCategories ? (
                             <button
                                 onClick={() => toggleExpanded(category._id)}
-                                className="p-1 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                                className="p-1 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                             >
                                 <ChevronRight
                                     className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''
@@ -337,7 +337,7 @@ export default function CategoriesPage() {
                             <GripVertical className="w-5 h-5" />
                         </div>
 
-                        <div className={`p-2.5 rounded-xl ${getTypeBadgeColor(category.type)}`}>
+                        <div className={`p-2.5 rounded-md ${getTypeBadgeColor(category.type)}`}>
                             {getTypeIcon(category.type)}
                         </div>
 
@@ -382,12 +382,12 @@ export default function CategoriesPage() {
                         <div className="px-5 pb-5 pt-0 space-y-2 border-t border-border/50 mt-0">
                             {children.map(child => (
                                 <div key={child._id} className="pl-8">
-                                    <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border-l-4 border-l-primary/50">
+                                    <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-md border-l-4 border-l-primary/50">
                                         <div className="cursor-grab text-muted-foreground hover:text-foreground">
                                             <GripVertical className="w-4 h-4" />
                                         </div>
 
-                                        <div className={`p-2 rounded-lg ${getTypeBadgeColor(child.type)}`}>
+                                        <div className={`p-2 rounded-md ${getTypeBadgeColor(child.type)}`}>
                                             {getTypeIcon(child.type)}
                                         </div>
 
@@ -484,6 +484,7 @@ export default function CategoriesPage() {
                         { value: '50', label: '50 / página' },
                     ]}
                     label="Exibir"
+                    icon={Rows3}
                 />
 
                 {/* Padrão: Botão adicionar */}
@@ -498,7 +499,7 @@ export default function CategoriesPage() {
 
             {/* Error Message */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
                     {error}
                 </div>
             )}
@@ -510,7 +511,7 @@ export default function CategoriesPage() {
                     <p className="text-muted-foreground mt-4">Carregando categorias...</p>
                 </div>
             ) : sortedCategories.length === 0 ? (
-                <div className="text-center py-12 bg-card rounded-2xl border border-border">
+                <div className="text-center py-12 bg-card rounded-md border border-border">
                     <FolderTree className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
                         {searchQuery || typeFilter !== 'all' ? 'Nenhuma categoria encontrada' : 'Nenhuma categoria criada ainda'}
@@ -555,7 +556,7 @@ export default function CategoriesPage() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="bg-card rounded-2xl p-6 w-full max-w-md border border-border shadow-xl">
+                    <div className="bg-card rounded-md p-6 w-full max-w-md border border-border shadow-xl">
                         <h2 className="text-xl font-bold text-foreground mb-6">
                             {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
                         </h2>
@@ -569,7 +570,7 @@ export default function CategoriesPage() {
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
                                     placeholder="Nome da categoria"
                                     required
                                 />
@@ -583,7 +584,7 @@ export default function CategoriesPage() {
                                     type="text"
                                     value={formData.slug}
                                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
                                     placeholder="slug-da-categoria (gerado automaticamente)"
                                 />
                             </div>
@@ -595,7 +596,7 @@ export default function CategoriesPage() {
                                 <textarea
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none resize-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none resize-none"
                                     placeholder="Descrição opcional"
                                     rows={3}
                                 />
@@ -608,7 +609,7 @@ export default function CategoriesPage() {
                                 <select
                                     value={formData.type}
                                     onChange={(e) => setFormData({ ...formData, type: e.target.value as Category['type'] })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
                                 >
                                     {typeOptions.map((option) => (
                                         <option key={option.value} value={option.value}>
@@ -625,7 +626,7 @@ export default function CategoriesPage() {
                                 <select
                                     value={formData.parentId}
                                     onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                                    className="w-full bg-secondary rounded-xl px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
+                                    className="w-full bg-secondary rounded-md px-4 py-3 text-foreground border border-border focus:border-primary focus:outline-none"
                                 >
                                     <option value="">Nenhuma (raiz)</option>
                                     {categories
