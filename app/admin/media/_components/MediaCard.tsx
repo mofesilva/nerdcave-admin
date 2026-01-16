@@ -28,22 +28,22 @@ export default function MediaCard({
         return (
             <div
                 onClick={onView}
-                className={`flex items-center gap-4 bg-card rounded-xl p-4 border cursor-pointer ${selectedClass}`}
+                className={`flex items-center gap-4 bg-card rounded-md p-4 border cursor-pointer ${selectedClass}`}
             >
                 {/* Checkbox */}
                 {onSelect && (
                     <button
                         onClick={(e) => { e.stopPropagation(); onSelect(); }}
                         className={`w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${selected
-                                ? "bg-primary border-primary text-white"
-                                : "border-muted-foreground/30 hover:border-primary"
+                            ? "bg-primary border-primary text-white"
+                            : "border-muted-foreground/30 hover:border-primary"
                             }`}
                         aria-label={selected ? "Desselecionar" : "Selecionar"}
                     >
                         {selected && <Check className="w-4 h-4" />}
                     </button>
                 )}
-                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-muted relative">
+                <div className="w-16 h-16 rounded-md overflow-hidden shrink-0 bg-muted relative">
                     {src && (
                         <SkeletonImage
                             src={src}
@@ -62,7 +62,7 @@ export default function MediaCard({
     return (
         <div
             onClick={onView}
-            className={`group relative bg-card rounded-xl overflow-hidden border cursor-pointer transition-colors ${selectedClass}`}
+            className={`group relative bg-card rounded-md overflow-hidden border cursor-pointer transition-colors ${selectedClass}`}
         >
             <div className="aspect-square relative bg-muted">
                 {src && (
@@ -79,8 +79,8 @@ export default function MediaCard({
                     <button
                         onClick={(e) => { e.stopPropagation(); onSelect(); }}
                         className={`absolute top-2 right-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${selected
-                                ? "bg-primary border-primary text-white opacity-100"
-                                : "border-white/70 bg-black/30 opacity-0 group-hover:opacity-100 hover:border-white"
+                            ? "bg-primary border-primary text-white opacity-100"
+                            : "border-white/70 bg-black/30 opacity-0 group-hover:opacity-100 hover:border-white"
                             }`}
                         aria-label={selected ? "Desselecionar" : "Selecionar"}
                     >
