@@ -1,0 +1,392 @@
+{
+    "purpose": "Diretrizes para IA aplicar corretamente o padrão arquitetural MVC do projeto NerdCave CMS, garantindo código limpo, performático e manutenível.",
+    "project_specifics": {
+        "project_name": "NerdCave Headless CMS",
+        "language": "TypeScript",
+        "framework": "Next.js 16 (App Router)",
+        "architecture_pattern": "MVC com 5 camadas: Model → Collection → Mapper → Service → Controller",
+        "ui_library": "React 19 + TailwindCSS 4",
+        "database": "MongoDB (via Cappuccino BaaS)",
+        "sdk": "@cappuccino/web-sdk (GitHub: mofesilva/cappuccino-js-sdk)",
+        "description": "CMS headless para gerenciamento de blog, álbuns, categorias, tags e links. Desacoplado do site público para permitir consumo via API."
+    },
+    "core_principles": {
+        "kiss_principle": {
+            "priority": "MÁXIMA",
+            "description": "Keep It Simple, Stupid - Simplicidade sempre vem primeiro.",
+            "rules": [
+                "Código simples e legível é melhor que código 'elegante' complexo",
+                "Não precisa de muito contexto para entender o que o código faz",
+                "Se está ficando complexo, provavelmente está errado"
+            ],
+            "avoid": [
+                "Overengineering",
+                "Abstrações desnecessárias",
+                "Soluções 'inteligentes' que sacrificam clareza"
+            ]
+        },
+        "mvc_strict": "O projeto segue estritamente o padrão MVC de 5 camadas.",
+        "service_as_sdk_gateway": "Toda interação com SDK Cappuccino ocorre EXCLUSIVAMENTE na camada Service.",
+        "no_direct_sdk_usage": "Components e Controllers NUNCA chamam SDK diretamente.",
+        "data_flow_clarity": "UI → Controller → Service → Collection → SDK",
+        "conciseness": "Código direto, claro e intencional. Sem verbosidade.",
+        "performance_first": "Priorizar eficiência de processamento e chamadas ao banco.",
+        "always_use_cappuccino_sdk": true,
+        "never_modify_sdk_or_api": "NUNCA alterar código do SDK (@cappuccino/web-sdk) ou da API (cappuccino/)"
+    },
+    "mvc_architecture": {
+        "layer_order": [
+            "Model",
+            "Collection",
+            "Mapper",
+            "Service",
+            "Controller",
+            "UI"
+        ],
+        "data_flow": "Model → Collection → Mapper → Service → Controller → UI Component",
+        "model": {
+            "location": "lib/{domain}/{Domain}.model.ts",
+            "role": "Definir estrutura de dados com type ou interface.",
+            "naming": "{Domain} (PascalCase singular)",
+            "rules": [
+                "Usar apenas type ou interface",
+                "Não conter métodos",
+                "Não acessar SDK ou banco",
+                "Exportar apenas tipos"
+            ],
+            "example": "export type Article = { _id: string; title: string; ... }"
+        },
+        "collection": {
+            "location": "lib/{domain}/{Domain}s.collection.ts",
+            "role": "Factory para criar instância de Collection do SDK.",
+            "naming": "get{Domain}sCollection()",
+            "rules": [
+                "Deve ter 'use client' no topo",
+                "Usar createCollection<T> do client.ts",
+                "Retornar Collection tipada",
+                "Máximo 5-10 linhas"
+            ],
+            "example": "export function getArticlesCollection() { return createCollection<Article>('articles'); }"
+        },
+        "mapper": {
+            "location": "lib/{domain}/{Domain}.mapper.ts",
+            "role": "Converter documentos do banco para tipos locais.",
+            "naming": "{domain}FromDocument(doc: any): {Domain}",
+            "rules": [
+                "Converter snake_case para camelCase",
+                "Fornecer valores default para campos opcionais",
+                "Normalizar dados inconsistentes",
+                "Função pura sem side effects"
+            ],
+            "example": "export function articleFromDocument(doc: any): Article { ... }"
+        },
+        "service": {
+            "location": "lib/{domain}/{Domain}.service.ts",
+            "role": "Camada de negócio. ÚNICA autorizada a usar SDK.",
+            "naming": "Funções: get{Domain}ById, create{Domain}, update{Domain}, delete{Domain}",
+            "rules": [
+                "Deve ter 'use client' no topo",
+                "ÚNICA camada que importa Collection",
+                "ÚNICA camada que chama SDK",
+                "Aplicar regras de negócio",
+                "Usar Mapper para converter dados",
+                "Tratar erros do SDK"
+            ],
+            "allowed": [
+                "Chamar Collection",
+                "Chamar Mapper",
+                "Implementar lógica de negócio",
+                "Validações complexas"
+            ],
+            "forbidden": [
+                "Lógica de UI",
+                "Acesso direto a DOM",
+                "Gerenciamento de estado React"
+            ]
+        },
+        "controller": {
+            "location": "lib/{domain}/{Domain}.controller.ts",
+            "role": "Orquestrar fluxo entre UI e Services. Fachada simplificada.",
+            "naming": "Mesmo nome das funções do Service",
+            "rules": [
+                "Deve ter 'use client' no topo",
+                "Importar Service com: import * as {Domain}Service from './{Domain}.service'",
+                "Delegar 100% para Service",
+                "Não conter lógica de negócio",
+                "Apenas repassar chamadas"
+            ],
+            "pattern": "export async function getArticleById({ id }) { return ArticleService.getArticleById({ id }); }"
+        },
+        "ui_component": {
+            "location": "app/{route}/page.tsx ou app/{route}/_components/",
+            "role": "Interface de usuário e interação.",
+            "rules": [
+                "Chamar APENAS Controllers",
+                "Gerenciar estado de UI",
+                "Renderizar dados",
+                "Usar componentes de @/_components/"
+            ],
+            "forbidden": [
+                "Chamar Service diretamente",
+                "Chamar SDK",
+                "Conhecer estrutura do banco",
+                "Executar regras de negócio"
+            ],
+            "import_pattern": "import * as ArticlesController from '@/lib/articles/Article.controller';"
+        }
+    },
+    "folder_structure": {
+        "root_directories": {
+            "app/": "Rotas Next.js e páginas",
+            "app/_components/": "Componentes globais reutilizáveis",
+            "app/admin/": "Páginas do CMS/backoffice",
+            "app/admin/_components/": "Componentes específicos do admin",
+            "app/{route}/_components/": "Componentes específicos da rota (prefixo _)",
+            "lib/": "Lógica de negócio (MVC)",
+            "lib/{domain}/": "Módulo de domínio com todas as 5 camadas",
+            "lib/cappuccino/": "Cliente SDK singleton",
+            "lib/contexts/": "React Contexts",
+            "lib/utils/": "Utilitários específicos de domínio",
+            "types/": "Tipos globais compartilhados",
+            "public/": "Assets estáticos",
+            "docs/": "Documentação"
+        },
+        "domain_module_structure": {
+            "example": "lib/articles/",
+            "files": [
+                "Article.model.ts",
+                "Articles.collection.ts",
+                "Article.mapper.ts",
+                "Article.service.ts",
+                "Article.controller.ts",
+                "index.ts"
+            ]
+        },
+        "component_directories": {
+            "rule": "Diretórios de componentes dentro de app/ DEVEM ter prefixo '_'",
+            "reason": "Evitar que Next.js trate como rota",
+            "examples": [
+                "app/_components/",
+                "app/admin/_components/",
+                "app/admin/posts/_components/"
+            ]
+        }
+    },
+    "sdk_integration": {
+        "package": "@cappuccino/web-sdk",
+        "source": "github:mofesilva/cappuccino-js-sdk",
+        "client_location": "lib/cappuccino/client.ts",
+        "pattern": "Singleton com factory de Collection",
+        "rules": [
+            "SDK SOMENTE pode ser importado em lib/cappuccino/client.ts",
+            "Services usam createCollection() do client.ts",
+            "NUNCA importar SDK diretamente em Service/Controller/Component",
+            "Consumir SDK do GitHub, NUNCA de pasta local"
+        ],
+        "collection_usage": {
+            "find": "collection.find({ query: {...} })",
+            "findById": "collection.findById(id)",
+            "insertOne": "collection.insertOne(data)",
+            "updateOne": "collection.updateOne(id, data)",
+            "deleteOne": "collection.deleteOne(id)"
+        }
+    },
+    "naming_conventions": {
+        "files": {
+            "model": "{Domain}.model.ts (PascalCase singular)",
+            "collection": "{Domain}s.collection.ts (PascalCase plural)",
+            "mapper": "{Domain}.mapper.ts (PascalCase singular)",
+            "service": "{Domain}.service.ts (PascalCase singular)",
+            "controller": "{Domain}.controller.ts (PascalCase singular)",
+            "component": "{ComponentName}.tsx (PascalCase)",
+            "page": "page.tsx (Next.js convention)",
+            "layout": "layout.tsx (Next.js convention)"
+        },
+        "functions": {
+            "service_crud": "get{Domain}ById, getAll{Domain}s, create{Domain}, update{Domain}, delete{Domain}",
+            "mapper": "{domain}FromDocument",
+            "collection_factory": "get{Domain}sCollection",
+            "helpers": "camelCase descritivo"
+        },
+        "types": "PascalCase (Article, Category, Media)",
+        "constants": "UPPER_SNAKE_CASE",
+        "variables": "camelCase",
+        "css_classes": "kebab-case com Tailwind"
+    },
+    "code_section_dividers": {
+        "purpose": "Dividir seções lógicas do código para facilitar leitura e navegação.",
+        "pattern": "// ─── NOME_DA_SEÇÃO ────────────────────────────────────────────────────────────",
+        "character": "─ (U+2500 Box Drawing Light Horizontal)",
+        "rules": [
+            "Usar em arquivos com múltiplas seções lógicas (Services, Controllers)",
+            "Nome da seção em UPPERCASE",
+            "Manter consistência visual (80 caracteres total)",
+            "Linha em branco antes e depois do divider"
+        ],
+        "common_sections": {
+            "services": [
+                "AUTH",
+                "CRUD",
+                "QUERIES",
+                "MUTATIONS",
+                "INFORMATIONS",
+                "HELPERS"
+            ],
+            "controllers": [
+                "AUTH",
+                "CRUD",
+                "QUERIES",
+                "MUTATIONS"
+            ],
+            "components": [
+                "TYPES",
+                "HOOKS",
+                "HANDLERS",
+                "RENDER"
+            ]
+        },
+        "example": "// ─── AUTH ────────────────────────────────────────────────────────────────────\n\nexport async function signIn({ credentials }) { ... }\n\n// ─── CRUD ────────────────────────────────────────────────────────────────────\n\nexport async function getAllUsers() { ... }"
+    },
+    "code_reuse_policy": {
+        "mandatory_analysis": "OBRIGATÓRIO: Antes de criar código novo, analisar TODO código existente.",
+        "analysis_before_creation": [
+            "Verificar componentes existentes em @/_components/",
+            "Verificar controllers existentes em lib/",
+            "Verificar services existentes",
+            "Verificar utils e helpers em lib/utils.ts",
+            "Verificar se já existe código similar que pode ser reutilizado"
+        ],
+        "reuse_priority": "SEMPRE priorizar reutilização sobre criação.",
+        "creation_rules": {
+            "allow_new_code_only_if": [
+                "NÃO existir código reutilizável",
+                "O caso for extremamente específico",
+                "Refatorar código existente quebraria funcionalidade"
+            ],
+            "strictly_avoid": [
+                "Componentes hardcoded únicos",
+                "Duplicação de lógica",
+                "Soluções ad-hoc quando existe solução genérica",
+                "Copy-paste de código entre arquivos"
+            ]
+        }
+    },
+    "code_cleanup_strategies": {
+        "dead_code_elimination": {
+            "continuous_cleanup": "Remover código morto proativamente.",
+            "what_to_remove": [
+                "Funções não utilizadas",
+                "Imports não referenciados",
+                "Variáveis declaradas mas nunca usadas",
+                "Código comentado antigo",
+                "Comentários TODO/FIXME resolvidos"
+            ]
+        },
+        "redundancy_elimination": {
+            "strategies": [
+                "Extrair funções comuns para lib/utils.ts",
+                "Criar componentes reutilizáveis em @/_components/",
+                "Usar composição ao invés de duplicação"
+            ]
+        }
+    },
+    "code_design_principles": {
+        "modularity": "Código organizado em módulos coesos e fracamente acoplados.",
+        "reusability": "Priorizar componentes e funções reutilizáveis.",
+        "readability": "Código auto-explicativo. Comentários explicam 'por quê', não 'o quê'.",
+        "testability": "Código deve ser facilmente testável em isolamento.",
+        "one_responsibility_per_file": "Cada arquivo deve ter responsabilidade única.",
+        "small_functions": "Funções devem fazer uma coisa só e fazê-la bem."
+    },
+    "performance_and_safety": {
+        "database_safeguards": [
+            "Evitar N+1 queries",
+            "Usar query: { deleted: false } para soft delete",
+            "Implementar paginação para listas grandes",
+            "Máximo 50 itens por página"
+        ],
+        "sdk_optimization": [
+            "Minimizar chamadas ao SDK",
+            "Usar Promise.all para chamadas paralelas",
+            "Evitar overfetching"
+        ],
+        "react_optimization": [
+            "Usar useMemo para cálculos pesados",
+            "Usar useCallback para funções passadas como props",
+            "Evitar re-renders desnecessários"
+        ]
+    },
+    "error_handling": {
+        "principles": [
+            "Tratar erros na camada Service",
+            "Retornar null ou array vazio em caso de erro (não throw)",
+            "Logar erros com console.error para debug",
+            "Mostrar mensagem amigável na UI"
+        ],
+        "pattern": "if (result.error || !result.document) return null;"
+    },
+    "testing_strategy": {
+        "requirements": [
+            "Testes unitários para Services",
+            "Mockar SDK nos testes",
+            "Testar Mappers com dados diversos"
+        ]
+    },
+    "component_guidelines": {
+        "global_components": {
+            "location": "@/_components/",
+            "examples": [
+                "Button",
+                "Select",
+                "Pagination",
+                "EmptyState",
+                "StatusBadges"
+            ],
+            "rule": "Componentes usados em múltiplas páginas"
+        },
+        "route_specific_components": {
+            "location": "app/{route}/_components/",
+            "rule": "Componentes usados apenas em uma rota específica"
+        },
+        "import_pattern": {
+            "global": "import Button from '@/_components/Button';",
+            "controller": "import * as ArticlesController from '@/lib/articles/Article.controller';"
+        }
+    },
+    "next_js_rules": {
+        "app_router": true,
+        "use_client": "Adicionar 'use client' em arquivos que usam hooks React ou SDK",
+        "images": "SEMPRE usar next/image, NUNCA <img>",
+        "image_config": "Configurar remotePatterns no next.config.js para URLs externas"
+    },
+    "ai_behavior_rules": {
+        "consult_existing_code_first": "OBRIGATÓRIO: Analisar código existente antes de criar novo.",
+        "never_modify_sdk": "NUNCA modificar código em cappuccino/ ou cappuccino-js-sdk/",
+        "never_modify_api": "NUNCA modificar código da API Cappuccino",
+        "respect_mvc_layers": "NUNCA violar a hierarquia de camadas MVC.",
+        "keep_code_simple": "Priorizar simplicidade sobre 'elegância'.",
+        "prefer_refactor_over_new": "Preferir refatoração à criação de código novo.",
+        "ask_before_major_changes": "Perguntar antes de mudanças arquiteturais significativas.",
+        "validate_before_create": {
+            "checklist": [
+                "✓ Analisei código existente?",
+                "✓ A solução é SIMPLES?",
+                "✓ Estou respeitando as 5 camadas MVC?",
+                "✓ SDK está sendo chamado APENAS no Service?",
+                "✓ Não estou duplicando código?",
+                "✓ Não estou modificando SDK/API?"
+            ]
+        }
+    },
+    "forbidden_actions": [
+        "Modificar código do SDK (@cappuccino/web-sdk)",
+        "Modificar código da API (cappuccino/)",
+        "Chamar SDK fora da camada Service",
+        "Criar API routes (/api/) - usar Controllers direto",
+        "Usar <img> ao invés de next/image",
+        "Criar componentes duplicados",
+        "Ignorar padrão MVC de 5 camadas",
+        "Usar SDK de pasta local (file:../)",
+        "Reverter código via git sem autorização explícita"
+    ]
+}
