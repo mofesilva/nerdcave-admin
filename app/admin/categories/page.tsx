@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, Edit2, Trash2, FolderTree, GripVertical, LayoutGrid, List, ArrowDownAZ, ArrowUpAZ, CalendarArrowDown, CalendarArrowUp, Loader2, FileText, Image as ImageIcon, ChevronRight } from "lucide-react";
+import { Plus, Edit2, Trash2, FolderTree, GripVertical, LayoutGrid, List, ArrowDownAZ, ArrowUpAZ, Loader2, FileText, Image as ImageIcon, ChevronRight, ArrowUpDown } from "lucide-react";
 import type { Category, CategoryType } from "@/lib/categories/Category.model";
 import * as CategoriesController from "@/lib/categories/Category.controller";
 import Button from "@/_components/Button";
@@ -31,7 +31,7 @@ export default function CategoriesPage() {
     // Filtros e visualização (PADRÃO)
     const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
-    const [sortBy, setSortBy] = useState<'az-asc' | 'az-desc' | 'date-asc' | 'date-desc'>('az-asc');
+    const [sortBy, setSortBy] = useState<'az-asc' | 'az-desc' | 'order-asc' | 'order-desc'>('order-asc');
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -78,10 +78,10 @@ export default function CategoriesPage() {
                     return a.name.localeCompare(b.name);
                 case 'az-desc':
                     return b.name.localeCompare(a.name);
-                case 'date-asc':
-                    return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
-                case 'date-desc':
-                    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+                case 'order-asc':
+                    return a.order - b.order;
+                case 'order-desc':
+                    return b.order - a.order;
                 default:
                     return 0;
             }
@@ -312,10 +312,11 @@ export default function CategoriesPage() {
         const hasChildCategories = children.length > 0;
 
         return (
-            <div key={category._id}>
+            <div key={category._id} className={level > 0 ? 'pl-8' : ''}>
                 <div
-                    className={`bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group ${level > 0 ? 'ml-8 border-l-2 border-l-primary/30' : ''
-                        }`}
+                    className={`bg-card rounded-2xl p-5 border border-border hover:border-primary/30 transition-all group ${
+                        level > 0 ? 'border-l-4 border-l-primary/50' : ''
+                    }`}
                 >
                     <div className="flex items-center gap-4">
                         {/* Toggle para expandir/colapsar */}
@@ -426,8 +427,8 @@ export default function CategoriesPage() {
                     options={[
                         { value: 'az-asc', label: 'A-Z', icon: ArrowDownAZ },
                         { value: 'az-desc', label: 'Z-A', icon: ArrowUpAZ },
-                        { value: 'date-desc', label: 'Mais Recentes', icon: CalendarArrowDown },
-                        { value: 'date-asc', label: 'Mais Antigos', icon: CalendarArrowUp },
+                        { value: 'order-asc', label: 'Ordem Crescente', icon: ArrowUpDown },
+                        { value: 'order-desc', label: 'Ordem Decrescente', icon: ArrowUpDown },
                     ]}
                     label="Ordenar"
                 />
@@ -485,11 +486,11 @@ export default function CategoriesPage() {
                     )}
                 </div>
             ) : viewMode === 'list' ? (
-                <div className="space-y-4">
+                <div className="space-y-4 w-full">
                     {paginatedCategories.map(cat => renderListItem(cat, 0))}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full">
                     {paginatedCategories.map(cat => renderGridCard(cat))}
                 </div>
             )}
