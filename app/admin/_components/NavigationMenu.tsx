@@ -70,12 +70,12 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
                 key={item.name}
                 href={item.href}
                 title={!isExpanded ? item.name : undefined}
-                className={`h-11 flex items-center rounded-xl transition-colors ${isActive
+                className={`flex items-center rounded-md h-12 transition-colors ${isActive
                     ? 'bg-primary text-primary-foreground'
                     : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
-                    } ${nested && isExpanded ? 'pl-4' : ''}`}
+                    }`}
             >
-                <div className={`${nested && isExpanded ? 'w-10' : 'w-14'} h-11 flex items-center justify-center shrink-0`}>
+                <div className="w-14 h-11 flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5" />
                 </div>
                 <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 opacity-100' : 'w-0 opacity-0'
