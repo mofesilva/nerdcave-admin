@@ -50,7 +50,7 @@ export default function SegmentedControl<T extends string>({
     return (
         <div
             ref={containerRef}
-            className="relative flex items-center px-1.25 py-1.25 bg-card border border-border rounded-xl"
+            className="relative flex items-center px-1.25 py-1.25 bg-card border border-border rounded-md"
         >
             {/* Sliding indicator */}
             <div
