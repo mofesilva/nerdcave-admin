@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Award, BarChart3 } from "lucide-react";
+import CardTitleSection from "@/_components/CardTitleSection";
 
 interface TopPost {
     _id: string;
@@ -23,23 +24,21 @@ export default function TopPosts({ posts }: TopPostsProps) {
     };
 
     return (
-        <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-lg font-bold text-foreground">Top Performance</h2>
-                    <p className="text-sm text-muted-foreground">Posts mais vistos</p>
-                </div>
-                <Award className="w-5 h-5 text-yellow-500" />
-            </div>
+        <div className="bg-card rounded-md border border-border p-6">
+            <CardTitleSection
+                title="Top Performance"
+                subtitle="Posts mais vistos"
+                trailing={<Award className="w-5 h-5 text-yellow-500" />}
+            />
 
             <div className="space-y-3">
                 {posts.length > 0 ? posts.map((post, index) => (
                     <Link
                         key={post._id}
                         href={`/admin/posts/${post._id}`}
-                        className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-colors group"
+                        className="flex items-center gap-4 p-3 rounded-md hover:bg-muted/50 transition-colors group"
                     >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
+                        <div className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
                             index === 1 ? 'bg-zinc-300/20 text-zinc-400' :
                                 index === 2 ? 'bg-orange-500/20 text-orange-500' :
                                     'bg-muted text-muted-foreground'
