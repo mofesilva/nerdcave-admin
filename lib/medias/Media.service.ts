@@ -46,10 +46,10 @@ export async function getMediasPaginated({ page = 1, pageSize = DEFAULT_PAGE_SIZ
     }
 
     // Busca os itens da página
-    const result = await medias.find({ 
-        query: filter, 
-        limit: pageSize, 
-        skip 
+    const result = await medias.find({
+        query: filter,
+        limit: pageSize,
+        skip
     });
 
     if (result.error || !result.documents) {
@@ -63,7 +63,7 @@ export async function getMediasPaginated({ page = 1, pageSize = DEFAULT_PAGE_SIZ
         { $match: filter },
         { $count: 'total' }
     ]);
-    
+
     const total = (countResult.documents?.[0] as { total?: number })?.total ?? items.length;
     const totalPages = Math.ceil(total / pageSize);
 
@@ -135,7 +135,8 @@ export async function downloadFile({ fileName }: MediaParametersProps): Promise<
 }
 
 /**
- * Returns the public URL for a media file via proxy
+ * Returns the public URL for a media file.
+ * Uses local proxy to avoid CORS issues.
  */
 export function getMediaUrl({ fileName }: MediaParametersProps): string {
     if (!fileName) return '';
