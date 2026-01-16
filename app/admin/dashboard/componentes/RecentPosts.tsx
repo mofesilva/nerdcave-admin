@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FileText, Clock, Star, ExternalLink } from "lucide-react";
 import type { Article } from "@/lib/articles/Article.model";
+import CardTitleSection from "@/_components/CardTitleSection";
 
 interface RecentPostsProps {
     posts: Article[];
@@ -10,21 +11,21 @@ interface RecentPostsProps {
 
 export default function RecentPosts({ posts }: RecentPostsProps) {
     return (
-        <div className="bg-card rounded-2xl border border-border p-6">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h2 className="text-lg font-bold text-foreground">Posts Recentes</h2>
-                    <p className="text-sm text-muted-foreground">Últimas publicações</p>
-                </div>
-                <Link href="/admin/posts" className="text-primary text-sm font-medium hover:underline flex items-center gap-1">
-                    Ver todos <ExternalLink className="w-3 h-3" />
-                </Link>
-            </div>
+        <div className="bg-card rounded-md border border-border p-6">
+            <CardTitleSection
+                title="Posts Recentes"
+                subtitle="Últimas publicações"
+                trailing={
+                    <Link href="/admin/posts" className="text-primary text-sm font-medium hover:underline flex items-center gap-1">
+                        Ver todos <ExternalLink className="w-3 h-3" />
+                    </Link>
+                }
+            />
 
             <div className="space-y-3">
                 {posts.length > 0 ? posts.map((post) => (
-                    <Link key={post._id} href={`/admin/posts/${post._id}`} className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-colors group">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
+                    <Link key={post._id} href={`/admin/posts/${post._id}`} className="flex items-center gap-4 p-3 rounded-md hover:bg-muted/50 transition-colors group">
+                        <div className="w-12 h-12 rounded-md bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
                             <FileText className="w-5 h-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
