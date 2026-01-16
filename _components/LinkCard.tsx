@@ -15,7 +15,7 @@ export default function LinkCard({ title, description, url, gradient }: LinkCard
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className={`block bg-gradient-to-r ${gradient} p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group`}
+      className={`block bg-gradient-to-r ${gradient} p-6 rounded-md shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group`}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
