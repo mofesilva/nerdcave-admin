@@ -1,32 +1,36 @@
+'use client';
+
 import * as SettingsService from './Settings.service';
-import type { Settings } from './Settings.model';
+import type { Settings, SettingsCategory } from './Settings.model';
 
-interface SettingsControllerProps {
-    id?: string;
-    color?: string;
-    updates?: Partial<Settings>;
+// ─── QUERIES ─────────────────────────────────────────────────────────────────
+
+export async function getSettingsByCategory({ category }: { category: SettingsCategory }): Promise<Settings | null> {
+    return SettingsService.getSettingsByCategory({ category });
 }
 
-// ─── CRUD ────────────────────────────────────────────────────────────────────
-
-export async function getSettings(): Promise<Settings | null> {
-    return SettingsService.getSettings();
+export async function getAllSettings(): Promise<Settings[]> {
+    return SettingsService.getAllSettings();
 }
 
-export async function getOrCreateSettings(): Promise<Settings> {
-    return SettingsService.getOrCreateSettings();
+// ─── MUTATIONS ───────────────────────────────────────────────────────────────
+
+export async function updateSettingsByCategory({
+    category,
+    updates,
+}: {
+    category: SettingsCategory;
+    updates: Partial<Settings>;
+}): Promise<Settings | null> {
+    return SettingsService.updateSettingsByCategory({ category, updates });
 }
 
-export async function updateSettings({ id, updates }: SettingsControllerProps): Promise<Settings | null> {
-    return SettingsService.updateSettings({ id, updates });
+export async function resetSettingsByCategory({ category }: { category: SettingsCategory }): Promise<Settings | null> {
+    return SettingsService.resetSettingsByCategory({ category });
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
-export async function updatePrimaryColor({ color }: SettingsControllerProps): Promise<Settings | null> {
-    return SettingsService.updatePrimaryColor({ color });
-}
-
-export async function updateSiteInfo({ updates }: SettingsControllerProps): Promise<Settings | null> {
-    return SettingsService.updateSiteInfo({ updates });
+export function getDefaultSettings({ category }: { category: SettingsCategory }): Settings {
+    return SettingsService.getDefaultSettings({ category });
 }
