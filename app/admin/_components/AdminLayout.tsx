@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     LayoutDashboard,
     Link as LinkIcon,
@@ -15,40 +14,21 @@ import {
     Images,
     FileText,
     Menu,
-    X,
     Newspaper,
     Film,
     Music,
     Palette,
-    type LucideIcon,
 } from "lucide-react";
 import { useAuth } from '@cappuccino/web-sdk';
 import { useAutoLogin } from '@/lib/contexts/AutoLoginContext';
-import UserProfileCard from "./UserProfileCard";
-import NavigationMenu from "./NavigationMenu";
-import SidebarHeader from "./SidebarHeader";
+import { useSystemSettings } from '@/lib/contexts/SystemSettingsContext';
 import ThemeToggle from "./ThemeToggle";
 import ScrollIndicator from "@/_components/ScrollIndicator";
+import Sidebar, { type NavigationEntry, type NavigationItem } from "./Sidebar";
 
 interface AdminLayoutProps {
     children: React.ReactNode;
 }
-
-interface NavigationItem {
-    name: string;
-    href: string;
-    icon: LucideIcon;
-    description?: string;
-}
-
-interface NavigationSection {
-    name: string;
-    icon: LucideIcon;
-    description?: string;
-    items: NavigationItem[];
-}
-
-type NavigationEntry = NavigationItem | NavigationSection;
 
 const navigation: NavigationEntry[] = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard, description: 'Bem vindo ao admin para gerenciar o hub Nerdcave Studio' },
@@ -85,35 +65,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const pathname = usePathname();
     const { user, signOut } = useAuth();
     const { loginAsGuest } = useAutoLogin();
+    const { fullWidthLayout } = useSystemSettings();
     const [loggingOut, setLoggingOut] = useState(false);
     const [isPinned, setIsPinned] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [pageCanScrollDown, setPageCanScrollDown] = useState(false);
     const [pageCanScrollUp, setPageCanScrollUp] = useState(false);
-
-    // Fecha drawer ao mudar de rota
-    useEffect(() => {
-        setIsDrawerOpen(false);
-    }, [pathname]);
-
-    // Fecha drawer ao pressionar ESC
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") setIsDrawerOpen(false);
-        };
-        document.addEventListener("keydown", handleKeyDown);
-        return () => document.removeEventListener("keydown", handleKeyDown);
-    }, []);
-
-    // Bloqueia scroll quando drawer está aberta
-    useEffect(() => {
-        if (isDrawerOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
-        return () => { document.body.style.overflow = ""; };
-    }, [isDrawerOpen]);
 
     // Verifica scroll da página (window)
     useEffect(() => {
@@ -142,11 +99,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const findCurrentPage = (): NavigationItem | undefined => {
         for (const entry of navigation) {
             if ('items' in entry) {
-                // É uma seção, busca nos items
                 const found = entry.items.find(item => pathname?.startsWith(item.href));
                 if (found) return found;
             } else {
-                // É um item direto
                 if (pathname?.startsWith(entry.href)) return entry;
             }
         }
@@ -162,7 +117,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             if (user?._id) {
                 await signOut(user._id);
             }
-            // Faz login como visitante após logout
             await loginAsGuest();
             router.push('/');
         } catch (error) {
@@ -172,84 +126,32 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         }
     };
 
+    const handleCloseDrawer = useCallback(() => {
+        setIsDrawerOpen(false);
+    }, []);
+
     return (
-        <div className="min-h-screen bg-background text-foreground flex p-4 gap-4">
-            {/* Sidebar Desktop */}
-            <aside
-                className={`hidden md:flex ${isPinned ? 'w-64' : 'w-20'
-                    } sticky top-4 h-[calc(100vh-2rem)] bg-sidebar rounded-3xl text-sidebar-foreground flex-col py-6 pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden`}
-            >
-                {/* Header com logo */}
-                <SidebarHeader
-                    isExpanded={isPinned}
-                    isPinned={isPinned}
-                    onTogglePin={() => setIsPinned(!isPinned)}
-                />
+        <div className="min-h-screen bg-background text-foreground flex">
+            {/* Sidebar */}
+            <Sidebar
+                navigation={navigation}
+                user={user ?? undefined}
+                onLogout={handleLogout}
+                loggingOut={loggingOut}
+                isPinned={isPinned}
+                onTogglePin={() => setIsPinned(!isPinned)}
+                isDrawerOpen={isDrawerOpen}
+                onCloseDrawer={handleCloseDrawer}
+            />
 
-                {/* Navegação */}
-                <NavigationMenu items={navigation} isExpanded={isPinned} />
-
-                {/* Seção inferior com usuário e logout */}
-                <UserProfileCard
-                    user={user ?? undefined}
-                    isExpanded={isPinned}
-                    onLogout={handleLogout}
-                    loggingOut={loggingOut}
-                />
-            </aside>
-
-            {/* Drawer Mobile - Overlay */}
-            {isDrawerOpen && (
-                <div
-                    className="md:hidden fixed inset-0 bg-black/50 z-[100]"
-                    onClick={() => setIsDrawerOpen(false)}
-                />
-            )}
-
-            {/* Drawer Mobile - Sidebar */}
-            <aside
-                className={`md:hidden fixed top-0 left-0 h-full w-72 bg-sidebar text-sidebar-foreground flex flex-col py-6 pb-4 z-[101] transition-transform duration-300 ease-in-out ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
-                    }`}
-            >
-                {/* Botão fechar no topo */}
-                <button
-                    onClick={() => setIsDrawerOpen(false)}
-                    className="absolute top-4 right-4 p-2 rounded-lg hover:bg-white/10 text-sidebar-foreground"
-                    aria-label="Fechar menu"
-                >
-                    <X className="w-6 h-6" />
-                </button>
-
-                {/* Logo centralizada */}
-                <div className="flex justify-center mb-6">
-                    <SidebarHeader
-                        isExpanded={true}
-                        isPinned={true}
-                        onTogglePin={() => { }}
-                        hideToggle
-                    />
-                </div>
-
-                {/* Navegação */}
-                <NavigationMenu items={navigation} isExpanded={true} />
-
-                {/* Seção inferior com usuário e logout */}
-                <UserProfileCard
-                    user={user ?? undefined}
-                    isExpanded={true}
-                    onLogout={handleLogout}
-                    loggingOut={loggingOut}
-                />
-            </aside>
-
-            <div className="flex-1 flex flex-col min-w-0">
-                <div className="w-full mx-auto">
-                    <header className="h-14 flex items-center justify-between my-4">
+            <div className={`flex-1 flex flex-col min-w-0 ${isPinned ? 'md:ml-64' : 'md:ml-20'} transition-[margin] duration-300 ease-in-out`}>
+                <div className={`mx-auto p-4 ${!fullWidthLayout ? 'w-full xl:w-2/3' : 'w-full'}`}>
+                    <header className="h-14 flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                             {/* Botão hamburger mobile */}
                             <button
                                 onClick={() => setIsDrawerOpen(true)}
-                                className="md:hidden p-2 rounded-lg hover:bg-muted text-foreground"
+                                className="md:hidden p-2 rounded-md hover:bg-muted text-foreground"
                                 aria-label="Abrir menu"
                             >
                                 <Menu className="w-6 h-6" />
@@ -262,9 +164,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            {/* Theme toggle */}
                             <ThemeToggle />
-
                         </div>
                     </header>
 
