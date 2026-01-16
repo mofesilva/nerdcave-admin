@@ -11,5 +11,6 @@ export function mediaFromDocument(doc: any): Media {
         title: data.title ?? data.originalName ?? '',
         altText: data.altText ?? data.originalName ?? '',
         deleted: data.deleted ?? false,
+        createdAt: data.createdAt ?? '',
     };
 }
