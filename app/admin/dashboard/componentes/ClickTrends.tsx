@@ -13,7 +13,7 @@ export function ClickTrends({ data }: ClickTrendsProps) {
     const maxClicks = Math.max(...data.map(d => d.clicks), 1);
 
     return (
-        <div className="bg-card rounded-xl p-6">
+        <div className="bg-card rounded-md p-6">
             <h3 className="text-xl font-bold text-foreground mb-4">Tendencia de Clicks (Ultimos 7 Dias)</h3>
             <div className="h-48 flex items-end justify-between gap-3">
                 {data.map((day, index) => {
@@ -24,7 +24,7 @@ export function ClickTrends({ data }: ClickTrendsProps) {
                                 {day.clicks}
                             </span>
                             <div
-                                className="w-full bg-muted group-hover:bg-primary rounded-lg transition-colors cursor-pointer"
+                                className="w-full bg-muted group-hover:bg-primary rounded-md transition-colors cursor-pointer"
                                 style={{ height: `${height}%`, minHeight: '8px' }}
                             />
                             <span className="text-xs text-muted-foreground font-medium">
