@@ -91,7 +91,7 @@ export default function BlogSettingsTab({
         <>
             <div className="space-y-3">
                 {/* Cor de Destaque */}
-                <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+                <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
                     <h2 className="text-xl font-bold text-foreground mb-2">Cor de Destaque</h2>
                     <p className="text-muted-foreground mb-6">
                         Cor principal usada em botões e links no site público
@@ -105,7 +105,7 @@ export default function BlogSettingsTab({
                                     onClick={() => setAccentColor(hex.toLowerCase())}
                                     disabled={saving}
                                     className={cn(
-                                        "w-8 h-8 rounded-lg transition-transform hover:scale-110",
+                                        "w-8 h-8 rounded-md transition-transform hover:scale-110",
                                         accentColor.toLowerCase() === hex.toLowerCase() &&
                                         "ring-2 ring-white ring-offset-2 ring-offset-card"
                                     )}
@@ -120,7 +120,7 @@ export default function BlogSettingsTab({
                         </div>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 bg-muted rounded-lg">
+                    <div className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 bg-muted rounded-md">
                         <div className="w-4 h-4 rounded" style={{ backgroundColor: accentColor }} />
                         <span className="text-sm font-mono text-foreground">{accentColor.toUpperCase()}</span>
                     </div>
@@ -134,13 +134,13 @@ export default function BlogSettingsTab({
                                 <span className="text-xs text-muted-foreground uppercase tracking-wide">Botões</span>
                                 <div className="flex flex-wrap gap-2">
                                     <button
-                                        className="px-4 py-2 rounded-lg font-medium"
+                                        className="px-4 py-2 rounded-md font-medium"
                                         style={{ backgroundColor: accentColor, color: accentTextColor }}
                                     >
                                         Primário
                                     </button>
                                     <button
-                                        className="px-4 py-2 rounded-lg font-medium border-2"
+                                        className="px-4 py-2 rounded-md font-medium border-2"
                                         style={{ borderColor: accentColor, color: accentColor }}
                                     >
                                         Outline
@@ -165,7 +165,7 @@ export default function BlogSettingsTab({
                 </div>
 
                 {/* Cor do Texto */}
-                <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+                <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
                     <h2 className="text-xl font-bold text-foreground mb-2">Cor do Texto de Destaque</h2>
                     <p className="text-muted-foreground mb-6">
                         Cor do texto sobre a cor de destaque
@@ -178,7 +178,7 @@ export default function BlogSettingsTab({
                                 onClick={() => setAccentTextColor(hex.toLowerCase())}
                                 disabled={saving}
                                 className={cn(
-                                    "w-8 h-8 rounded-lg transition-transform hover:scale-110 border border-border",
+                                    "w-8 h-8 rounded-md transition-transform hover:scale-110 border border-border",
                                     accentTextColor.toLowerCase() === hex.toLowerCase() &&
                                     "ring-2 ring-primary ring-offset-2 ring-offset-card"
                                 )}
@@ -194,7 +194,7 @@ export default function BlogSettingsTab({
                 </div>
 
                 {/* Cor de Fundo */}
-                <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+                <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
                     <h2 className="text-xl font-bold text-foreground mb-2">Cor de Fundo</h2>
                     <p className="text-muted-foreground mb-6">
                         Cor de fundo principal do site público
@@ -208,7 +208,7 @@ export default function BlogSettingsTab({
                                     onClick={() => setBackgroundColor(hex.toLowerCase())}
                                     disabled={saving}
                                     className={cn(
-                                        "w-8 h-8 rounded-lg transition-transform hover:scale-110 border border-border/50",
+                                        "w-8 h-8 rounded-md transition-transform hover:scale-110 border border-border/50",
                                         backgroundColor.toLowerCase() === hex.toLowerCase() &&
                                         "ring-2 ring-white ring-offset-2 ring-offset-card"
                                     )}
@@ -223,14 +223,14 @@ export default function BlogSettingsTab({
                         </div>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 bg-muted rounded-lg">
+                    <div className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 bg-muted rounded-md">
                         <div className="w-4 h-4 rounded border border-border/50" style={{ backgroundColor }} />
                         <span className="text-sm font-mono text-foreground">{backgroundColor.toUpperCase()}</span>
                     </div>
                 </div>
 
                 {/* Logos */}
-                <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+                <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
                     <h2 className="text-xl font-bold text-foreground mb-2">Logo e Favicon</h2>
                     <p className="text-muted-foreground mb-6">
                         Imagens do site público
@@ -242,7 +242,7 @@ export default function BlogSettingsTab({
                             <label className="text-sm font-medium text-foreground">Logo do Site</label>
                             <div className="relative">
                                 {blogLogo ? (
-                                    <div className="relative w-full h-24 bg-muted rounded-lg overflow-hidden group">
+                                    <div className="relative w-full h-24 bg-muted rounded-md overflow-hidden group">
                                         <img
                                             src={getMediaUrl({ fileName: blogLogo.fileName })}
                                             alt="Logo"
@@ -258,7 +258,7 @@ export default function BlogSettingsTab({
                                 ) : (
                                     <button
                                         onClick={() => { setMediaPickerTarget("blogLogo"); setMediaPickerOpen(true); }}
-                                        className="w-full h-24 border-2 border-dashed border-border rounded-lg flex items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                                        className="w-full h-24 border-2 border-dashed border-border rounded-md flex items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                                     >
                                         <ImageIcon className="w-5 h-5" />
                                         <span className="text-sm">Selecionar Logo</span>
@@ -272,7 +272,7 @@ export default function BlogSettingsTab({
                             <label className="text-sm font-medium text-foreground">Favicon</label>
                             <div className="relative">
                                 {blogFavicon ? (
-                                    <div className="relative w-full h-24 bg-muted rounded-lg overflow-hidden group">
+                                    <div className="relative w-full h-24 bg-muted rounded-md overflow-hidden group">
                                         <img
                                             src={getMediaUrl({ fileName: blogFavicon.fileName })}
                                             alt="Favicon"
@@ -288,7 +288,7 @@ export default function BlogSettingsTab({
                                 ) : (
                                     <button
                                         onClick={() => { setMediaPickerTarget("blogFavicon"); setMediaPickerOpen(true); }}
-                                        className="w-full h-24 border-2 border-dashed border-border rounded-lg flex items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                                        className="w-full h-24 border-2 border-dashed border-border rounded-md flex items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                                     >
                                         <ImageIcon className="w-5 h-5" />
                                         <span className="text-sm">Selecionar Favicon</span>
@@ -300,7 +300,7 @@ export default function BlogSettingsTab({
                 </div>
 
                 {/* Informações do Blog */}
-                <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+                <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
                     <h2 className="text-xl font-bold text-foreground mb-2">Informações do Site</h2>
                     <p className="text-muted-foreground mb-6">
                         Metadados e SEO do site público
@@ -314,7 +314,7 @@ export default function BlogSettingsTab({
                                 value={blogName}
                                 onChange={(e) => setBlogName(e.target.value)}
                                 placeholder="Meu Blog"
-                                className="w-full px-4 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-2 bg-muted border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
 
@@ -325,7 +325,7 @@ export default function BlogSettingsTab({
                                 onChange={(e) => setBlogDescription(e.target.value)}
                                 placeholder="Uma breve descrição do seu site..."
                                 rows={3}
-                                className="w-full px-4 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                                className="w-full px-4 py-2 bg-muted border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                             />
                         </div>
 
@@ -336,7 +336,7 @@ export default function BlogSettingsTab({
                                 value={blogKeywords}
                                 onChange={(e) => setBlogKeywords(e.target.value)}
                                 placeholder="blog, tecnologia, games, ..."
-                                className="w-full px-4 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-2 bg-muted border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
 
@@ -347,7 +347,7 @@ export default function BlogSettingsTab({
                                 value={blogFooterText}
                                 onChange={(e) => setBlogFooterText(e.target.value)}
                                 placeholder="© 2026 Todos os direitos reservados"
-                                className="w-full px-4 py-2 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                                className="w-full px-4 py-2 bg-muted border border-border rounded-md text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                             />
                         </div>
                     </div>
