@@ -32,7 +32,7 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
                                 {post.title}
                             </h3>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <span className={`px-1.5 py-0.5 rounded ${post.status === 'published' ? 'bg-emerald-500/10 text-emerald-500' :
+                                <span className={`px-1.5 py-0.5 rounded ${post.status === 'published' ? 'bg-primary/10 text-primary' :
                                     post.status === 'draft' ? 'bg-yellow-500/10 text-yellow-500' :
                                         'bg-blue-500/10 text-blue-500'
                                     }`}>
