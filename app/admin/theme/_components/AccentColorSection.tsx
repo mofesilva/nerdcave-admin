@@ -33,7 +33,7 @@ export default function AccentColorSection({
     onTextColorSelect,
 }: AccentColorSectionProps) {
     return (
-        <div className="bg-card rounded-xl p-8 shadow-sm border border-border/50">
+        <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
             <h2 className="text-xl font-bold text-foreground mb-2">Cor de Destaque</h2>
             <p className="text-muted-foreground mb-6">
                 Cor principal usada em botões e elementos interativos
@@ -47,7 +47,7 @@ export default function AccentColorSection({
                             onClick={() => onColorSelect(hex)}
                             disabled={saving}
                             className={cn(
-                                "w-8 h-8 rounded-lg transition-transform hover:scale-110",
+                                "w-8 h-8 rounded-md transition-transform hover:scale-110",
                                 accentColor.toLowerCase() === hex.toLowerCase() &&
                                 "ring-2 ring-white ring-offset-2 ring-offset-card"
                             )}
@@ -63,7 +63,7 @@ export default function AccentColorSection({
                 {saving && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
             </div>
 
-            <div className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 bg-muted rounded-lg">
+            <div className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 bg-muted rounded-md">
                 <div className="w-4 h-4 rounded" style={{ backgroundColor: accentColor }} />
                 <span className="text-sm font-mono text-foreground">
                     {accentColor.toUpperCase()}
@@ -87,7 +87,7 @@ export default function AccentColorSection({
                                     onClick={() => onTextColorSelect(hex)}
                                     disabled={saving}
                                     className={cn(
-                                        "w-8 h-8 rounded-lg transition-transform hover:scale-110 border border-border",
+                                        "w-8 h-8 rounded-md transition-transform hover:scale-110 border border-border",
                                         isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-card"
                                     )}
                                     style={{ backgroundColor: hex }}
@@ -118,19 +118,19 @@ export default function AccentColorSection({
                         <span className="text-xs text-muted-foreground uppercase tracking-wide">Botões</span>
                         <div className="flex flex-wrap gap-2">
                             <button
-                                className="px-4 py-2 rounded-lg font-medium transition-opacity hover:opacity-90"
+                                className="px-4 py-2 rounded-md font-medium transition-opacity hover:opacity-90"
                                 style={{ backgroundColor: accentColor, color: accentTextColor }}
                             >
                                 Primário
                             </button>
                             <button
-                                className="px-4 py-2 rounded-lg font-medium border-2 transition-opacity hover:opacity-90"
+                                className="px-4 py-2 rounded-md font-medium border-2 transition-opacity hover:opacity-90"
                                 style={{ borderColor: accentColor, color: accentColor }}
                             >
                                 Outline
                             </button>
                             <button
-                                className="px-4 py-2 rounded-lg font-medium transition-opacity hover:opacity-90"
+                                className="px-4 py-2 rounded-md font-medium transition-opacity hover:opacity-90"
                                 style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
                             >
                                 Ghost
@@ -198,7 +198,7 @@ export default function AccentColorSection({
                         <input
                             type="text"
                             placeholder="Digite algo..."
-                            className="w-full px-3 py-2 rounded-lg bg-muted text-foreground text-sm outline-none ring-2"
+                            className="w-full px-3 py-2 rounded-md bg-muted text-foreground text-sm outline-none ring-2"
                             style={{ boxShadow: `0 0 0 2px ${accentColor}` }}
                             readOnly
                         />
@@ -209,7 +209,7 @@ export default function AccentColorSection({
                         <span className="text-xs text-muted-foreground uppercase tracking-wide">Ícones</span>
                         <div className="flex items-center gap-3">
                             <div
-                                className="w-10 h-10 rounded-lg flex items-center justify-center"
+                                className="w-10 h-10 rounded-md flex items-center justify-center"
                                 style={{ backgroundColor: accentColor }}
                             >
                                 <Bell className="w-5 h-5" style={{ color: accentTextColor }} />
