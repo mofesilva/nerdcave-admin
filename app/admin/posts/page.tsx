@@ -183,7 +183,7 @@ export default function PostsPage() {
             </Toolbar>
 
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl">
+                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
                     {error}
                 </div>
             )}
@@ -193,7 +193,7 @@ export default function PostsPage() {
                     <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
                 </div>
             ) : sortedArticles.length === 0 ? (
-                <div className="text-center py-12 bg-card rounded-2xl border border-border">
+                <div className="text-center py-12 bg-card rounded-md border border-border">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                     <p className="text-muted-foreground">
                         {searchQuery || statusFilter !== 'all' ? 'Nenhum post encontrado' : 'Nenhum post criado'}
