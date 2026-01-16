@@ -55,7 +55,7 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute z-50 right-0 mt-2 min-w-[200px] py-1 bg-card border border-border rounded-xl overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="absolute z-50 left-0 mt-2 min-w-[200px] py-1 bg-card border border-border rounded-xl overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150">
                     <div className="px-3 py-2 text-xs text-muted-foreground font-medium uppercase tracking-wider border-b border-border">
                         {label}
                     </div>
