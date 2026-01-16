@@ -1,17 +1,33 @@
+/**
+ * API Route: GET /api/media/[...path]
+ * 
+ * Proxy para servir arquivos de mídia do Cappuccino com cache otimizado.
+ * Permite que o Next.js Image otimize imagens passando pelo nosso domínio.
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 
-const CAPPUCCINO_BASE = 'https://cappuccino.devel.dzign-e.app';
-const APP_NAME = 'nerdcave-link-tree';
+function getMediaConfig() {
+    const baseUrl = process.env.NEXT_PUBLIC_CAPPUCCINO_API_URL?.trim()?.replace(/\/$/, '') || '';
+    const appName = process.env.NEXT_PUBLIC_APP_NAME || 'nerdcave-link-tree';
+
+    if (!baseUrl) {
+        throw new Error('NEXT_PUBLIC_CAPPUCCINO_API_URL is missing');
+    }
+
+    return { baseUrl, appName };
+}
 
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ path: string[] }> }
 ) {
-    const { path } = await params;
-    const fileName = path.join('/');
-    const imageUrl = `${CAPPUCCINO_BASE}/mediastorage/${APP_NAME}/${fileName}`;
-
     try {
+        const { baseUrl, appName } = getMediaConfig();
+        const { path } = await params;
+        const fileName = path.join('/');
+        const imageUrl = `${baseUrl}/mediastorage/${appName}/${fileName}`;
+
         const response = await fetch(imageUrl);
 
         if (!response.ok) {
