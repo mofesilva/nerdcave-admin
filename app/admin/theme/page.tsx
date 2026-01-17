@@ -14,6 +14,7 @@ import {
     AccentColorSection,
     LogosSection,
     BlogSettingsTab,
+    ThemeColorsSection,
 } from "./_components";
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
@@ -31,7 +32,7 @@ const COLOR_PRESETS = [
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-type LogoField = "loginPageLogo" | "sideBarLogoDark" | "sideBarLogoLight";
+type LogoField = "loginPageLogo" | "sideBarLogoDark" | "sideBarLogoLight" | "adminFavicon";
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
@@ -49,6 +50,17 @@ export default function ThemePage() {
     const [loginPageLogo, setLoginPageLogo] = useState<Media | undefined>();
     const [sideBarLogoDark, setSideBarLogoDark] = useState<Media | undefined>();
     const [sideBarLogoLight, setSideBarLogoLight] = useState<Media | undefined>();
+    const [adminFavicon, setAdminFavicon] = useState<Media | undefined>();
+    
+    // Theme colors state
+    const [backgroundLight, setBackgroundLight] = useState<string | undefined>();
+    const [sidebarBackgroundLight, setSidebarBackgroundLight] = useState<string | undefined>();
+    const [textColorLight, setTextColorLight] = useState<string | undefined>();
+    const [cardColorLight, setCardColorLight] = useState<string | undefined>();
+    const [backgroundDark, setBackgroundDark] = useState<string | undefined>();
+    const [sidebarBackgroundDark, setSidebarBackgroundDark] = useState<string | undefined>();
+    const [textColorDark, setTextColorDark] = useState<string | undefined>();
+    const [cardColorDark, setCardColorDark] = useState<string | undefined>();
 
     // Media picker
     const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
@@ -67,6 +79,16 @@ export default function ThemePage() {
             setLoginPageLogo(adminSettings.loginPageLogo);
             setSideBarLogoDark(adminSettings.sideBarLogoDark);
             setSideBarLogoLight(adminSettings.sideBarLogoLight);
+            setAdminFavicon(adminSettings.adminFavicon);
+            // Theme colors
+            setBackgroundLight(adminSettings.backgroundLight);
+            setSidebarBackgroundLight(adminSettings.sidebarBackgroundLight);
+            setTextColorLight(adminSettings.textColorLight);
+            setCardColorLight(adminSettings.cardColorLight);
+            setBackgroundDark(adminSettings.backgroundDark);
+            setSidebarBackgroundDark(adminSettings.sidebarBackgroundDark);
+            setTextColorDark(adminSettings.textColorDark);
+            setCardColorDark(adminSettings.cardColorDark);
         }
     }, [adminSettings]);
 
@@ -140,6 +162,9 @@ export default function ThemePage() {
             case "sideBarLogoLight":
                 setSideBarLogoLight(media);
                 break;
+            case "adminFavicon":
+                setAdminFavicon(media);
+                break;
         }
 
         setMediaPickerOpen(false);
@@ -157,6 +182,38 @@ export default function ThemePage() {
             case "sideBarLogoLight":
                 setSideBarLogoLight(undefined);
                 break;
+            case "adminFavicon":
+                setAdminFavicon(undefined);
+                break;
+        }
+    }
+    
+    function handleThemeColorChange(field: string, value: string | undefined) {
+        switch (field) {
+            case "backgroundLight":
+                setBackgroundLight(value);
+                break;
+            case "sidebarBackgroundLight":
+                setSidebarBackgroundLight(value);
+                break;
+            case "textColorLight":
+                setTextColorLight(value);
+                break;
+            case "cardColorLight":
+                setCardColorLight(value);
+                break;
+            case "backgroundDark":
+                setBackgroundDark(value);
+                break;
+            case "sidebarBackgroundDark":
+                setSidebarBackgroundDark(value);
+                break;
+            case "textColorDark":
+                setTextColorDark(value);
+                break;
+            case "cardColorDark":
+                setCardColorDark(value);
+                break;
         }
     }
 
@@ -167,6 +224,16 @@ export default function ThemePage() {
             loginPageLogo,
             sideBarLogoDark,
             sideBarLogoLight,
+            adminFavicon,
+            // Theme colors
+            backgroundLight,
+            sidebarBackgroundLight,
+            textColorLight,
+            cardColorLight,
+            backgroundDark,
+            sidebarBackgroundDark,
+            textColorDark,
+            cardColorDark,
         });
     }
 
@@ -200,6 +267,19 @@ export default function ThemePage() {
                             colorPresets={COLOR_PRESETS}
                             onColorSelect={(hex: string) => setAccentColor(hex.toLowerCase())}
                             onTextColorSelect={(hex: string) => setAccentTextColor(hex.toLowerCase())}
+                        />
+
+                        <ThemeColorsSection
+                            backgroundLight={backgroundLight}
+                            sidebarBackgroundLight={sidebarBackgroundLight}
+                            textColorLight={textColorLight}
+                            cardColorLight={cardColorLight}
+                            backgroundDark={backgroundDark}
+                            sidebarBackgroundDark={sidebarBackgroundDark}
+                            textColorDark={textColorDark}
+                            cardColorDark={cardColorDark}
+                            saving={saving}
+                            onColorChange={handleThemeColorChange}
                         />
 
                         <LogosSection
