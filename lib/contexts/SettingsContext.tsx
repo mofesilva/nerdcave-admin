@@ -29,6 +29,22 @@ const LOCAL_STORAGE_KEY = "nerdcave_theme_settings";
 const DEFAULT_ACCENT_COLOR = "#0067ff";
 const DEFAULT_ACCENT_TEXT_COLOR = "#ffffff";
 
+// CSS defaults (do globals.css)
+const CSS_DEFAULTS = {
+    light: {
+        background: "#f8f9fa",
+        sidebarBackground: "#DEE2E6",
+        textColor: "#212529",
+        cardColor: "#DEE2E6",
+    },
+    dark: {
+        background: "#070707",
+        sidebarBackground: "#111111",
+        textColor: "#f8f9fa",
+        cardColor: "#111111",
+    },
+};
+
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
 function saveToLocalStorage(settings: ThemeSettings) {
@@ -76,6 +92,48 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setAccentTextColor(textColor);
     }, []);
 
+    // Aplica cores de tema (background, sidebar, text, card) baseado no modo light/dark
+    const applyThemeColors = useCallback((data: ThemeSettings) => {
+        if (typeof document === 'undefined') return;
+
+        const isDark = document.documentElement.classList.contains('dark');
+        const mode = isDark ? 'dark' : 'light';
+        const defaults = CSS_DEFAULTS[mode];
+
+        // Pega cores customizadas ou usa defaults
+        const bg = isDark ? data.backgroundDark : data.backgroundLight;
+        const sidebar = isDark ? data.sidebarBackgroundDark : data.sidebarBackgroundLight;
+        const text = isDark ? data.textColorDark : data.textColorLight;
+        const card = isDark ? data.cardColorDark : data.cardColorLight;
+
+        // Aplica apenas se houver valor customizado
+        if (bg) {
+            document.documentElement.style.setProperty("--background", bg);
+        } else {
+            document.documentElement.style.removeProperty("--background");
+        }
+
+        if (sidebar) {
+            document.documentElement.style.setProperty("--sidebar-background", sidebar);
+        } else {
+            document.documentElement.style.removeProperty("--sidebar-background");
+        }
+
+        if (text) {
+            document.documentElement.style.setProperty("--foreground", text);
+            document.documentElement.style.setProperty("--card-foreground", text);
+        } else {
+            document.documentElement.style.removeProperty("--foreground");
+            document.documentElement.style.removeProperty("--card-foreground");
+        }
+
+        if (card) {
+            document.documentElement.style.setProperty("--card", card);
+        } else {
+            document.documentElement.style.removeProperty("--card");
+        }
+    }, []);
+
     // Aplica settings de um objeto (usado por cache e fetch)
     const applySettingsData = useCallback((data: ThemeSettings) => {
         setSettings(data);
@@ -83,10 +141,28 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             data.accentColor || DEFAULT_ACCENT_COLOR,
             data.accentTextColor || DEFAULT_ACCENT_TEXT_COLOR
         );
+        applyThemeColors(data);
         setLoginPageLogo(data.loginPageLogo);
         setSideBarLogoDark(data.sideBarLogoDark);
         setSideBarLogoLight(data.sideBarLogoLight);
-    }, [applyColors]);
+    }, [applyColors, applyThemeColors]);
+
+    // Observa mudanças no tema (light/dark) para re-aplicar cores
+    useEffect(() => {
+        if (!settings) return;
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    applyThemeColors(settings);
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, { attributes: true });
+
+        return () => observer.disconnect();
+    }, [settings, applyThemeColors]);
 
     const fetchSettings = useCallback(async (showLoading = true) => {
         try {
