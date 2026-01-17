@@ -18,6 +18,18 @@ export function themeSettingsFromDocument(doc: any): ThemeSettings {
         loginPageLogo: data.loginPageLogo,
         sideBarLogoDark: data.sideBarLogoDark,
         sideBarLogoLight: data.sideBarLogoLight,
+        // Admin theme colors - Light
+        backgroundLight: data.backgroundLight,
+        sidebarBackgroundLight: data.sidebarBackgroundLight,
+        textColorLight: data.textColorLight,
+        cardColorLight: data.cardColorLight,
+        // Admin theme colors - Dark
+        backgroundDark: data.backgroundDark,
+        sidebarBackgroundDark: data.sidebarBackgroundDark,
+        textColorDark: data.textColorDark,
+        cardColorDark: data.cardColorDark,
+        // Admin favicon
+        adminFavicon: data.adminFavicon,
         // Blog specific
         blogLogo: data.blogLogo,
         blogFavicon: data.blogFavicon,
