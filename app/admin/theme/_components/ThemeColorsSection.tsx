@@ -53,13 +53,13 @@ interface ColorRowProps {
 function ColorRow({ label, description, value, defaultValue, onChange, isDark, previewTextColor }: ColorRowProps) {
     const displayValue = value || defaultValue;
     const isCustom = !!value;
-    
+
     // Usa previewTextColor se fornecido, senão usa cores padrão baseado em isDark
     const textColor = previewTextColor || (isDark ? '#f4f4f5' : '#18181b');
     const mutedColor = previewTextColor ? `${previewTextColor}99` : (isDark ? '#a1a1aa' : '#71717a');
 
     return (
-        <div 
+        <div
             className="flex items-center justify-between py-3 border-b last:border-0"
             style={{ borderColor: isDark ? 'rgba(63,63,70,0.3)' : 'rgba(212,212,216,0.5)' }}
         >
@@ -77,18 +77,18 @@ function ColorRow({ label, description, value, defaultValue, onChange, isDark, p
                         Resetar
                     </button>
                 )}
-                <div 
+                <div
                     className="w-8 h-8 rounded shadow-sm border"
-                    style={{ 
+                    style={{
                         backgroundColor: displayValue,
                         borderColor: isDark ? '#52525b' : '#d4d4d8'
                     }}
                 />
-                <ColorPicker 
-                    value={displayValue} 
-                    onChange={(hex) => onChange(hex)} 
+                <ColorPicker
+                    value={displayValue}
+                    onChange={(hex) => onChange(hex)}
                 />
-                <span 
+                <span
                     className="text-xs font-mono w-16"
                     style={{ color: mutedColor }}
                 >
@@ -117,7 +117,7 @@ export default function ThemeColorsSection({
     const lightBg = backgroundLight || DEFAULTS.light.background;
     const lightText = textColorLight || DEFAULTS.light.textColor;
     const lightBorder = sidebarBackgroundLight || DEFAULTS.light.sidebarBackground;
-    
+
     const darkBg = backgroundDark || DEFAULTS.dark.background;
     const darkText = textColorDark || DEFAULTS.dark.textColor;
     const darkBorder = sidebarBackgroundDark || DEFAULTS.dark.sidebarBackground;
@@ -131,23 +131,23 @@ export default function ThemeColorsSection({
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Light Mode - Preview com cores selecionadas */}
-                <div 
+                <div
                     className="rounded-lg p-4"
-                    style={{ 
+                    style={{
                         backgroundColor: lightBg,
                         borderWidth: 1,
                         borderStyle: 'solid',
                         borderColor: lightBorder
                     }}
                 >
-                    <div 
+                    <div
                         className="flex items-center gap-2 mb-4 pb-3"
                         style={{ borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: lightBorder }}
                     >
                         <Sun className="w-5 h-5 text-amber-500" />
                         <h3 className="font-semibold" style={{ color: lightText }}>Modo Claro</h3>
                     </div>
-                    
+
                     <ColorRow
                         label="Cor de Fundo"
                         description="Fundo principal das páginas"
@@ -183,23 +183,23 @@ export default function ThemeColorsSection({
                 </div>
 
                 {/* Dark Mode - Preview com cores selecionadas */}
-                <div 
+                <div
                     className="rounded-lg p-4"
-                    style={{ 
+                    style={{
                         backgroundColor: darkBg,
                         borderWidth: 1,
                         borderStyle: 'solid',
                         borderColor: darkBorder
                     }}
                 >
-                    <div 
+                    <div
                         className="flex items-center gap-2 mb-4 pb-3"
                         style={{ borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: darkBorder }}
                     >
                         <Moon className="w-5 h-5 text-blue-400" />
                         <h3 className="font-semibold" style={{ color: darkText }}>Modo Escuro</h3>
                     </div>
-                    
+
                     <ColorRow
                         label="Cor de Fundo"
                         description="Fundo principal das páginas"
