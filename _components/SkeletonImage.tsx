@@ -37,11 +37,26 @@ export default function SkeletonImage({
     priority = false,
 }: SkeletonImageProps) {
     const [loaded, setLoaded] = useState(false);
+    const [error, setError] = useState(false);
+
+    // Se não tiver src válida, não renderiza nada
+    if (!src || src.trim().length === 0) {
+        return null;
+    }
+
+    // Se deu erro, não mostra skeleton infinito
+    if (error) {
+        return (
+            <div className="absolute inset-0 bg-zinc-800 flex items-center justify-center">
+                <span className="text-xs text-zinc-500">Erro</span>
+            </div>
+        );
+    }
 
     return (
         <>
             {!loaded && (
-                <div className="absolute inset-0 bg-zinc-900 overflow-hidden">
+                <div className="absolute inset-0 bg-zinc-900 overflow-hidden z-0">
                     {/* Efeito foil - brilho diagonal sutil */}
                     <div
                         className="absolute inset-0 animate-shimmer"
@@ -72,6 +87,7 @@ export default function SkeletonImage({
                 loading={priority ? undefined : "lazy"}
                 priority={priority}
                 onLoad={() => setLoaded(true)}
+                onError={() => setError(true)}
             />
         </>
     );
