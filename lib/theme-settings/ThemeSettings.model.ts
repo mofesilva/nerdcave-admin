@@ -15,6 +15,22 @@ export type ThemeSettings = {
     loginPageLogo?: Media;
     sideBarLogoDark?: Media;
     sideBarLogoLight?: Media;
+    
+    // Admin theme colors - Light
+    backgroundLight?: string;
+    sidebarBackgroundLight?: string;
+    textColorLight?: string;
+    cardColorLight?: string;
+    
+    // Admin theme colors - Dark
+    backgroundDark?: string;
+    sidebarBackgroundDark?: string;
+    textColorDark?: string;
+    cardColorDark?: string;
+    
+    // Admin favicon
+    adminFavicon?: Media;
+    
     // Blog specific
     blogLogo?: Media;
     blogFavicon?: Media;
@@ -34,6 +50,18 @@ export const DEFAULT_ADMIN_THEME_SETTINGS: Omit<ThemeSettings, '_id'> = {
     loginPageLogo: undefined,
     sideBarLogoDark: undefined,
     sideBarLogoLight: undefined,
+    // Theme colors - Light (CSS defaults)
+    backgroundLight: undefined,
+    sidebarBackgroundLight: undefined,
+    textColorLight: undefined,
+    cardColorLight: undefined,
+    // Theme colors - Dark (CSS defaults)
+    backgroundDark: undefined,
+    sidebarBackgroundDark: undefined,
+    textColorDark: undefined,
+    cardColorDark: undefined,
+    // Admin favicon
+    adminFavicon: undefined,
 };
 
 export const DEFAULT_BLOG_THEME_SETTINGS: Omit<ThemeSettings, '_id'> = {
