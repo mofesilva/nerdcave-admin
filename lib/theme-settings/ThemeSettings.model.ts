@@ -15,22 +15,22 @@ export type ThemeSettings = {
     loginPageLogo?: Media;
     sideBarLogoDark?: Media;
     sideBarLogoLight?: Media;
-    
+
     // Admin theme colors - Light
     backgroundLight?: string;
     sidebarBackgroundLight?: string;
     textColorLight?: string;
     cardColorLight?: string;
-    
+
     // Admin theme colors - Dark
     backgroundDark?: string;
     sidebarBackgroundDark?: string;
     textColorDark?: string;
     cardColorDark?: string;
-    
+
     // Admin favicon
     adminFavicon?: Media;
-    
+
     // Blog specific
     blogLogo?: Media;
     blogFavicon?: Media;
