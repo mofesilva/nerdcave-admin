@@ -51,7 +51,7 @@ export default function ThemePage() {
     const [sideBarLogoDark, setSideBarLogoDark] = useState<Media | undefined>();
     const [sideBarLogoLight, setSideBarLogoLight] = useState<Media | undefined>();
     const [adminFavicon, setAdminFavicon] = useState<Media | undefined>();
-    
+
     // Theme colors state
     const [backgroundLight, setBackgroundLight] = useState<string | undefined>();
     const [sidebarBackgroundLight, setSidebarBackgroundLight] = useState<string | undefined>();
@@ -187,7 +187,7 @@ export default function ThemePage() {
                 break;
         }
     }
-    
+
     function handleThemeColorChange(field: string, value: string | undefined) {
         switch (field) {
             case "backgroundLight":
