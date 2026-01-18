@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SegmentOption<T extends string> {
     value: T;
@@ -14,6 +15,9 @@ interface SegmentedControlProps<T extends string> {
     value: T;
     onChange: (value: T) => void;
     iconOnly?: boolean;
+    className?: string;
+    bgColor?: string;
+    fullWidth?: boolean;
 }
 
 export default function SegmentedControl<T extends string>({
@@ -21,6 +25,9 @@ export default function SegmentedControl<T extends string>({
     value,
     onChange,
     iconOnly = false,
+    className,
+    bgColor,
+    fullWidth = false,
 }: SegmentedControlProps<T>) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
@@ -50,7 +57,8 @@ export default function SegmentedControl<T extends string>({
     return (
         <div
             ref={containerRef}
-            className="relative flex items-center px-1.25 py-1.25 bg-card border border-border rounded-md"
+            className={cn("relative inline-flex items-center px-1.25 py-1.25 border border-border rounded-md", !bgColor && "bg-card", fullWidth && "w-full", className)}
+            style={bgColor ? { backgroundColor: bgColor } : undefined}
         >
             {/* Sliding indicator */}
             <div
@@ -72,7 +80,7 @@ export default function SegmentedControl<T extends string>({
                         className={`relative z-10 ${iconOnly ? 'p-2.5' : 'px-4 py-2'} text-sm font-medium rounded-md transition-colors duration-200 ${value === option.value
                             ? 'text-primary-foreground'
                             : 'text-muted-foreground hover:text-foreground'
-                            } cursor-pointer flex items-center gap-2`}
+                            } cursor-pointer flex items-center justify-center gap-2 ${fullWidth ? 'flex-1' : ''}`}
                     >
                         {Icon && <Icon className="w-5 h-5" />}
                         {!iconOnly && option.label}
