@@ -9,6 +9,13 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        outfit: ['var(--font-outfit)'],
+        'google-sans': ['var(--font-google-sans)'],
+        'google-sans-flex': ['var(--font-google-sans-flex)'],
+        questrial: ['var(--font-questrial)'],
+        roboto: ['var(--font-roboto)'],
+      },
       animation: {
         shimmer: "shimmer 1.5s infinite",
       },
