@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { Calendar, Clock, ChevronLeft, ChevronRight, X, Check } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, ChevronRight, X, Check, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface DateTimePickerProps {
     value: string;
@@ -21,6 +21,12 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
     const [isOpen, setIsOpen] = useState(false);
     const [view, setView] = useState<'date' | 'time'>('date');
     const containerRef = useRef<HTMLDivElement>(null);
+    const hoursRef = useRef<HTMLDivElement>(null);
+    const minutesRef = useRef<HTMLDivElement>(null);
+
+    // Scroll indicators state
+    const [hoursScroll, setHoursScroll] = useState({ canScrollUp: false, canScrollDown: true });
+    const [minutesScroll, setMinutesScroll] = useState({ canScrollUp: false, canScrollDown: true });
 
     // Parse value or use current date
     const parseValue = () => {
@@ -61,6 +67,25 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Check scroll position for hours and minutes
+    const checkScrollPosition = (element: HTMLDivElement | null, setter: React.Dispatch<React.SetStateAction<{ canScrollUp: boolean; canScrollDown: boolean }>>) => {
+        if (!element) return;
+        const { scrollTop, scrollHeight, clientHeight } = element;
+        const canScrollUp = scrollTop > 5;
+        const canScrollDown = scrollTop < scrollHeight - clientHeight - 5;
+        setter({ canScrollUp, canScrollDown });
+    };
+
+    useEffect(() => {
+        if (view === 'time') {
+            // Initial check when switching to time view
+            setTimeout(() => {
+                checkScrollPosition(hoursRef.current, setHoursScroll);
+                checkScrollPosition(minutesRef.current, setMinutesScroll);
+            }, 50);
+        }
+    }, [view]);
 
     const getDaysInMonth = (year: number, month: number) => {
         return new Date(year, month + 1, 0).getDate();
@@ -176,40 +201,84 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
 
         return (
             <div className="flex gap-4">
-                <div className="flex-1">
+                <div className="flex-1 relative">
                     <p className="text-xs text-muted-foreground mb-2 text-center">Hora</p>
-                    <div className="max-h-48 overflow-y-auto scrollbar-thin">
-                        {hours.map(hour => (
-                            <button
-                                key={hour}
-                                type="button"
-                                onClick={() => handleSelectHour(hour)}
-                                className={`w-full py-2 text-sm rounded-md transition-colors cursor-pointer ${hour === selectedDate.hour
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'text-foreground hover:bg-muted'
-                                    }`}
-                            >
-                                {hour.toString().padStart(2, '0')}
-                            </button>
-                        ))}
+                    <div className="relative">
+                        {/* Scroll indicator top */}
+                        {hoursScroll.canScrollUp && (
+                            <div className="absolute top-0 left-0 right-0 flex justify-center items-start pointer-events-none z-10 bg-gradient-to-b from-card via-card/80 to-transparent h-8">
+                                <div className="animate-bounce text-primary">
+                                    <ChevronUp className="w-5 h-5" />
+                                </div>
+                            </div>
+                        )}
+                        <div
+                            ref={hoursRef}
+                            onScroll={() => checkScrollPosition(hoursRef.current, setHoursScroll)}
+                            className="max-h-48 overflow-y-auto scrollbar-hide"
+                        >
+                            {hours.map(hour => (
+                                <button
+                                    key={hour}
+                                    type="button"
+                                    onClick={() => handleSelectHour(hour)}
+                                    className={`w-full py-2 text-sm rounded-md transition-colors cursor-pointer ${hour === selectedDate.hour
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'text-foreground hover:bg-muted'
+                                        }`}
+                                >
+                                    {hour.toString().padStart(2, '0')}
+                                </button>
+                            ))}
+                        </div>
+                        {/* Scroll indicator bottom */}
+                        {hoursScroll.canScrollDown && (
+                            <div className="absolute bottom-0 left-0 right-0 flex justify-center items-end pointer-events-none z-10 bg-gradient-to-t from-card via-card/80 to-transparent h-8">
+                                <div className="animate-bounce text-primary">
+                                    <ChevronDown className="w-5 h-5" />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 relative">
                     <p className="text-xs text-muted-foreground mb-2 text-center">Minuto</p>
-                    <div className="max-h-48 overflow-y-auto scrollbar-thin">
-                        {minutes.map(minute => (
-                            <button
-                                key={minute}
-                                type="button"
-                                onClick={() => handleSelectMinute(minute)}
-                                className={`w-full py-2 text-sm rounded-md transition-colors cursor-pointer ${minute === selectedDate.minute
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'text-foreground hover:bg-muted'
-                                    }`}
-                            >
-                                {minute.toString().padStart(2, '0')}
-                            </button>
-                        ))}
+                    <div className="relative">
+                        {/* Scroll indicator top */}
+                        {minutesScroll.canScrollUp && (
+                            <div className="absolute top-0 left-0 right-0 flex justify-center items-start pointer-events-none z-10 bg-gradient-to-b from-card via-card/80 to-transparent h-8">
+                                <div className="animate-bounce text-primary">
+                                    <ChevronUp className="w-5 h-5" />
+                                </div>
+                            </div>
+                        )}
+                        <div
+                            ref={minutesRef}
+                            onScroll={() => checkScrollPosition(minutesRef.current, setMinutesScroll)}
+                            className="max-h-48 overflow-y-auto scrollbar-hide"
+                        >
+                            {minutes.map(minute => (
+                                <button
+                                    key={minute}
+                                    type="button"
+                                    onClick={() => handleSelectMinute(minute)}
+                                    className={`w-full py-2 text-sm rounded-md transition-colors cursor-pointer ${minute === selectedDate.minute
+                                        ? 'bg-primary text-primary-foreground'
+                                        : 'text-foreground hover:bg-muted'
+                                        }`}
+                                >
+                                    {minute.toString().padStart(2, '0')}
+                                </button>
+                            ))}
+                        </div>
+                        {/* Scroll indicator bottom */}
+                        {minutesScroll.canScrollDown && (
+                            <div className="absolute bottom-0 left-0 right-0 flex justify-center items-end pointer-events-none z-10 bg-gradient-to-t from-card via-card/80 to-transparent h-8">
+                                <div className="animate-bounce text-primary">
+                                    <ChevronDown className="w-5 h-5" />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -219,8 +288,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
     return (
         <div ref={containerRef} className={`relative ${className}`}>
             {/* Trigger */}
-            <button
-                type="button"
+            <div
                 onClick={() => { setIsOpen(!isOpen); setView('date'); }}
                 className={`w-full flex items-center justify-between gap-2 px-4 py-3 bg-background border border-border rounded-md text-left transition-all duration-200 cursor-pointer ${isOpen ? 'border-primary' : 'hover:border-muted-foreground/50'
                     }`}
@@ -240,7 +308,7 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
                         <X className="w-4 h-4 text-muted-foreground" />
                     </button>
                 )}
-            </button>
+            </div>
 
             {/* Dropdown */}
             {isOpen && (
