@@ -56,7 +56,7 @@ export default function Select({
     }
 
     return (
-        <div ref={containerRef} className={`relative h-full ${className}`}>
+        <div ref={containerRef} className={`relative ${className}`}>
             {/* Trigger */}
             <button
                 type="button"
