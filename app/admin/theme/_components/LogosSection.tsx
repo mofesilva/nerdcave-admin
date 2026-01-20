@@ -5,70 +5,73 @@ import type { Media } from "@/lib/medias/Media.model";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
-type LogoField = "loginPageLogo" | "sideBarLogoDark" | "sideBarLogoLight";
+type MediaField = "sidebarLogo" | "loginLogo" | "favicon";
 
 interface LogosSectionProps {
-    loginPageLogo: Media | undefined;
-    sideBarLogoDark: Media | undefined;
-    sideBarLogoLight: Media | undefined;
-    onOpenPicker: (field: LogoField) => void;
-    onRemove: (field: LogoField) => void;
+    sidebarLogo: Media | undefined;
+    loginLogo: Media | undefined;
+    favicon: Media | undefined;
+    onOpenPicker: (field: MediaField) => void;
+    onRemove: (field: MediaField) => void;
 }
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function LogosSection({
-    loginPageLogo,
-    sideBarLogoDark,
-    sideBarLogoLight,
+    sidebarLogo,
+    loginLogo,
+    favicon,
     onOpenPicker,
     onRemove,
 }: LogosSectionProps) {
     return (
         <div className="bg-card rounded-md p-8 shadow-sm border border-border/50">
-            <h2 className="text-xl font-bold text-foreground mb-2">Logos</h2>
+            <h2 className="text-xl font-bold text-foreground mb-2">Logos e Ícones</h2>
             <p className="text-muted-foreground mb-6">
-                Configure as logos do painel administrativo para temas claro e escuro
+                Configure as logos e ícones do painel administrativo
             </p>
 
             <div className="space-y-8">
-                {/* Login Page Logo */}
+                {/* Login Logo */}
                 <div>
                     <h3 className="font-medium text-foreground mb-1">Logo da Página de Login</h3>
                     <p className="text-sm text-muted-foreground mb-4">
                         Exibida na tela de login do admin
                     </p>
                     <LogoUploadCard
-                        media={loginPageLogo}
+                        media={loginLogo}
                         variant="dark"
-                        onSelect={() => onOpenPicker("loginPageLogo")}
-                        onRemove={() => onRemove("loginPageLogo")}
+                        onSelect={() => onOpenPicker("loginLogo")}
+                        onRemove={() => onRemove("loginLogo")}
                     />
                 </div>
 
-                {/* Sidebar Logos */}
+                {/* Sidebar Logo */}
                 <div>
                     <h3 className="font-medium text-foreground mb-1">Logo da Sidebar</h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                        Exibida no topo da barra lateral (versões para tema claro e escuro)
+                        Exibida no topo da barra lateral
                     </p>
+                    <LogoUploadCard
+                        media={sidebarLogo}
+                        variant="dark"
+                        onSelect={() => onOpenPicker("sidebarLogo")}
+                        onRemove={() => onRemove("sidebarLogo")}
+                    />
+                </div>
 
-                    <div className="flex gap-6">
-                        <LogoUploadCard
-                            label="Tema Escuro"
-                            media={sideBarLogoDark}
-                            variant="dark"
-                            onSelect={() => onOpenPicker("sideBarLogoDark")}
-                            onRemove={() => onRemove("sideBarLogoDark")}
-                        />
-                        <LogoUploadCard
-                            label="Tema Claro"
-                            media={sideBarLogoLight}
-                            variant="light"
-                            onSelect={() => onOpenPicker("sideBarLogoLight")}
-                            onRemove={() => onRemove("sideBarLogoLight")}
-                        />
-                    </div>
+                {/* Favicon */}
+                <div>
+                    <h3 className="font-medium text-foreground mb-1">Favicon</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Ícone exibido na aba do navegador
+                    </p>
+                    <LogoUploadCard
+                        media={favicon}
+                        variant="dark"
+                        onSelect={() => onOpenPicker("favicon")}
+                        onRemove={() => onRemove("favicon")}
+                    />
                 </div>
             </div>
         </div>
