@@ -111,3 +111,53 @@ export async function reorderLinks({ linkIds }: LinkParametersProps): Promise<bo
         return false;
     }
 }
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+
+export interface LinkStats {
+    total: number;
+    active: number;
+}
+
+export async function getLinkStats(): Promise<LinkStats> {
+    const links = getLinksCollection();
+    const result = await links.aggregate([
+        { $match: { deleted: false } },
+        {
+            $facet: {
+                total: [{ $count: 'count' }],
+                active: [{ $match: { isActive: true } }, { $count: 'count' }],
+            }
+        }
+    ]);
+
+    const doc = result.documents?.[0] as {
+        total?: { count: number }[];
+        active?: { count: number }[];
+    };
+
+    return {
+        total: doc?.total?.[0]?.count ?? 0,
+        active: doc?.active?.[0]?.count ?? 0,
+    };
+}
+
+// ─── COUNTS (deprecated - use getLinkStats) ──────────────────────────────────
+
+export async function countLinks(): Promise<number> {
+    const links = getLinksCollection();
+    const result = await links.aggregate([
+        { $match: { deleted: false } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}
+
+export async function countActiveLinks(): Promise<number> {
+    const links = getLinksCollection();
+    const result = await links.aggregate([
+        { $match: { deleted: false, isActive: true } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}
