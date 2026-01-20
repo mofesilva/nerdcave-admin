@@ -1,0 +1,422 @@
+{
+    "plan_id": "settings-unification-001",
+    "title": "Unificação de Settings: ThemeSettings + SystemSettings → Settings",
+    "created_at": "2026-01-17",
+    "updated_at": "2026-01-17",
+    "status": "pending",
+    "priority": "high",
+    "decision_log": [
+        {
+            "date": "2026-01-17",
+            "decision": "Usar Opção B - SettingType + subcampo",
+            "details": "SettingType = 'theme' | 'system'. Theme usa 'domain' (admin|blog). System usa 'category' (general|content|etc)."
+        },
+        {
+            "date": "2026-01-17",
+            "decision": "Manter tipos separados para cada domain de theme",
+            "details": "AdminThemeSetting e BlogThemeSetting são tipos separados, cada um com seus campos específicos. NÃO MISTURAR."
+        }
+    ],
+    "objective": {
+        "summary": "Unificar lib/theme-settings e lib/settings em um único módulo 'settings' com uma única collection no banco de dados, diferenciando tipos de settings através de um campo 'type'.",
+        "benefits": [
+            "Eliminação de código duplicado (controllers, services, collections)",
+            "Arquitetura mais simples e manutenível",
+            "Uma única fonte de verdade para configurações",
+            "Facilidade de adicionar novos tipos de settings no futuro",
+            "Consultas ao banco mais eficientes"
+        ]
+    },
+    "current_state_analysis": {
+        "theme_settings_folder": {
+            "location": "lib/theme-settings/",
+            "collection_name": "themes",
+            "files": [
+                "ThemeSettings.model.ts - Define AdminThemeSettings com campos de cores/tema",
+                "ThemeSettings.collection.ts - Factory para collection 'themes'",
+                "ThemeSettings.mapper.ts - themeSettingsFromDocument()",
+                "ThemeSettings.service.ts - CRUD com cache de IDs, getOrCreate pattern",
+                "ThemeSettings.controller.ts - Fachada para Service",
+                "Settings.types.ts - SettingDomain, SettingType, ThemeType, ThemeMedia",
+                "index.ts - Exports"
+            ],
+            "existing_type_AdminThemeSettings": {
+                "_id": "string",
+                "themeDomain": "ThemeDomain",
+                "themeType": "ThemeType (light|dark)",
+                "backgroundColor": "string?",
+                "foregroundColor": "string?",
+                "accentColor": "string?",
+                "accentTextColor": "string?",
+                "primaryTextColor": "string?",
+                "secondaryTextColor": "string?",
+                "mutedTextColor": "string?",
+                "highlightedTextColor": "string?",
+                "mutedColor": "string?",
+                "sidebarBackgroundColor": "string?",
+                "sidebarForegroundColor": "string?",
+                "sidebarActiveColor": "string?",
+                "sidebarHoverColor": "string?",
+                "cardBackgroundColor": "string?",
+                "cardBorderColor": "string?",
+                "cardForegroundColor": "string?",
+                "themeMedia": "ThemeMedia (Record<string, Media>)"
+            },
+            "key_functions": [
+                "getThemeSettings(themeType)",
+                "getOrCreateThemeSettings(themeType)",
+                "updateThemeSettings({ id, updates })",
+                "updateThemeSettingsInfo({ updates, themeType })"
+            ],
+            "consumers": [
+                "app/admin/theme/page.tsx",
+                "lib/contexts/SettingsContext.tsx"
+            ]
+        },
+        "settings_folder": {
+            "location": "lib/settings/",
+            "collection_name": "settings",
+            "files": [
+                "Settings.model.ts - Define Settings com categorias (general, content, uploads, etc)",
+                "Settings.collection.ts - Factory para collection 'settings'",
+                "Settings.mapper.ts - settingsFromDocument()",
+                "Settings.service.ts - CRUD por categoria",
+                "Settings.controller.ts - Fachada para Service",
+                "index.ts - Exports"
+            ],
+            "existing_type_Settings": {
+                "_id": "string",
+                "category": "SettingsCategory",
+                "general_fields": [
+                    "siteName",
+                    "siteUrl",
+                    "adminEmail",
+                    "defaultLanguage",
+                    "timezone"
+                ],
+                "content_fields": [
+                    "postsPerPage",
+                    "enableComments",
+                    "moderateComments",
+                    "enableDrafts",
+                    "autoSaveDrafts",
+                    "autoSaveIntervalSec"
+                ],
+                "uploads_fields": [
+                    "maxUploadSizeMb",
+                    "allowedFileTypes",
+                    "imageQuality"
+                ],
+                "notifications_fields": [
+                    "emailNotifications",
+                    "notifyOnNewComment",
+                    "notifyOnNewUser"
+                ],
+                "security_fields": [
+                    "sessionTimeoutMinutes",
+                    "maxLoginAttempts",
+                    "requireEmailVerification"
+                ],
+                "layout_fields": [
+                    "fullWidthLayout"
+                ]
+            },
+            "key_functions": [
+                "getSettingsByCategory({ category })",
+                "getAllSettings()",
+                "updateSettingsByCategory({ category, updates })",
+                "resetSettingsByCategory({ category })",
+                "getDefaultSettings({ category })"
+            ],
+            "consumers": [
+                "Potencialmente páginas de settings do admin"
+            ]
+        },
+        "identified_problems": [
+            "Duas collections separadas (themes, settings) para conceito similar",
+            "Código duplicado: controllers, services, mappers com mesma estrutura",
+            "ThemeSettings usa 'themeDomain' (admin|blog), Settings usa 'category' (general|content|etc)",
+            "Inconsistência: theme-settings tem Settings.types.ts com SettingType que nunca é usado",
+            "DEFAULT_ADMIN_THEME_SETTINGS tem campos que não existem no type AdminThemeSettings (código inconsistente)"
+        ]
+    },
+    "target_architecture": {
+        "unified_module": {
+            "location": "lib/settings/",
+            "collection_name": "settings",
+            "description": "Módulo único para todos os tipos de configurações do sistema"
+        },
+        "type_system": {
+            "approach": "Opção B - SettingType + subcampo",
+            "type_field": "type",
+            "possible_values": [
+                "theme",
+                "system"
+            ],
+            "extensible": "Novos tipos podem ser adicionados no futuro"
+        },
+        "sub_classification": {
+            "theme_settings": {
+                "type": "theme",
+                "domain_field": "domain",
+                "domains": [
+                    "admin",
+                    "blog"
+                ],
+                "description": "Cada domain tem seu próprio tipo TypeScript (AdminThemeSetting, BlogThemeSetting)"
+            },
+            "system_settings": {
+                "type": "system",
+                "category_field": "category",
+                "categories": [
+                    "general",
+                    "content",
+                    "uploads",
+                    "notifications",
+                    "security",
+                    "layout"
+                ],
+                "description": "Configurações de sistema por categoria (mantém estrutura atual)"
+            }
+        },
+        "file_structure": [
+            "lib/settings/Settings.types.ts - SettingType, ThemeDomain, SystemCategory, ThemeType, ThemeMedia",
+            "lib/settings/Settings.model.ts - BaseSetting + AdminThemeSetting + BlogThemeSetting + SystemSetting",
+            "lib/settings/Settings.collection.ts - Factory única para collection 'settings'",
+            "lib/settings/Settings.mapper.ts - Mappers específicos por tipo",
+            "lib/settings/Settings.service.ts - Service unificado com métodos por tipo",
+            "lib/settings/Settings.controller.ts - Controller unificado",
+            "lib/settings/index.ts - Exports públicos"
+        ]
+    },
+    "data_model_design": {
+        "base_setting": {
+            "_id": "string",
+            "type": "SettingType ('theme' | 'system')"
+        },
+        "admin_theme_setting": {
+            "extends": "BaseSetting",
+            "type": "theme",
+            "domain": "admin",
+            "fields_from_existing_code": {
+                "themeDomain": "ThemeDomain (sempre 'admin')",
+                "themeType": "ThemeType ('light' | 'dark')",
+                "backgroundColor": "string?",
+                "foregroundColor": "string?",
+                "accentColor": "string?",
+                "accentTextColor": "string?",
+                "primaryTextColor": "string?",
+                "secondaryTextColor": "string?",
+                "mutedTextColor": "string?",
+                "highlightedTextColor": "string?",
+                "mutedColor": "string?",
+                "sidebarBackgroundColor": "string?",
+                "sidebarForegroundColor": "string?",
+                "sidebarActiveColor": "string?",
+                "sidebarHoverColor": "string?",
+                "cardBackgroundColor": "string?",
+                "cardBorderColor": "string?",
+                "cardForegroundColor": "string?",
+                "themeMedia": "ThemeMedia (Record<string, Media>)"
+            },
+            "themeMedia_structure": {
+                "type": "Record<string, Media>",
+                "expected_keys_for_admin": {
+                    "sidebarLogo": "Media - Logo da sidebar",
+                    "loginLogo": "Media - Logo da página de login",
+                    "favicon": "Media - Favicon do admin"
+                },
+                "note": "Chaves são dinâmicas, cada domain pode ter suas próprias chaves de media"
+            }
+        },
+        "blog_theme_setting": {
+            "extends": "BaseSetting",
+            "type": "theme",
+            "domain": "blog",
+            "note": "A DEFINIR - BlogThemeSetting será criado quando necessário com seus próprios campos"
+        },
+        "system_setting": {
+            "extends": "BaseSetting",
+            "type": "system",
+            "category": "SystemCategory",
+            "fields_per_category": {
+                "general": {
+                    "siteName": "string?",
+                    "siteUrl": "string?",
+                    "adminEmail": "string?",
+                    "defaultLanguage": "string?",
+                    "timezone": "string?"
+                },
+                "content": {
+                    "postsPerPage": "number?",
+                    "enableComments": "boolean?",
+                    "moderateComments": "boolean?",
+                    "enableDrafts": "boolean?",
+                    "autoSaveDrafts": "boolean?",
+                    "autoSaveIntervalSec": "number?"
+                },
+                "uploads": {
+                    "maxUploadSizeMb": "number?",
+                    "allowedFileTypes": "string[]?",
+                    "imageQuality": "number?"
+                },
+                "notifications": {
+                    "emailNotifications": "boolean?",
+                    "notifyOnNewComment": "boolean?",
+                    "notifyOnNewUser": "boolean?"
+                },
+                "security": {
+                    "sessionTimeoutMinutes": "number?",
+                    "maxLoginAttempts": "number?",
+                    "requireEmailVerification": "boolean?"
+                },
+                "layout": {
+                    "fullWidthLayout": "boolean?"
+                }
+            }
+        }
+    },
+    "api_design": {
+        "unified_service_methods": {
+            "theme_operations": [
+                "getThemeSetting({ domain: ThemeDomain }): Promise<ThemeSetting | null>",
+                "getOrCreateThemeSetting({ domain: ThemeDomain }): Promise<ThemeSetting>",
+                "updateThemeSetting({ id, updates }): Promise<ThemeSetting | null>"
+            ],
+            "system_operations": [
+                "getSystemSetting({ category: SystemCategory }): Promise<SystemSetting | null>",
+                "getAllSystemSettings(): Promise<SystemSetting[]>",
+                "updateSystemSetting({ category, updates }): Promise<SystemSetting | null>",
+                "resetSystemSetting({ category }): Promise<SystemSetting | null>"
+            ],
+            "generic_operations": [
+                "getSettingsByType({ type: SettingType }): Promise<Setting[]>",
+                "getSettingById({ id }): Promise<Setting | null>"
+            ]
+        },
+        "controller_mirrors_service": true
+    },
+    "migration_strategy": {
+        "database_migration": {
+            "required": true,
+            "steps": [
+                "1. Adicionar campo 'type' aos documentos existentes na collection 'themes' como 'theme'",
+                "2. Adicionar campo 'domain' aos documentos existentes (mapear de theme_type)",
+                "3. Migrar documentos de 'themes' para 'settings' (ou renomear collection)",
+                "4. Verificar integridade dos dados migrados"
+            ],
+            "rollback_plan": "Manter backup da collection original antes de qualquer alteração"
+        },
+        "code_migration": {
+            "phases": [
+                {
+                    "phase": 1,
+                    "name": "Preparação",
+                    "tasks": [
+                        "Criar novos tipos unificados em Settings.types.ts",
+                        "Atualizar Settings.model.ts com tipos combinados"
+                    ]
+                },
+                {
+                    "phase": 2,
+                    "name": "Unificação do Módulo",
+                    "tasks": [
+                        "Unificar Settings.collection.ts (já usa 'settings')",
+                        "Criar Settings.mapper.ts unificado",
+                        "Criar Settings.service.ts unificado",
+                        "Criar Settings.controller.ts unificado"
+                    ]
+                },
+                {
+                    "phase": 3,
+                    "name": "Atualização de Consumidores",
+                    "tasks": [
+                        "Atualizar lib/contexts/SettingsContext.tsx para novo módulo",
+                        "Atualizar app/admin/theme/page.tsx para novo módulo",
+                        "Atualizar quaisquer outros consumidores"
+                    ]
+                },
+                {
+                    "phase": 4,
+                    "name": "Limpeza",
+                    "tasks": [
+                        "Remover pasta lib/theme-settings/ inteira",
+                        "Atualizar index.ts do novo módulo",
+                        "Verificar imports quebrados no projeto"
+                    ]
+                }
+            ]
+        }
+    },
+    "breaking_changes": {
+        "imports": [
+            "import * from '@/lib/theme-settings/...' → import * from '@/lib/settings/...'",
+            "ThemeSettingsController → SettingsController",
+            "getThemeSettings() → getThemeSetting({ domain })",
+            "getOrCreateThemeSettings() → getOrCreateThemeSetting({ domain })"
+        ],
+        "types": [
+            "ThemeSettings → ThemeSetting (singular)",
+            "ThemeType (admin|blog) → ThemeDomain (mesmo valor, nome diferente)",
+            "SettingsCategory → SystemCategory"
+        ]
+    },
+    "files_to_delete": [
+        "lib/theme-settings/ThemeSettings.model.ts",
+        "lib/theme-settings/ThemeSettings.collection.ts",
+        "lib/theme-settings/ThemeSettings.mapper.ts",
+        "lib/theme-settings/ThemeSettings.service.ts",
+        "lib/theme-settings/ThemeSettings.controller.ts",
+        "lib/theme-settings/Settings.types.ts",
+        "lib/theme-settings/index.ts"
+    ],
+    "files_to_modify": [
+        "lib/settings/Settings.types.ts - Criar com tipos unificados",
+        "lib/settings/Settings.model.ts - Combinar modelos",
+        "lib/settings/Settings.collection.ts - Manter (já usa 'settings')",
+        "lib/settings/Settings.mapper.ts - Adicionar mappers de theme",
+        "lib/settings/Settings.service.ts - Adicionar operações de theme",
+        "lib/settings/Settings.controller.ts - Adicionar operações de theme",
+        "lib/settings/index.ts - Atualizar exports",
+        "lib/contexts/SettingsContext.tsx - Atualizar imports e chamadas",
+        "app/admin/theme/page.tsx - Atualizar imports e chamadas"
+    ],
+    "validation_checklist": [
+        "Todos os testes existentes passam",
+        "Página de tema admin funciona corretamente",
+        "SettingsContext carrega e aplica tema corretamente",
+        "Não há imports quebrados",
+        "Não há referências a lib/theme-settings",
+        "Collection 'settings' contém dados de theme com campo 'type'",
+        "Novos tipos são extensíveis"
+    ],
+    "estimated_effort": {
+        "preparation": "15 min",
+        "unification": "45 min",
+        "consumer_updates": "30 min",
+        "cleanup": "15 min",
+        "testing": "20 min",
+        "total": "~2h"
+    },
+    "risks": [
+        {
+            "risk": "Perda de dados na migração",
+            "mitigation": "Fazer backup antes, testar em dev primeiro"
+        },
+        {
+            "risk": "Imports quebrados não detectados",
+            "mitigation": "Rodar TypeScript compiler em modo strict, verificar build"
+        },
+        {
+            "risk": "Breaking changes afetam outros consumidores não mapeados",
+            "mitigation": "Buscar exaustivamente por usos antes de deletar"
+        }
+    ],
+    "notes": [
+        "ThemeSettings.model.ts tem AdminThemeSettings mas parece usar ThemeSettings genericamente",
+        "O campo 'themeType' do ThemeSettings vira 'domain' no novo modelo para clareza",
+        "SettingType ('theme' | 'system') diferencia os tipos principais",
+        "Collection já chama 'settings' em lib/settings, então não precisa migrar nome",
+        "Collection 'themes' de theme-settings precisará ser migrada para 'settings'"
+    ]
+}
