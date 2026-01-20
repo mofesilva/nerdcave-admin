@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { ArrowUpDown, LucideIcon, Check } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { ArrowUpDown, LucideIcon, Check, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface FilterOption {
     value: string;
@@ -20,9 +20,24 @@ interface FilterDropdownProps {
 
 export default function FilterDropdown({ value, onChange, options, label = "Ordenar", icon: TriggerIcon = ArrowUpDown }: FilterDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const [canScrollUp, setCanScrollUp] = useState(false);
+    const [canScrollDown, setCanScrollDown] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLDivElement>(null);
 
     const selectedOption = options.find(opt => opt.value === value);
+    const needsScroll = options.length > 6; // Só precisa de scroll se tiver mais de 6 opções
+
+    const checkScroll = useCallback(() => {
+        if (listRef.current && needsScroll) {
+            const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+            setCanScrollUp(scrollTop > 0);
+            setCanScrollDown(scrollTop + clientHeight < scrollHeight - 1);
+        } else {
+            setCanScrollUp(false);
+            setCanScrollDown(false);
+        }
+    }, [needsScroll]);
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -35,9 +50,26 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (isOpen) {
+            // Pequeno delay para garantir que o DOM está renderizado
+            setTimeout(checkScroll, 10);
+        }
+    }, [isOpen, checkScroll]);
+
     function handleSelect(optionValue: string) {
         onChange(optionValue);
         setIsOpen(false);
+    }
+
+    function scrollList(direction: 'up' | 'down') {
+        if (listRef.current && needsScroll) {
+            const scrollAmount = 80; // pixels por clique
+            listRef.current.scrollBy({
+                top: direction === 'up' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
     }
 
     return (
@@ -57,11 +89,28 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute z-50 left-0 mt-2 min-w-[200px] py-1 bg-card border border-border rounded-md overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150">
+                <div className="absolute z-50 left-0 mt-2 min-w-[200px] bg-card border border-border rounded-md overflow-hidden shadow-lg animate-in fade-in-0 zoom-in-95 duration-150">
                     <div className="px-3 py-2 text-xs text-muted-foreground font-medium uppercase tracking-wider border-b border-border">
                         {label}
                     </div>
-                    <div className="max-h-60 overflow-y-auto py-1">
+                    
+                    {/* Seta para cima - só aparece quando pode rolar */}
+                    {canScrollUp && (
+                        <button
+                            type="button"
+                            onClick={() => scrollList('up')}
+                            className="w-full flex items-center justify-center py-1 transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10 cursor-pointer"
+                        >
+                            <ChevronUp className="w-4 h-4 animate-bounce" />
+                        </button>
+                    )}
+
+                    <div 
+                        ref={listRef}
+                        onScroll={needsScroll ? checkScroll : undefined}
+                        className={needsScroll ? "max-h-48 overflow-y-auto scrollbar-none" : ""}
+                        style={needsScroll ? { scrollbarWidth: 'none', msOverflowStyle: 'none' } : undefined}
+                    >
                         {options.map((option) => {
                             const Icon = option.icon;
                             const isSelected = option.value === value;
@@ -86,6 +135,17 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
                             );
                         })}
                     </div>
+
+                    {/* Seta para baixo - só aparece quando pode rolar */}
+                    {canScrollDown && (
+                        <button
+                            type="button"
+                            onClick={() => scrollList('down')}
+                            className="w-full flex items-center justify-center py-1 transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10 cursor-pointer"
+                        >
+                            <ChevronDown className="w-4 h-4 animate-bounce" />
+                        </button>
+                    )}
                 </div>
             )}
         </div>
