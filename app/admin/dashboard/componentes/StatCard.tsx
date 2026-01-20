@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import IconContainer from "@/_components/IconContainer";
 
 interface StatCardProps {
     icon: React.ElementType;
@@ -21,24 +24,27 @@ export default function StatCard({
     href
 }: StatCardProps) {
     const content = (
-        <div className={`bg-card rounded-md border border-border p-4 hover:border-primary/30 transition-all h-full flex flex-col ${href ? 'cursor-pointer hover:shadow-lg' : ''}`}>
-            <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center mb-3">
-                <Icon className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <p className="text-2xl font-bold text-foreground">{value}</p>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <div className="mt-auto pt-1 min-h-[20px]">
-                {sublabel && (
-                    <p className="text-xs text-muted-foreground/70">{sublabel}</p>
-                )}
-                {trend && (
-                    <div className="flex items-center gap-1">
-                        <ArrowUpRight className="w-3 h-3 text-emerald-500" />
-                        <span className="text-xs text-emerald-500 font-medium">{trend}</span>
-                    </div>
-                )}
-            </div>
-        </div>
+        <Card className={cn(
+            "h-full transition-all",
+            href && "cursor-pointer hover:shadow-md hover:border-primary/30"
+        )}>
+            <CardContent className="p-4 flex flex-col h-full">
+                <IconContainer icon={Icon} className="mb-3" />
+                <p className="text-2xl font-bold text-foreground">{value}</p>
+                <p className="text-sm text-muted-foreground">{label}</p>
+                <div className="mt-auto pt-1 min-h-5">
+                    {sublabel && (
+                        <p className="text-xs text-muted-foreground/70">{sublabel}</p>
+                    )}
+                    {trend && (
+                        <div className="flex items-center gap-1">
+                            <ArrowUpRight className="w-3 h-3 text-emerald-500" />
+                            <span className="text-xs text-emerald-500 font-medium">{trend}</span>
+                        </div>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
     );
 
     if (href) {
