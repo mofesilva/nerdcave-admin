@@ -1,8 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Questrial&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 @plugin 'tailwindcss-animate';
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* Breakpoints customizados para resoluções reais */
+@theme {
+  --breakpoint-hd: 1280px;
+  --breakpoint-fhd: 1920px;
+  --breakpoint-qhd: 2560px;
+  --breakpoint-uhd: 3840px;
+}
 
 @custom-variant dark (&:is(.dark *));
 
@@ -26,9 +35,30 @@ html::-webkit-scrollbar {
   /* Chrome, Safari, Edge */
 }
 
-/* Outfit helpers */
+/* Typography - Google Sans como fonte padrão */
+body {
+  font-family: 'Google Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Links herdam a fonte do body */
+a {
+  font-family: inherit;
+}
+
+/* Typography - Outfit para headings */
+h1,
+h2,
+h3 {
+  font-family: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Font variables */
 :root {
   --font-outfit: 'Outfit', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-google-sans: 'Google Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-google-sans-flex: 'Google Sans Flex', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-questrial: 'Questrial', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  --font-roboto: 'Roboto', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -545,6 +575,7 @@ html::-webkit-scrollbar {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
