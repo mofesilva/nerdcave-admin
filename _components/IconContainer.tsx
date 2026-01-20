@@ -6,7 +6,7 @@ import { LucideIcon } from "lucide-react";
 interface IconContainerProps {
     icon: LucideIcon | React.ElementType;
     size?: "sm" | "md" | "lg";
-    variant?: "primary" | "secondary" | "muted" | "success" | "warning" | "destructive";
+    variant?: "primary" | "secondary" | "muted" | "success" | "warning" | "destructive" | "accent";
     className?: string;
 }
 
@@ -29,12 +29,13 @@ const variantClasses = {
     success: "bg-emerald-500 text-white dark:bg-emerald-600",
     warning: "bg-amber-500 text-white dark:bg-amber-600",
     destructive: "bg-destructive text-destructive-foreground",
+    accent: "bg-primary text-primary-foreground",
 };
 
 export default function IconContainer({
     icon: Icon,
     size = "md",
-    variant = "primary",
+    variant = "accent",
     className,
 }: IconContainerProps) {
     return (
