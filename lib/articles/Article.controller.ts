@@ -1,6 +1,6 @@
 'use client';
 import * as ArticleService from './Article.service';
-import type { Article } from './Article.model';
+import type { Article, ArticleSummary } from './Article.model';
 
 interface ArticleControllerProps {
     id?: string;
@@ -38,6 +38,14 @@ export async function deleteArticle({ id }: ArticleControllerProps): Promise<boo
 }
 
 // ─── QUERIES ─────────────────────────────────────────────────────────────────
+
+export async function getRecentArticles(limit: number = 5): Promise<ArticleSummary[]> {
+    return ArticleService.getRecentArticles(limit);
+}
+
+export async function getRecentPublishedArticles(limit: number = 5): Promise<ArticleSummary[]> {
+    return ArticleService.getRecentPublishedArticles(limit);
+}
 
 export async function getPublishedArticles(): Promise<Article[]> {
     return ArticleService.getPublishedArticles();
@@ -77,4 +85,30 @@ export async function getScheduledToPublish(now: Date): Promise<Article[]> {
 
 export async function publishScheduledArticles(now: Date): Promise<Article[]> {
     return ArticleService.publishScheduledArticles(now);
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+
+export type { ArticleStats } from './Article.service';
+
+export async function getArticleStats() {
+    return ArticleService.getArticleStats();
+}
+
+// ─── COUNTS (deprecated - use getArticleStats) ───────────────────────────────
+
+export async function countArticles(): Promise<number> {
+    return ArticleService.countArticles();
+}
+
+export async function countPublishedArticles(): Promise<number> {
+    return ArticleService.countPublishedArticles();
+}
+
+export async function countDraftArticles(): Promise<number> {
+    return ArticleService.countDraftArticles();
+}
+
+export async function countFeaturedArticles(): Promise<number> {
+    return ArticleService.countFeaturedArticles();
 }
