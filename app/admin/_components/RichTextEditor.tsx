@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import TipTapLink from '@tiptap/extension-link';
@@ -11,6 +11,7 @@ import Highlight from '@tiptap/extension-highlight';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 import { useCallback, useState, useEffect } from 'react';
+import { TiptapContent, EMPTY_TIPTAP_CONTENT, extractTextFromTiptap } from '@/types/TiptapContent.types';
 import {
     Bold,
     Italic,
@@ -41,15 +42,24 @@ import {
 const lowlight = createLowlight(common);
 
 interface RichTextEditorProps {
-    content: string;
-    onChange: (content: string) => void;
+    /** Conteúdo estruturado JSON do Tiptap */
+    content: TiptapContent | null;
+    /** Callback chamado com conteúdo JSON a cada alteração */
+    onChange: (content: TiptapContent) => void;
     onInsertImage?: (callback: (url: string, alt: string) => void) => void;
     placeholder?: string;
 }
 
-export default function RichTextEditor({ content, onChange, onInsertImage, placeholder = "Comece a escrever..." }: RichTextEditorProps) {
+export default function RichTextEditor({
+    content,
+    onChange,
+    onInsertImage,
+    placeholder = "Comece a escrever..."
+}: RichTextEditorProps) {
     const [showLinkInput, setShowLinkInput] = useState(false);
     const [linkUrl, setLinkUrl] = useState('');
+
+    const initialContent = content ?? EMPTY_TIPTAP_CONTENT;
 
     const editor = useEditor({
         immediatelyRender: false,
@@ -82,9 +92,10 @@ export default function RichTextEditor({ content, onChange, onInsertImage, place
                 lowlight,
             }),
         ],
-        content,
+        content: initialContent,
         onUpdate: ({ editor }) => {
-            onChange(editor.getHTML());
+            // Retorna JSON estruturado ao invés de HTML
+            onChange(editor.getJSON() as TiptapContent);
         },
         editorProps: {
             attributes: {
@@ -95,7 +106,13 @@ export default function RichTextEditor({ content, onChange, onInsertImage, place
 
     // Sync content when it changes externally (e.g., loading a post)
     useEffect(() => {
-        if (editor && content && content !== editor.getHTML()) {
+        if (!editor) return;
+
+        // Compara JSON para evitar atualizações desnecessárias
+        const currentJson = JSON.stringify(editor.getJSON());
+        const newJson = JSON.stringify(content ?? EMPTY_TIPTAP_CONTENT);
+
+        if (content && currentJson !== newJson) {
             editor.commands.setContent(content);
         }
     }, [content, editor]);
@@ -388,8 +405,8 @@ export default function RichTextEditor({ content, onChange, onInsertImage, place
 
             {/* Word count */}
             <div className="border-t border-border px-4 py-2 text-xs text-muted-foreground flex justify-between">
-                <span>{editor.getText().split(/\s+/).filter(Boolean).length} palavras</span>
-                <span>{editor.getText().length} caracteres</span>
+                <span>{extractTextFromTiptap(editor.getJSON() as TiptapContent).split(/\s+/).filter(Boolean).length} palavras</span>
+                <span>{extractTextFromTiptap(editor.getJSON() as TiptapContent).length} caracteres</span>
             </div>
         </div>
     );
