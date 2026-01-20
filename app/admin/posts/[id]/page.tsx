@@ -14,6 +14,7 @@ import type { Category } from "@/lib/categories/Category.model";
 import type { Tag as TagType } from "@/lib/tags/Tag.model";
 import type { Media } from "@/lib/medias/Media.model";
 import type { PostStatus } from "@/types";
+import { TiptapContent, EMPTY_TIPTAP_CONTENT, extractTextFromTiptap } from "@/types/TiptapContent.types";
 import RichTextEditor from "../../_components/RichTextEditor";
 import Select from "@/_components/Select";
 import Button from "@/_components/Button";
@@ -33,9 +34,10 @@ function generateSlug(title: string): string {
         .replace(/(^-|-$)+/g, '');
 }
 
-function calculateReadingTime(content: string): number {
+function calculateReadingTime(content: TiptapContent | null): number {
     const wordsPerMinute = 200;
-    const words = content.trim().split(/\s+/).length;
+    const text = extractTextFromTiptap(content);
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
     return Math.max(1, Math.ceil(words / wordsPerMinute));
 }
 
@@ -48,7 +50,7 @@ export default function PostEditorPage() {
 
     // Form state
     const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState<TiptapContent | null>(EMPTY_TIPTAP_CONTENT);
     const [coverMediaId, setCoverMediaId] = useState<string | null>(null);
     const [categoryId, setCategoryId] = useState<string | null>(null);
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
