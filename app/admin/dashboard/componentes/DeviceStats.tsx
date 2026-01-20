@@ -1,7 +1,10 @@
 "use client";
 
 import { PieChart } from "lucide-react";
-import CardTitleSection from "@/_components/CardTitleSection";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import CardTitle from "@/_components/CardTitle";
+import ProgressBar from "./ProgressBar";
 
 interface DeviceStatsProps {
     desktop: number;
@@ -26,42 +29,38 @@ export default function DeviceStats({ desktop, mobile, tablet, totalClicks }: De
     };
 
     return (
-        <div className="bg-card rounded-md border border-border p-6">
-            <CardTitleSection
-                title="Dispositivos"
-                subtitle="Por tipo de acesso"
-                trailing={<PieChart className="w-5 h-5 text-muted-foreground" />}
-            />
-
-            <div className="space-y-4">
-                {devices.map((device) => {
-                    const percent = total > 0 ? Math.round((device.value / total) * 100) : 0;
-
-                    return (
-                        <div key={device.label}>
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-foreground font-medium">{device.label}</span>
-                                <span className="text-muted-foreground">{percent}%</span>
-                            </div>
-                            <div className="h-2 bg-muted rounded-full overflow-hidden">
-                                <div
-                                    className={`h-full ${device.color} rounded-full transition-all duration-700`}
-                                    style={{ width: `${percent}%` }}
-                                />
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-border">
-                <div className="text-center">
-                    <p className="text-2xl font-bold text-foreground">
-                        {formatNumber(totalClicks)}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Total de cliques</p>
+        <Card>
+            <CardHeader className="pb-2">
+                <CardTitle
+                    title="Dispositivos"
+                    subtitle="Por tipo de acesso"
+                    trailing={<PieChart className="w-5 h-5 text-muted-foreground" />}
+                />
+            </CardHeader>
+            <CardContent className="pt-0">
+                <div className="space-y-4">
+                    {devices.map((device) => (
+                        <ProgressBar
+                            key={device.label}
+                            label={device.label}
+                            value={device.value}
+                            total={total}
+                            color={device.color}
+                        />
+                    ))}
                 </div>
-            </div>
-        </div>
+            </CardContent>
+            <CardFooter className="pt-0">
+                <div className="w-full">
+                    <Separator className="mb-4" />
+                    <div className="text-center">
+                        <p className="text-2xl font-bold text-foreground">
+                            {formatNumber(totalClicks)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">Total de cliques</p>
+                    </div>
+                </div>
+            </CardFooter>
+        </Card>
     );
 }
