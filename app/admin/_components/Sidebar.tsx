@@ -8,6 +8,7 @@ import SidebarHeader from "./SidebarHeader";
 import NavigationMenu from "./NavigationMenu";
 import UserProfileCard from "./UserProfileCard";
 import type { DBUser } from "@cappuccino/web-sdk";
+import { useSettings } from "@/lib/contexts/SettingsContext";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -32,10 +33,6 @@ interface SidebarProps {
     navigation: NavigationEntry[];
     /** Usuário logado */
     user?: DBUser;
-    /** Callback de logout */
-    onLogout: () => void;
-    /** Se está fazendo logout */
-    loggingOut?: boolean;
     /** Se a sidebar está fixada (expandida) */
     isPinned: boolean;
     /** Callback para toggle do pin */
@@ -51,14 +48,17 @@ interface SidebarProps {
 export default function Sidebar({
     navigation,
     user,
-    onLogout,
-    loggingOut = false,
     isPinned,
     onTogglePin,
     isDrawerOpen,
     onCloseDrawer,
 }: SidebarProps) {
     const pathname = usePathname();
+    const { settings } = useSettings();
+
+    // Cores da sidebar do contexto
+    const sidebarBg = settings?.sidebarBackgroundColor || "#111111";
+    const sidebarText = settings?.sidebarForegroundColor || "#e5e5e5";
 
     // Fecha drawer ao mudar de rota
     useEffect(() => {
@@ -88,7 +88,8 @@ export default function Sidebar({
         <>
             <aside
                 className={`hidden md:flex ${isPinned ? 'w-72' : 'w-20'
-                    } fixed left-0 top-0 h-screen bg-sidebar text-sidebar-foreground flex-col py-6 pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden z-40`}
+                    } h-screen flex-col py-6 pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden sticky top-0`}
+                style={{ backgroundColor: sidebarBg, color: sidebarText }}
             >
                 <SidebarHeader
                     isExpanded={isPinned}
@@ -97,12 +98,10 @@ export default function Sidebar({
                 />
                 <NavigationMenu items={navigation} isExpanded={isPinned} />
 
-                {/* Seção inferior com usuário e logout */}
+                {/* Seção inferior com usuário */}
                 <UserProfileCard
                     user={user}
                     isExpanded={isPinned}
-                    onLogout={onLogout}
-                    loggingOut={loggingOut}
                 />
             </aside>
 
@@ -116,13 +115,15 @@ export default function Sidebar({
 
             {/* Drawer Mobile - Sidebar */}
             <aside
-                className={`md:hidden fixed top-0 left-0 h-screen w-72 bg-sidebar text-sidebar-foreground flex flex-col py-6 pb-4 z-[101] transition-transform duration-300 ease-in-out ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`md:hidden fixed top-0 left-0 h-screen w-72 flex flex-col py-6 pb-4 z-[101] transition-transform duration-300 ease-in-out ${isDrawerOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
+                style={{ backgroundColor: sidebarBg, color: sidebarText }}
             >
                 {/* Botão fechar no topo */}
                 <button
                     onClick={onCloseDrawer}
-                    className="absolute top-4 right-4 p-2 rounded-md hover:bg-white/10 text-sidebar-foreground"
+                    className="absolute top-4 right-4 p-2 rounded-md hover:bg-white/10"
+                    style={{ color: sidebarText }}
                     aria-label="Fechar menu"
                 >
                     <X className="w-6 h-6" />
@@ -141,12 +142,10 @@ export default function Sidebar({
                 {/* Navegação */}
                 <NavigationMenu items={navigation} isExpanded={true} />
 
-                {/* Seção inferior com usuário e logout */}
+                {/* Seção inferior com usuário */}
                 <UserProfileCard
                     user={user}
                     isExpanded={true}
-                    onLogout={onLogout}
-                    loggingOut={loggingOut}
                 />
             </aside>
         </>
