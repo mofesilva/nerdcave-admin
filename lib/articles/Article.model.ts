@@ -1,11 +1,13 @@
 import type { Media } from "@/lib/medias/Media.model";
+import type { TiptapContent } from "@/types/TiptapContent.types";
 import { PostStatus } from "../../types/Article.types";
 
 export type Article = {
     _id: string;
     title: string;
     slug: string;
-    content: string;
+    /** Conteúdo estruturado JSON do Tiptap */
+    content: TiptapContent | null;
     coverMedia?: Media;
     category?: string;
     tags: string[];
