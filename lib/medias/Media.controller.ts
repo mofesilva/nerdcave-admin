@@ -60,3 +60,9 @@ export async function uploadFile({ file, fileName }: { file: File; fileName?: st
 export function getMediaUrl({ fileName }: MediaControllerProps): string {
     return MediaService.getMediaUrl({ fileName });
 }
+
+// ─── COUNTS ──────────────────────────────────────────────────────────────────
+
+export async function countMedias(): Promise<number> {
+    return MediaService.countMedias();
+}

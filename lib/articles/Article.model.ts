@@ -19,3 +19,14 @@ export type Article = {
     seoDescription?: string;
     deleted: boolean;
 }
+
+/** Versão resumida do Article para listagens (dashboard, cards) */
+export type ArticleSummary = {
+    _id: string;
+    title: string;
+    slug: string;
+    status: PostStatus;
+    publishedAt?: string;
+    coverMedia?: Media;
+    category?: string;
+}

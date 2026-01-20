@@ -1,15 +1,14 @@
 "use client";
 
 import { Sun, Moon } from "lucide-react";
-import { useTheme } from '../../ThemeProvider';
+import { useSettings } from '@/lib/contexts/SettingsContext';
 
 export default function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
+    const { activeThemeMode, setActiveThemeModeAndApply } = useSettings();
 
-    const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+    const isDark = activeThemeMode === 'dark';
 
-    const toggle = () => setTheme(isDark ? 'light' : 'dark');
+    const toggle = () => setActiveThemeModeAndApply(isDark ? 'light' : 'dark');
 
     return (
         <button

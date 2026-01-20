@@ -132,3 +132,53 @@ export async function deleteAlbum({ id }: AlbumParametersProps): Promise<boolean
     const result = await albums.updateOne(id!, { deleted: true });
     return !result.error;
 }
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+
+export interface AlbumStats {
+    total: number;
+    published: number;
+}
+
+export async function getAlbumStats(): Promise<AlbumStats> {
+    const albums = getAlbumsCollection();
+    const result = await albums.aggregate([
+        { $match: { deleted: false } },
+        {
+            $facet: {
+                total: [{ $count: 'count' }],
+                published: [{ $match: { status: 'published' } }, { $count: 'count' }],
+            }
+        }
+    ]);
+
+    const doc = result.documents?.[0] as {
+        total?: { count: number }[];
+        published?: { count: number }[];
+    };
+
+    return {
+        total: doc?.total?.[0]?.count ?? 0,
+        published: doc?.published?.[0]?.count ?? 0,
+    };
+}
+
+// ─── COUNTS (deprecated - use getAlbumStats) ─────────────────────────────────
+
+export async function countAlbums(): Promise<number> {
+    const albums = getAlbumsCollection();
+    const result = await albums.aggregate([
+        { $match: { deleted: false } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}
+
+export async function countPublishedAlbums(): Promise<number> {
+    const albums = getAlbumsCollection();
+    const result = await albums.aggregate([
+        { $match: { deleted: false, status: 'published' } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}

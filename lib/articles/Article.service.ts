@@ -1,7 +1,7 @@
 "use client";
 import { getArticlesCollection } from './Articles.collection';
-import { Article } from './Article.model';
-import { articleFromDocument } from './Article.mapper';
+import { Article, ArticleSummary } from './Article.model';
+import { articleFromDocument, articleSummaryFromDocument } from './Article.mapper';
 
 interface ArticleParametersProps {
     id?: string;
@@ -97,6 +97,32 @@ export async function deleteArticle({ id }: ArticleParametersProps): Promise<boo
 
 // ─── QUERIES ─────────────────────────────────────────────────────────────────
 
+/** Busca posts recentes retornando apenas campos necessários do banco */
+export async function getRecentArticles(limit: number = 5): Promise<ArticleSummary[]> {
+    const articles = getArticlesCollection();
+    const result = await articles.find({
+        query: { deleted: false },
+        sort: { publishedAt: -1 },
+        limit,
+        projection: { _id: 1, title: 1, slug: 1, status: 1, publishedAt: 1, coverMedia: 1, categoryId: 1 }
+    });
+    if (result.error || !result.documents) return [];
+    return result.documents.map(doc => articleSummaryFromDocument(doc));
+}
+
+/** Busca posts publicados recentes retornando apenas campos necessários do banco */
+export async function getRecentPublishedArticles(limit: number = 5): Promise<ArticleSummary[]> {
+    const articles = getArticlesCollection();
+    const result = await articles.find({
+        query: { deleted: false, status: 'published' },
+        sort: { publishedAt: -1 },
+        limit,
+        projection: { _id: 1, title: 1, slug: 1, status: 1, publishedAt: 1, coverMedia: 1, categoryId: 1 }
+    });
+    if (result.error || !result.documents) return [];
+    return result.documents.map(doc => articleSummaryFromDocument(doc));
+}
+
 export async function getPublishedArticles(): Promise<Article[]> {
     const all = await getAllArticles();
     return all
@@ -182,4 +208,80 @@ export async function publishScheduledArticles(now: Date): Promise<Article[]> {
     }
 
     return published;
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+
+export interface ArticleStats {
+    total: number;
+    published: number;
+    draft: number;
+    featured: number;
+}
+
+export async function getArticleStats(): Promise<ArticleStats> {
+    const articles = getArticlesCollection();
+    const result = await articles.aggregate([
+        { $match: { deleted: false } },
+        {
+            $facet: {
+                total: [{ $count: 'count' }],
+                published: [{ $match: { status: 'published' } }, { $count: 'count' }],
+                draft: [{ $match: { status: 'draft' } }, { $count: 'count' }],
+                featured: [{ $match: { isFeatured: true } }, { $count: 'count' }],
+            }
+        }
+    ]);
+
+    const doc = result.documents?.[0] as {
+        total?: { count: number }[];
+        published?: { count: number }[];
+        draft?: { count: number }[];
+        featured?: { count: number }[];
+    };
+
+    return {
+        total: doc?.total?.[0]?.count ?? 0,
+        published: doc?.published?.[0]?.count ?? 0,
+        draft: doc?.draft?.[0]?.count ?? 0,
+        featured: doc?.featured?.[0]?.count ?? 0,
+    };
+}
+
+// ─── COUNTS (deprecated - use getArticleStats) ───────────────────────────────
+
+export async function countArticles(): Promise<number> {
+    const articles = getArticlesCollection();
+    const result = await articles.aggregate([
+        { $match: { deleted: false } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}
+
+export async function countPublishedArticles(): Promise<number> {
+    const articles = getArticlesCollection();
+    const result = await articles.aggregate([
+        { $match: { deleted: false, status: 'published' } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}
+
+export async function countDraftArticles(): Promise<number> {
+    const articles = getArticlesCollection();
+    const result = await articles.aggregate([
+        { $match: { deleted: false, status: 'draft' } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}
+
+export async function countFeaturedArticles(): Promise<number> {
+    const articles = getArticlesCollection();
+    const result = await articles.aggregate([
+        { $match: { deleted: false, isFeatured: true } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
 }

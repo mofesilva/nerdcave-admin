@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { LucideIcon } from "lucide-react";
 import ScrollIndicator from "@/_components/ScrollIndicator";
+import { useSettings } from "@/lib/contexts/SettingsContext";
 
 interface NavigationItem {
     name: string;
@@ -31,9 +32,17 @@ function isSection(entry: NavigationEntry): entry is NavigationSection {
 
 export default function NavigationMenu({ items, isExpanded }: NavigationMenuProps) {
     const pathname = usePathname();
+    const { settings } = useSettings();
     const navRef = useRef<HTMLElement>(null);
     const [canScrollDown, setCanScrollDown] = useState(false);
     const [canScrollUp, setCanScrollUp] = useState(false);
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+    // Cores da sidebar do contexto
+    const activeColor = settings?.sidebarActiveColor || settings?.accentColor || "#0067ff";
+    const activeTextColor = settings?.accentTextColor || "#ffffff";
+    const hoverColor = settings?.sidebarHoverColor || "#262626";
+    const textColor = settings?.sidebarForegroundColor || "#e5e5e5";
 
     // Verifica se há scroll disponível
     useEffect(() => {
@@ -63,17 +72,25 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
 
     const renderItem = (item: NavigationItem, nested = false) => {
         const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+        const isHovered = hoveredItem === item.href;
         const Icon = item.icon;
+
+        // Estilos inline baseados no estado
+        const style: React.CSSProperties = isActive
+            ? { backgroundColor: activeColor, color: activeTextColor }
+            : isHovered
+                ? { backgroundColor: hoverColor, color: textColor }
+                : { color: `${textColor}B3` }; // B3 = 70% opacity
 
         return (
             <Link
                 key={item.name}
                 href={item.href}
                 title={!isExpanded ? item.name : undefined}
-                className={`flex items-center rounded-md h-12 transition-colors ${isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
-                    }`}
+                className="flex items-center rounded-md h-12 transition-colors"
+                style={style}
+                onMouseEnter={() => setHoveredItem(item.href)}
+                onMouseLeave={() => setHoveredItem(null)}
             >
                 <div className="w-14 h-11 flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5" />
@@ -90,12 +107,12 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
         return (
             <div key={section.name}>
                 {/* Divider antes */}
-                <div className="my-3 mx-2 border-t border-zinc-700/50" />
+                <div className="my-3 mx-2 border-t" style={{ borderColor: `${textColor}33` }} />
 
                 {/* Section title - só aparece quando expandido */}
                 {isExpanded && (
                     <div className="px-4 py-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${textColor}80` }}>
                             {section.name}
                         </span>
                     </div>
@@ -108,7 +125,7 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
 
                 {/* Divider depois (se for a última seção e houver items depois) */}
                 {isLastSection && (
-                    <div className="my-3 mx-2 border-t border-zinc-700/50" />
+                    <div className="my-3 mx-2 border-t" style={{ borderColor: `${textColor}33` }} />
                 )}
             </div>
         );

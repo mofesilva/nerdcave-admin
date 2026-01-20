@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 
-interface CardTitleSectionProps {
+interface CardTitleProps {
     /** Título principal do card */
     title: string;
     /** Subtítulo/descrição do card */
@@ -13,12 +13,12 @@ interface CardTitleSectionProps {
     className?: string;
 }
 
-export default function CardTitleSection({
+export default function CardTitle({
     title,
     subtitle,
     trailing,
     className = "mb-6"
-}: CardTitleSectionProps) {
+}: CardTitleProps) {
     return (
         <div className={`flex items-center justify-between ${className}`}>
             <div>

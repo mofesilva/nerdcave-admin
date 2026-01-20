@@ -27,7 +27,7 @@ export default function Toolbar({
     onSearchChange,
     onSearch,
     searchPlaceholder = "Buscar... (Enter)",
-    height = "h-13",
+    height = "h-10",
     hideSearch = false,
     children,
     className = "",
@@ -44,10 +44,10 @@ export default function Toolbar({
     };
 
     return (
-        <div className={`flex flex-wrap items-stretch gap-3 ${className}`}>
+        <div className={`flex flex-wrap items-stretch gap-3 ${height} ${className}`}>
             {!hideSearch && (
-                <div className={`flex items-center gap-3 bg-card rounded-md px-4 ${height} min-w-[200px] flex-1 max-w-md border border-border focus-within:border-primary transition-colors`}>
-                    <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                <div className={`flex items-center gap-2 bg-card rounded-md px-3 min-w-[200px] flex-1 max-w-md border border-border focus-within:border-primary transition-colors`}>
+                    <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
                         type="text"
                         value={search}

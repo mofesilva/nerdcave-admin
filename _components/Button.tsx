@@ -22,6 +22,8 @@ interface ButtonProps {
     textColor?: string;
     /** Classe Tailwind para hover (ex: 'hover:bg-nerdcave-lime') */
     hoverColor?: string;
+    /** Classe Tailwind para border radius (ex: 'rounded-full', 'rounded-lg') */
+    rounded?: string;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
@@ -33,9 +35,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-    sm: 'px-3 py-1.5 text-sm gap-1.5',
-    md: 'px-5 py-2.5 text-sm gap-2',
-    lg: 'px-6 py-3 text-base gap-2',
+    sm: 'h-8 px-3 text-sm gap-1.5',
+    md: 'h-9 px-4 text-sm gap-2',
+    lg: 'h-10 px-5 text-sm gap-2',
 };
 
 const iconSizes: Record<ButtonSize, string> = {
@@ -58,6 +60,7 @@ export default function Button({
     bgColor,
     textColor,
     hoverColor,
+    rounded = 'rounded-md',
 }: ButtonProps) {
     const isDisabled = disabled || loading;
 
@@ -76,7 +79,7 @@ export default function Button({
             onClick={onClick}
             disabled={isDisabled}
             className={`
-                inline-flex items-center justify-center font-semibold rounded-md
+                inline-flex items-center justify-center font-semibold ${rounded}
                 transition-all duration-200 ease-out
                 active:scale-95
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer

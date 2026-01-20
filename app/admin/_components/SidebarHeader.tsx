@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { PanelLeftClose, PanelLeft } from "lucide-react";
 import IconButton from "@/_components/IconButton";
 import { useSettings } from "@/lib/contexts/SettingsContext";
 import { getMediaUrl } from "@/lib/medias/Media.controller";
-import { useTheme } from "../../ThemeProvider";
 
 interface SidebarHeaderProps {
     isExpanded: boolean;
@@ -16,29 +15,10 @@ interface SidebarHeaderProps {
 }
 
 export default function SidebarHeader({ isExpanded, isPinned = false, onTogglePin, hideToggle = false }: SidebarHeaderProps) {
-    const { sideBarLogoDark, sideBarLogoLight } = useSettings();
-    const { theme } = useTheme();
-    const [isDark, setIsDark] = useState(true);
+    const { sidebarLogo } = useSettings();
 
-    useEffect(() => {
-        if (theme === "system") {
-            // Verifica preferência do sistema
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            setIsDark(prefersDark);
-        } else {
-            setIsDark(theme === "dark");
-        }
-    }, [theme]);
-
-    // Escolhe a logo baseado no tema atual
-    // No tema dark, a sidebar é escura, então usamos a logo para fundo escuro (logoDark)
-    // No tema light, a sidebar é clara, então usamos a logo para fundo claro (logoLight)
-    const currentLogo = isDark ? sideBarLogoDark : sideBarLogoLight;
-    const fallbackLogo = isDark ? sideBarLogoLight : sideBarLogoDark;
-    const logoToUse = currentLogo || fallbackLogo;
-
-    const logoUrl = logoToUse
-        ? getMediaUrl({ fileName: logoToUse.fileName })
+    const logoUrl = sidebarLogo
+        ? getMediaUrl({ fileName: sidebarLogo.fileName })
         : "/images/logos/nerdcave-white.png";
 
     // Sidebar fechada = 80px (w-20), botão = 36px

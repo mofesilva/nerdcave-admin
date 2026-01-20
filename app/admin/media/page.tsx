@@ -163,7 +163,7 @@ export default function MediaPage() {
             ) : media.length === 0 ? (
                 <EmptyState icon={ImageIcon} title="Nenhum arquivo" />
             ) : viewMode === "grid" ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 fhd:grid-cols-5 qhd:grid-cols-6 uhd:grid-cols-8 gap-4">
                     {media.map((item, index) => (
                         <MediaCard
                             key={item._id}

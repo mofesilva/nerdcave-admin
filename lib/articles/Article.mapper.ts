@@ -1,4 +1,4 @@
-import { Article } from './Article.model';
+import { Article, ArticleSummary } from './Article.model';
 import { toCamelCaseKeys } from '../utils';
 
 export function articleFromDocument(doc: any): Article {
@@ -22,5 +22,19 @@ export function articleFromDocument(doc: any): Article {
         seoTitle: data.seoTitle,
         seoDescription: data.seoDescription,
         deleted: data.deleted ?? false,
+    }
+}
+
+export function articleSummaryFromDocument(doc: any): ArticleSummary {
+    const data = toCamelCaseKeys(doc) as any;
+
+    return {
+        _id: data._id ?? '',
+        title: data.title ?? '',
+        slug: data.slug ?? '',
+        status: data.status ?? 'draft',
+        publishedAt: data.publishedAt,
+        coverMedia: data.coverMedia,
+        category: data.categoryId ?? data.category,
     }
 }

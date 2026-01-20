@@ -1,23 +1,35 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
-import * as ThemeSettingsController from "@/lib/theme-settings/ThemeSettings.controller";
-import type { ThemeSettings } from "@/lib/theme-settings/ThemeSettings.model";
+import * as SettingsController from "@/lib/settings/Settings.controller";
+import type { AdminThemeSetting } from "@/lib/settings/Settings.model";
+import type { ThemeMode } from "@/lib/settings/Settings.types";
 import type { Media } from "@/lib/medias/Media.model";
 import { useAutoLogin } from "./AutoLoginContext";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
 interface SettingsContextType {
-    settings: ThemeSettings | null;
+    settings: AdminThemeSetting | null;
+    activeThemeMode: ThemeMode;
     accentColor: string;
     accentTextColor: string;
-    loginPageLogo: Media | undefined;
-    sideBarLogoDark: Media | undefined;
-    sideBarLogoLight: Media | undefined;
+    sidebarLogo: Media | undefined;
+    loginLogo: Media | undefined;
+    favicon: Media | undefined;
     loading: boolean;
     updateAccentColor: (color: string) => Promise<void>;
-    updateSettingsOptimistic: (updates: Partial<ThemeSettings>) => void;
+    /**
+     * Salva um tema no localStorage e aplica CSS se for o tema ativo.
+     * @param data - Os dados do tema
+     * @param mode - O modo do tema (light/dark) - OBRIGATÓRIO para garantir isolamento
+     */
+    applyThemeSettings: (data: AdminThemeSetting, mode: ThemeMode) => void;
+    /**
+     * Troca o modo ativo (light/dark) e aplica o tema correspondente.
+     * Usado pelo toggle de tema no header ou configurações.
+     */
+    setActiveThemeModeAndApply: (mode: ThemeMode) => Promise<void>;
     refreshSettings: () => Promise<void>;
 }
 
@@ -25,39 +37,35 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 
-const LOCAL_STORAGE_KEY = "nerdcave_theme_settings";
+const LOCAL_STORAGE_LIGHT_KEY = "nerdcave_admin_theme_light";
+const LOCAL_STORAGE_DARK_KEY = "nerdcave_admin_theme_dark";
+const LOCAL_STORAGE_MODE_KEY = "nerdcave_admin_theme_mode";
 const DEFAULT_ACCENT_COLOR = "#0067ff";
 const DEFAULT_ACCENT_TEXT_COLOR = "#ffffff";
 
-// CSS defaults (do globals.css)
-const CSS_DEFAULTS = {
-    light: {
-        background: "#f8f9fa",
-        sidebarBackground: "#DEE2E6",
-        textColor: "#212529",
-        cardColor: "#DEE2E6",
-    },
-    dark: {
-        background: "#070707",
-        sidebarBackground: "#111111",
-        textColor: "#f8f9fa",
-        cardColor: "#111111",
-    },
-};
-
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 
-function saveToLocalStorage(settings: ThemeSettings) {
+/**
+ * Salva tema no localStorage baseado no modo.
+ * Light e Dark são armazenados separadamente para isolamento total.
+ */
+function saveThemeToLocalStorage(settings: AdminThemeSetting, mode: ThemeMode) {
     try {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+        const key = mode === 'light' ? LOCAL_STORAGE_LIGHT_KEY : LOCAL_STORAGE_DARK_KEY;
+        localStorage.setItem(key, JSON.stringify(settings));
+        localStorage.setItem(LOCAL_STORAGE_MODE_KEY, mode);
     } catch (e) {
         // localStorage pode estar indisponível
     }
 }
 
-function loadFromLocalStorage(): ThemeSettings | null {
+/**
+ * Carrega tema do localStorage baseado no modo.
+ */
+function loadThemeFromLocalStorage(mode: ThemeMode): AdminThemeSetting | null {
     try {
-        const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const key = mode === 'light' ? LOCAL_STORAGE_LIGHT_KEY : LOCAL_STORAGE_DARK_KEY;
+        const stored = localStorage.getItem(key);
         if (stored) {
             return JSON.parse(stored);
         }
@@ -67,186 +75,258 @@ function loadFromLocalStorage(): ThemeSettings | null {
     return null;
 }
 
+/**
+ * Carrega o modo ativo do localStorage.
+ */
+function loadActiveModeFromLocalStorage(): ThemeMode {
+    try {
+        const mode = localStorage.getItem(LOCAL_STORAGE_MODE_KEY);
+        if (mode === 'light' || mode === 'dark') {
+            return mode;
+        }
+    } catch (e) {
+        // localStorage pode estar indisponível
+    }
+    return 'dark';
+}
+
+// Aplica TODAS as variáveis CSS do tema
+function applyAllCssVariables(data: AdminThemeSetting) {
+    if (typeof document === 'undefined') return;
+
+    const root = document.documentElement;
+
+    // Cores de destaque (accent) - usadas em botões e elementos de ação
+    if (data.accentColor) {
+        root.style.setProperty("--primary", data.accentColor);
+        root.style.setProperty("--ring", data.accentColor);
+    }
+    if (data.accentTextColor) {
+        root.style.setProperty("--primary-foreground", data.accentTextColor);
+    }
+
+    // Cores de layout
+    if (data.backgroundColor) {
+        root.style.setProperty("--background", data.backgroundColor);
+    }
+    if (data.foregroundColor) {
+        root.style.setProperty("--foreground", data.foregroundColor);
+    }
+
+    // Cores de texto
+    if (data.mutedColor) {
+        root.style.setProperty("--muted", data.mutedColor);
+    }
+    if (data.mutedTextColor) {
+        root.style.setProperty("--muted-foreground", data.mutedTextColor);
+    }
+
+    // Cores da sidebar
+    if (data.sidebarBackgroundColor) {
+        root.style.setProperty("--sidebar-background", data.sidebarBackgroundColor);
+    }
+    if (data.sidebarForegroundColor) {
+        root.style.setProperty("--sidebar-foreground", data.sidebarForegroundColor);
+    }
+    // sidebarActiveColor = cor de fundo do item ativo na sidebar
+    if (data.sidebarActiveColor) {
+        root.style.setProperty("--sidebar-primary", data.sidebarActiveColor);
+    } else if (data.accentColor) {
+        // Fallback: usa accentColor se não tiver sidebarActiveColor
+        root.style.setProperty("--sidebar-primary", data.accentColor);
+    }
+    if (data.accentTextColor) {
+        root.style.setProperty("--sidebar-primary-foreground", data.accentTextColor);
+    }
+    // sidebarHoverColor = cor de fundo no hover
+    if (data.sidebarHoverColor) {
+        root.style.setProperty("--sidebar-accent", data.sidebarHoverColor);
+    }
+    if (data.sidebarForegroundColor) {
+        root.style.setProperty("--sidebar-accent-foreground", data.sidebarForegroundColor);
+    }
+
+    // Cores dos cards
+    if (data.cardBackgroundColor) {
+        root.style.setProperty("--card", data.cardBackgroundColor);
+    }
+    if (data.cardForegroundColor) {
+        root.style.setProperty("--card-foreground", data.cardForegroundColor);
+    }
+    if (data.cardBorderColor) {
+        root.style.setProperty("--border", data.cardBorderColor);
+    }
+}
+
 // ─── PROVIDER ────────────────────────────────────────────────────────────────
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
     const { isReady: isAuthReady } = useAutoLogin();
-    const [settings, setSettings] = useState<ThemeSettings | null>(null);
+    const [settings, setSettings] = useState<AdminThemeSetting | null>(null);
+    const [activeThemeMode, setActiveThemeMode] = useState<ThemeMode>('dark');
     const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT_COLOR);
     const [accentTextColor, setAccentTextColor] = useState(DEFAULT_ACCENT_TEXT_COLOR);
-    const [loginPageLogo, setLoginPageLogo] = useState<Media | undefined>(undefined);
-    const [sideBarLogoDark, setSideBarLogoDark] = useState<Media | undefined>(undefined);
-    const [sideBarLogoLight, setSideBarLogoLight] = useState<Media | undefined>(undefined);
+    const [sidebarLogo, setSidebarLogo] = useState<Media | undefined>(undefined);
+    const [loginLogo, setLoginLogo] = useState<Media | undefined>(undefined);
+    const [favicon, setFavicon] = useState<Media | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const initialLoadDone = useRef(false);
 
-    const applyColors = useCallback((color: string, textColor: string) => {
-        if (typeof document !== 'undefined') {
-            document.documentElement.style.setProperty("--primary", color);
-            document.documentElement.style.setProperty("--primary-foreground", textColor);
-            document.documentElement.style.setProperty("--ring", color);
-            document.documentElement.style.setProperty("--sidebar-primary", color);
-            document.documentElement.style.setProperty("--sidebar-ring", color);
-        }
-        setAccentColor(color);
-        setAccentTextColor(textColor);
-    }, []);
-
-    // Aplica cores de tema (background, sidebar, text, card) baseado no modo light/dark
-    const applyThemeColors = useCallback((data: ThemeSettings) => {
-        if (typeof document === 'undefined') return;
-
-        const isDark = document.documentElement.classList.contains('dark');
-        const mode = isDark ? 'dark' : 'light';
-        const defaults = CSS_DEFAULTS[mode];
-
-        // Pega cores customizadas ou usa defaults
-        const bg = isDark ? data.backgroundDark : data.backgroundLight;
-        const sidebar = isDark ? data.sidebarBackgroundDark : data.sidebarBackgroundLight;
-        const text = isDark ? data.textColorDark : data.textColorLight;
-        const card = isDark ? data.cardColorDark : data.cardColorLight;
-
-        // Aplica apenas se houver valor customizado
-        if (bg) {
-            document.documentElement.style.setProperty("--background", bg);
-        } else {
-            document.documentElement.style.removeProperty("--background");
-        }
-
-        if (sidebar) {
-            document.documentElement.style.setProperty("--sidebar-background", sidebar);
-        } else {
-            document.documentElement.style.removeProperty("--sidebar-background");
-        }
-
-        if (text) {
-            document.documentElement.style.setProperty("--foreground", text);
-            document.documentElement.style.setProperty("--card-foreground", text);
-        } else {
-            document.documentElement.style.removeProperty("--foreground");
-            document.documentElement.style.removeProperty("--card-foreground");
-        }
-
-        if (card) {
-            document.documentElement.style.setProperty("--card", card);
-        } else {
-            document.documentElement.style.removeProperty("--card");
-        }
-    }, []);
-
-    // Aplica settings de um objeto (usado por cache e fetch)
-    const applySettingsData = useCallback((data: ThemeSettings) => {
+    /**
+     * Aplica settings no CSS e state.
+     * Chamado APENAS quando o tema passado deve ser exibido na tela.
+     */
+    const applySettingsData = useCallback((data: AdminThemeSetting) => {
         setSettings(data);
-        applyColors(
-            data.accentColor || DEFAULT_ACCENT_COLOR,
-            data.accentTextColor || DEFAULT_ACCENT_TEXT_COLOR
-        );
-        applyThemeColors(data);
-        setLoginPageLogo(data.loginPageLogo);
-        setSideBarLogoDark(data.sideBarLogoDark);
-        setSideBarLogoLight(data.sideBarLogoLight);
-    }, [applyColors, applyThemeColors]);
+        setAccentColor(data.accentColor || DEFAULT_ACCENT_COLOR);
+        setAccentTextColor(data.accentTextColor || DEFAULT_ACCENT_TEXT_COLOR);
 
-    // Observa mudanças no tema (light/dark) para re-aplicar cores
-    useEffect(() => {
-        if (!settings) return;
+        // Aplica TODAS as variáveis CSS
+        applyAllCssVariables(data);
 
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'class') {
-                    applyThemeColors(settings);
-                }
-            });
-        });
+        // Extrai medias do themeMedia
+        setSidebarLogo(data.themeMedia?.sidebarLogo);
+        setLoginLogo(data.themeMedia?.loginLogo);
+        setFavicon(data.themeMedia?.favicon);
+    }, []);
 
-        observer.observe(document.documentElement, { attributes: true });
+    /**
+     * Busca o tema do modo especificado do banco.
+     */
+    const fetchThemeByMode = useCallback(async (mode: ThemeMode): Promise<AdminThemeSetting | null> => {
+        try {
+            return await SettingsController.getOrCreateThemeSettingByMode({ themeMode: mode });
+        } catch (error) {
+            console.error(`[SettingsContext] Erro ao carregar tema ${mode}:`, error);
+            return null;
+        }
+    }, []);
 
-        return () => observer.disconnect();
-    }, [settings, applyThemeColors]);
-
-    const fetchSettings = useCallback(async (showLoading = true) => {
+    /**
+     * Carrega e aplica o tema do modo ativo.
+     */
+    const fetchAndApplyActiveTheme = useCallback(async (showLoading = true) => {
         try {
             if (showLoading) setLoading(true);
-            const data = await ThemeSettingsController.getOrCreateThemeSettings();
+
+            const data = await fetchThemeByMode(activeThemeMode);
             if (data) {
                 applySettingsData(data);
-                saveToLocalStorage(data);
-            } else {
-                applyColors(DEFAULT_ACCENT_COLOR, DEFAULT_ACCENT_TEXT_COLOR);
+                saveThemeToLocalStorage(data, activeThemeMode);
             }
         } catch (error) {
             console.error("[SettingsContext] Erro ao carregar settings:", error);
-            applyColors(DEFAULT_ACCENT_COLOR, DEFAULT_ACCENT_TEXT_COLOR);
         } finally {
             setLoading(false);
         }
-    }, [applyColors, applySettingsData]);
+    }, [activeThemeMode, fetchThemeByMode, applySettingsData]);
 
-    // Carrega do localStorage PRIMEIRO (instantâneo), depois sincroniza com banco
+    // ─── INITIALIZATION ──────────────────────────────────────────────────────
+
+    // 1. Carrega do localStorage PRIMEIRO (instantâneo, sem flash)
     useEffect(() => {
         if (initialLoadDone.current) return;
         initialLoadDone.current = true;
 
-        // 1. Aplica cache do localStorage imediatamente (sem flash)
-        const cached = loadFromLocalStorage();
+        // Detecta o modo atual baseado na classe 'dark' no HTML
+        const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+        const mode: ThemeMode = isDark ? 'dark' : 'light';
+        setActiveThemeMode(mode);
+
+        // Aplica cache do localStorage imediatamente (sem flash)
+        const cached = loadThemeFromLocalStorage(mode);
         if (cached) {
             applySettingsData(cached);
             setLoading(false);
         }
     }, [applySettingsData]);
 
-    // Depois do auth, sincroniza com banco em background
+    // 2. Depois do auth, sincroniza com banco em background
     useEffect(() => {
         if (isAuthReady) {
             // Se já tem cache, faz fetch silencioso (sem loading)
-            const hasCache = loadFromLocalStorage() !== null;
-            fetchSettings(!hasCache);
+            const hasCache = loadThemeFromLocalStorage(activeThemeMode) !== null;
+            fetchAndApplyActiveTheme(!hasCache);
         }
-    }, [isAuthReady, fetchSettings]);
+    }, [isAuthReady, activeThemeMode, fetchAndApplyActiveTheme]);
 
-    // ─── ATUALIZAÇÃO OTIMISTA ────────────────────────────────────────────────
+    // ─── PUBLIC API ──────────────────────────────────────────────────────────
 
-    const updateSettingsOptimistic = useCallback((updates: Partial<ThemeSettings>) => {
-        if (!settings) return;
+    /**
+     * Salva um tema no localStorage e aplica CSS se for o tema ativo.
+     * @param data - Os dados do tema
+     * @param mode - O modo do tema (light/dark) - OBRIGATÓRIO para garantir isolamento
+     */
+    const applyThemeSettings = useCallback((data: AdminThemeSetting, mode: ThemeMode) => {
+        // Salva no localStorage do modo correto (isolado)
+        saveThemeToLocalStorage(data, mode);
 
-        // 1. Atualiza estado local IMEDIATAMENTE
-        const newSettings = { ...settings, ...updates };
-        applySettingsData(newSettings);
+        // SÓ aplica CSS se for o tema ativo
+        if (mode === activeThemeMode) {
+            applySettingsData(data);
+        }
+    }, [activeThemeMode, applySettingsData]);
 
-        // 2. Salva no localStorage
-        saveToLocalStorage(newSettings);
+    /**
+     * Troca o modo ativo e carrega o tema correspondente.
+     * Usado pelo toggle de tema no header.
+     */
+    const setActiveThemeModeAndApply = useCallback(async (mode: ThemeMode) => {
+        if (mode === activeThemeMode) return;
 
-        // 3. Salva no banco em BACKGROUND (não bloqueia UI)
-        ThemeSettingsController.updateThemeSettings({
-            id: settings._id,
-            updates,
-        }).catch((error) => {
-            console.error("[SettingsContext] Erro ao salvar no banco:", error);
-            // Em caso de erro, poderia reverter... mas mantemos simples por enquanto
-        });
-    }, [settings, applySettingsData]);
+        // 1. Muda a classe no HTML
+        if (typeof document !== 'undefined') {
+            if (mode === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        // 2. Atualiza state e localStorage
+        setActiveThemeMode(mode);
+        localStorage.setItem(LOCAL_STORAGE_MODE_KEY, mode);
+        localStorage.setItem('theme', mode); // Para o ThemeProvider também
+
+        // 3. Aplica cores do cache (instantâneo)
+        const cached = loadThemeFromLocalStorage(mode);
+        if (cached) {
+            applySettingsData(cached);
+        } else {
+            // Se não tem cache, busca do banco
+            const data = await fetchThemeByMode(mode);
+            if (data) {
+                applySettingsData(data);
+                saveThemeToLocalStorage(data, mode);
+            }
+        }
+    }, [activeThemeMode, applySettingsData, fetchThemeByMode]);
 
     const updateAccentColor = async (color: string) => {
         if (!settings) return;
-        updateSettingsOptimistic({ accentColor: color });
+        const newSettings = { ...settings, accentColor: color };
+        applySettingsData(newSettings);
+        saveThemeToLocalStorage(newSettings, activeThemeMode);
     };
 
     const refreshSettings = async () => {
-        await fetchSettings(false); // Não mostra loading no refresh
+        await fetchAndApplyActiveTheme(false);
     };
 
     return (
         <SettingsContext.Provider
             value={{
                 settings,
+                activeThemeMode,
                 accentColor,
                 accentTextColor,
-                loginPageLogo,
-                sideBarLogoDark,
-                sideBarLogoLight,
+                sidebarLogo,
+                loginLogo,
+                favicon,
                 loading,
                 updateAccentColor,
-                updateSettingsOptimistic,
+                applyThemeSettings,
+                setActiveThemeModeAndApply,
                 refreshSettings,
             }}
         >

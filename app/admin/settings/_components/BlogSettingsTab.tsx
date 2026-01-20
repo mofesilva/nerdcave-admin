@@ -6,17 +6,17 @@ import { cn } from "@/lib/utils";
 import Button from "@/_components/Button";
 import ColorPicker from "@/_components/ColorPicker";
 import MediaPickerModal from "@/_components/MediaPickerModal";
-import type { ThemeSettings } from "@/lib/theme-settings/ThemeSettings.model";
+import type { BlogThemeSetting } from "@/lib/settings/Settings.model";
 import type { Media } from "@/lib/medias/Media.model";
 import { getMediaUrl } from "@/lib/medias/Media.controller";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
 interface BlogSettingsTabProps {
-    settings: ThemeSettings;
+    settings: BlogThemeSetting;
     saving: boolean;
     colorPresets: string[];
-    onSave: (updates: Partial<ThemeSettings>) => Promise<void>;
+    onSave: (updates: Partial<BlogThemeSetting>) => Promise<void>;
 }
 
 type BlogLogoField = "blogLogo" | "blogFavicon";

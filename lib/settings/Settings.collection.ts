@@ -1,8 +1,8 @@
 'use client';
 
 import { createCollection } from '@/lib/cappuccino/client';
-import { Settings } from './Settings.model';
+import type { Setting } from './Settings.model';
 
 export function getSettingsCollection() {
-    return createCollection<Settings>('settings');
+    return createCollection<Setting>('settings');
 }

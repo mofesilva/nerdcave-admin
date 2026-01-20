@@ -41,18 +41,18 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
     }
 
     return (
-        <div ref={containerRef} className="relative">
+        <div ref={containerRef} className="relative h-full">
             {/* Trigger - segue o estilo do SegmentedControl */}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 title={selectedOption?.label || label}
-                className={`flex items-center justify-center p-4 bg-card border border-border rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${isOpen
+                className={`flex items-center justify-center h-full aspect-square bg-card border border-border rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${isOpen
                     ? 'border-primary text-foreground'
                     : 'text-muted-foreground hover:text-foreground hover:border-muted-foreground/50'
                     }`}
             >
-                <TriggerIcon className="w-5 h-5" />
+                <TriggerIcon className="w-4 h-4" />
             </button>
 
             {/* Dropdown */}

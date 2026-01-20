@@ -132,3 +132,14 @@ export async function reorderCategories({ categoryIds }: CategoryParametersProps
         return false;
     }
 }
+
+// ─── COUNTS ──────────────────────────────────────────────────────────────────
+
+export async function countCategories(): Promise<number> {
+    const categories = getCategoriesCollection();
+    const result = await categories.aggregate([
+        { $match: { deleted: false } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}

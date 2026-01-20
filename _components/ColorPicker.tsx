@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Check } from "lucide-react";
+import { Check, Pipette } from "lucide-react";
 import Button from "./Button";
 
 interface ColorPickerProps {
@@ -154,14 +154,14 @@ export default function ColorPicker({ value, onChange }: ColorPickerProps) {
             {/* Trigger Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-8 h-8 rounded-md bg-gradient-to-br from-red-500 via-green-500 to-blue-500 cursor-pointer hover:scale-110 transition-transform flex items-center justify-center"
+                className="w-8 h-8 rounded-sm cursor-pointer hover:bg-muted transition-colors flex items-center justify-center"
             >
-                <span className="text-white text-lg font-bold drop-shadow">+</span>
+                <Pipette className="w-4 h-4 text-muted-foreground" />
             </button>
 
             {/* Dropdown */}
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 z-50 bg-card border-2 border-border rounded-md shadow-2xl shadow-black/50 w-64 p-4 space-y-3">
+                <div className="absolute top-full left-0 sm:left-auto sm:right-0 mt-2 z-50 bg-card border-2 border-border rounded-md shadow-2xl shadow-black/50 w-64 max-w-[calc(100vw-2rem)] p-4 space-y-3">
                     {/* Saturation/Lightness */}
                     <div
                         ref={saturationRef}
