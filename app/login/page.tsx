@@ -16,11 +16,11 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { signIn, user, initializing } = useAuth();
-  const { loginPageLogo } = useSettings();
+  const { loginLogo } = useSettings();
 
   // URL da logo: usa do banco se existir, senão usa fallback
-  const logoUrl = loginPageLogo?.fileName
-    ? getMediaUrl({ fileName: loginPageLogo.fileName })
+  const logoUrl = loginLogo?.fileName
+    ? getMediaUrl({ fileName: loginLogo.fileName })
     : '/images/logos/nerdcave-white.png';
 
   // Carregar credenciais salvas se existirem
