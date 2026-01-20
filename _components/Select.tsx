@@ -56,13 +56,13 @@ export default function Select({
     }
 
     return (
-        <div ref={containerRef} className={`relative ${className}`}>
+        <div ref={containerRef} className={`relative h-full ${className}`}>
             {/* Trigger */}
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 title={iconOnly ? (selectedOption?.label || placeholder) : undefined}
-                className={`flex items-center justify-center gap-2 bg-card border border-border rounded-md text-sm font-medium transition-all duration-200 cursor-pointer h-13 ${iconOnly
+                className={`flex items-center justify-center gap-2 bg-card border border-border rounded-md text-sm font-medium transition-all duration-200 cursor-pointer h-full ${iconOnly
                     ? 'px-4'
                     : 'px-4'
                     } ${isOpen
