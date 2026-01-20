@@ -65,3 +65,21 @@ export async function updateLinkOrder({ id, order }: LinkControllerProps): Promi
 export async function reorderLinks({ linkIds }: LinkControllerProps): Promise<boolean> {
     return LinkService.reorderLinks({ linkIds });
 }
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+
+export type { LinkStats } from './Link.service';
+
+export async function getLinkStats() {
+    return LinkService.getLinkStats();
+}
+
+// ─── COUNTS (deprecated - use getLinkStats) ──────────────────────────────────
+
+export async function countLinks(): Promise<number> {
+    return LinkService.countLinks();
+}
+
+export async function countActiveLinks(): Promise<number> {
+    return LinkService.countActiveLinks();
+}
