@@ -57,7 +57,7 @@ export default function SegmentedControl<T extends string>({
     return (
         <div
             ref={containerRef}
-            className={cn("relative inline-flex items-center px-1 border border-border rounded-md", !bgColor && "bg-card", mobileFullWidth && "w-full sm:w-auto", className)}
+            className={cn("relative inline-flex items-center p-1 border border-border rounded-md", !bgColor && "bg-card", mobileFullWidth && "w-full sm:w-auto", className)}
             style={bgColor ? { backgroundColor: bgColor } : undefined}
         >
             {/* Sliding indicator */}
@@ -77,7 +77,7 @@ export default function SegmentedControl<T extends string>({
                         key={option.value}
                         onClick={() => handleChange(option.value)}
                         title={iconOnly ? option.label : undefined}
-                        className={`relative z-10 ${iconOnly ? 'w-8 h-8' : 'px-3 h-8'} text-sm font-medium rounded-sm transition-colors duration-200 ${value === option.value
+                        className={`relative z-10 flex items-center justify-center ${iconOnly ? 'w-8 h-8' : 'px-3 h-8'} text-sm font-medium rounded-sm transition-colors duration-200 ${value === option.value
                             ? 'text-primary-foreground'
                             : 'text-muted-foreground hover:text-foreground'
                             } cursor-pointer flex items-center justify-center gap-2 ${mobileFullWidth ? 'flex-1 sm:flex-none' : ''}`}
