@@ -93,7 +93,7 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
                     <div className="px-3 py-2 text-xs text-muted-foreground font-medium uppercase tracking-wider border-b border-border">
                         {label}
                     </div>
-                    
+
                     {/* Seta para cima - só aparece quando pode rolar */}
                     {canScrollUp && (
                         <button
@@ -105,7 +105,7 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
                         </button>
                     )}
 
-                    <div 
+                    <div
                         ref={listRef}
                         onScroll={needsScroll ? checkScroll : undefined}
                         className={needsScroll ? "max-h-48 overflow-y-auto scrollbar-none" : ""}
