@@ -2,6 +2,7 @@
 import { getArticlesCollection } from './Articles.collection';
 import { Article, ArticleSummary } from './Article.model';
 import { articleFromDocument, articleSummaryFromDocument } from './Article.mapper';
+import { TiptapContent, extractTextFromTiptap } from '@/types/TiptapContent.types';
 
 interface ArticleParametersProps {
     id?: string;
@@ -23,9 +24,9 @@ function generateSlug(title: string): string {
         .replace(/^-|-$/g, '');
 }
 
-function calculateReadingTime(content: string): number {
+function calculateReadingTime(content: TiptapContent | null): number {
     const wordsPerMinute = 200;
-    const text = content.replace(/<[^>]*>/g, '');
+    const text = extractTextFromTiptap(content);
     const wordCount = text.split(/\s+/).filter(Boolean).length;
     return Math.ceil(wordCount / wordsPerMinute);
 }
