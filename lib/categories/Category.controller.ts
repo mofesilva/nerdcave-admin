@@ -66,3 +66,9 @@ export async function updateCategoryOrder({ id, order }: CategoryControllerProps
 export async function reorderCategories({ categoryIds }: CategoryControllerProps): Promise<boolean> {
     return CategoryService.reorderCategories({ categoryIds });
 }
+
+// ─── COUNTS ──────────────────────────────────────────────────────────────────
+
+export async function countCategories(): Promise<number> {
+    return CategoryService.countCategories();
+}
