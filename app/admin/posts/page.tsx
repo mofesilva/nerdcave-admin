@@ -140,47 +140,57 @@ export default function PostsPage() {
 
     return (
         <div className="space-y-3">
+            {/* Search Bar */}
             <Toolbar
                 search={searchQuery}
                 onSearchChange={setSearchQuery}
                 searchPlaceholder="Buscar posts..."
-            >
-                <SegmentedControl
-                    options={[
-                        { value: 'all', label: 'Todos' },
-                        { value: 'draft', label: 'Rascunhos' },
-                        { value: 'published', label: 'Publicados' },
-                        { value: 'scheduled', label: 'Agendados' },
-                    ]}
-                    value={statusFilter}
-                    onChange={setStatusFilter}
-                />
+            />
 
-                <SegmentedControl
-                    options={[
-                        { value: 'list', label: 'Lista', icon: List },
-                        { value: 'grid', label: 'Grid', icon: LayoutGrid },
-                    ]}
-                    value={viewMode}
-                    onChange={setViewMode}
-                    iconOnly
-                />
+            {/* Filters Row */}
+            <div className="flex flex-wrap items-center gap-x-1 gap-y-2 sm:gap-x-2 min-h-10">
+                <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
+                    <SegmentedControl
+                        options={[
+                            { value: 'all', label: 'Todos' },
+                            { value: 'draft', label: 'Rascunhos' },
+                            { value: 'published', label: 'Publicados' },
+                            { value: 'scheduled', label: 'Agendados' },
+                        ]}
+                        value={statusFilter}
+                        onChange={setStatusFilter}
+                    />
+                </div>
 
-                <FilterDropdown
-                    value={sortBy}
-                    onChange={(value) => setSortBy(value as 'alphabetical' | 'date' | 'category')}
-                    options={[
-                        { value: 'alphabetical', label: 'Ordem Alfabética', icon: ArrowDownAZ },
-                        { value: 'date', label: 'Data', icon: Clock },
-                        { value: 'category', label: 'Categoria', icon: FolderOpen },
-                    ]}
-                    label="Ordenar por"
-                />
+                <div className="flex items-center gap-1 sm:gap-2 flex-1">
+                    <SegmentedControl
+                        options={[
+                            { value: 'list', label: 'Lista', icon: List },
+                            { value: 'grid', label: 'Grid', icon: LayoutGrid },
+                        ]}
+                        value={viewMode}
+                        onChange={setViewMode}
+                        iconOnly
+                    />
 
-                <Link href="/admin/posts/new" className="ml-auto">
-                    <Button icon={Plus}>Novo Post</Button>
-                </Link>
-            </Toolbar>
+                    <FilterDropdown
+                        value={sortBy}
+                        onChange={(value) => setSortBy(value as 'alphabetical' | 'date' | 'category')}
+                        options={[
+                            { value: 'alphabetical', label: 'Ordem Alfabética', icon: ArrowDownAZ },
+                            { value: 'date', label: 'Data', icon: Clock },
+                            { value: 'category', label: 'Categoria', icon: FolderOpen },
+                        ]}
+                        label="Ordenar por"
+                    />
+
+                    <Link href="/admin/posts/new" className="flex-1">
+                        <Button icon={Plus} className="w-full">
+                            Novo Post
+                        </Button>
+                    </Link>
+                </div>
+            </div>
 
             {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
