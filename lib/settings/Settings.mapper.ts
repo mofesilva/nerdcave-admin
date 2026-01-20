@@ -1,12 +1,46 @@
-import { Settings, SettingsCategory } from './Settings.model';
+import type { AdminThemeSetting, SystemSetting } from './Settings.model';
+import type { SystemCategory } from './Settings.types';
 import { toCamelCaseKeys } from '../utils';
 
-export function settingsFromDocument(doc: any): Settings {
+// ─── THEME SETTING MAPPER ────────────────────────────────────────────────────
+
+export function adminThemeSettingFromDocument(doc: any): AdminThemeSetting {
     const data = toCamelCaseKeys(doc) as any;
 
     return {
         _id: data._id ?? '',
-        category: (data.category ?? 'general') as SettingsCategory,
+        type: 'theme',
+        domain: 'admin',
+        themeMode: data.themeMode ?? 'dark',
+        backgroundColor: data.backgroundColor,
+        foregroundColor: data.foregroundColor,
+        accentColor: data.accentColor,
+        accentTextColor: data.accentTextColor,
+        primaryTextColor: data.primaryTextColor,
+        secondaryTextColor: data.secondaryTextColor,
+        mutedTextColor: data.mutedTextColor,
+        highlightedTextColor: data.highlightedTextColor,
+        mutedColor: data.mutedColor,
+        sidebarBackgroundColor: data.sidebarBackgroundColor,
+        sidebarForegroundColor: data.sidebarForegroundColor,
+        sidebarActiveColor: data.sidebarActiveColor,
+        sidebarHoverColor: data.sidebarHoverColor,
+        cardBackgroundColor: data.cardBackgroundColor,
+        cardBorderColor: data.cardBorderColor,
+        cardForegroundColor: data.cardForegroundColor,
+        themeMedia: data.themeMedia ?? {},
+    };
+}
+
+// ─── SYSTEM SETTING MAPPER ───────────────────────────────────────────────────
+
+export function systemSettingFromDocument(doc: any): SystemSetting {
+    const data = toCamelCaseKeys(doc) as any;
+
+    return {
+        _id: data._id ?? '',
+        type: 'system',
+        category: (data.category ?? 'general') as SystemCategory,
 
         // General
         siteName: data.siteName,
@@ -42,3 +76,4 @@ export function settingsFromDocument(doc: any): Settings {
         fullWidthLayout: data.fullWidthLayout,
     };
 }
+
