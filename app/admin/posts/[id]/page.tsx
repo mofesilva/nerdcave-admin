@@ -250,7 +250,7 @@ export default function PostEditorPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <Link href="/admin/posts" className="p-3.5 rounded-md bg-card border border-border hover:bg-muted transition">
+                    <Link href="/admin/posts" className="p-2 rounded-md bg-card border border-border hover:bg-muted transition">
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div>
@@ -266,7 +266,7 @@ export default function PostEditorPage() {
                         onClick={() => setIsFeatured(!isFeatured)}
                         colorClass={isFeatured ? 'text-yellow-400' : 'text-muted-foreground'}
                         hoverClass={isFeatured ? 'hover:bg-yellow-500/30' : 'hover:bg-muted'}
-                        className={`h-13 w-13 rounded-md ${isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
+                        className={`h-full aspect-square rounded-md ${isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
                         title={isFeatured ? 'Remover destaque' : 'Destacar'}
                     />
 
@@ -301,13 +301,16 @@ export default function PostEditorPage() {
                 {/* Main Content */}
                 <div className="lg:col-span-2 space-y-3">
                     {/* Title */}
-                    <div className="bg-card rounded-md border border-border p-6">
+                    <div className="bg-card rounded-md border border-border p-4">
+                        <label className="block text-sm font-medium text-muted-foreground mb-2">
+                            Título do post
+                        </label>
                         <input
                             type="text"
                             value={title}
                             onChange={(e) => handleTitleChange(e.target.value)}
-                            placeholder="Título do post"
-                            className="w-full text-2xl font-bold bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
+                            placeholder="Digite o título do post"
+                            className="w-full text-lg font-semibold bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
                         />
                     </div>
 
