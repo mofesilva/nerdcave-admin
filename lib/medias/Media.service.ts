@@ -153,3 +153,14 @@ export function getMediaUrl({ fileName }: MediaParametersProps): string {
     if (!fileName) return '';
     return `/api/media/${fileName}`;
 }
+
+// ─── COUNTS ──────────────────────────────────────────────────────────────────
+
+export async function countMedias(): Promise<number> {
+    const medias = getMediasCollection();
+    const result = await medias.aggregate([
+        { $match: { deleted: false } },
+        { $count: 'total' }
+    ]);
+    return (result.documents?.[0] as { total?: number })?.total ?? 0;
+}
