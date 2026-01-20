@@ -39,7 +39,10 @@ export function PostCardWithLoader({
     // Modo lista
     if (variant === "list") {
         return (
-            <div className="bg-card rounded-md border border-border p-4 flex gap-4 hover:border-primary/30 transition cursor-pointer">
+            <Link
+                href={`/admin/posts/${article._id}`}
+                className="bg-card rounded-md border border-border p-4 flex gap-4 hover:border-primary/30 transition cursor-pointer"
+            >
                 {/* Cover Image */}
                 <div className="w-32 h-24 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center relative">
                     {coverUrl ? (
@@ -75,31 +78,24 @@ export function PostCardWithLoader({
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.preventDefault()}>
                             <IconButton
                                 icon={<Star className={article.isFeatured ? 'fill-primary' : ''} />}
-                                onClick={() => onToggleFeatured(article)}
+                                onClick={(e) => { e.preventDefault(); onToggleFeatured(article); }}
                                 colorClass={article.isFeatured ? 'text-primary' : 'text-muted-foreground'}
                                 hoverClass={article.isFeatured ? 'hover:bg-primary/30' : 'hover:bg-muted'}
                                 title={article.isFeatured ? 'Remover destaque' : 'Destacar'}
                             />
                             <IconButton
                                 icon={article.status === 'published' ? <Eye /> : <EyeOff />}
-                                onClick={() => onTogglePublish(article)}
+                                onClick={(e) => { e.preventDefault(); onTogglePublish(article); }}
                                 colorClass={article.status === 'published' ? 'text-primary' : 'text-muted-foreground'}
                                 hoverClass={article.status === 'published' ? 'hover:bg-primary/30' : 'hover:bg-muted'}
                                 title={article.status === 'published' ? 'Despublicar' : 'Publicar'}
                             />
-                            <Link
-                                href={`/admin/posts/${article._id}`}
-                                className="p-2 rounded-md bg-card hover:bg-muted text-muted-foreground transition"
-                                title="Editar"
-                            >
-                                <Edit2 className="w-4 h-4" />
-                            </Link>
                             <IconButton
                                 icon={<Trash2 />}
-                                onClick={() => onDelete(article._id)}
+                                onClick={(e) => { e.preventDefault(); onDelete(article._id); }}
                                 colorClass="text-muted-foreground"
                                 hoverClass="hover:bg-red-500/20 hover:text-red-400"
                                 title="Deletar"
@@ -116,7 +112,7 @@ export function PostCardWithLoader({
                         <span>{article.readingTime} min de leitura</span>
                     </div>
                 </div>
-            </div>
+            </Link>
         );
     }
 
