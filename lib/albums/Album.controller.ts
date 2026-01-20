@@ -13,7 +13,11 @@ import {
     publishAlbum,
     unpublishAlbum,
     deleteAlbum,
+    countAlbums,
+    countPublishedAlbums,
+    getAlbumStats,
 } from './Album.service';
+export type { AlbumStats } from './Album.service';
 import type { Album } from './Album.model';
 import type { Media } from '@/lib/medias/Media.model';
 
@@ -40,3 +44,10 @@ export const unpublishAlbumController = ({ id }: { id: string }) => unpublishAlb
 
 // Delete
 export const deleteAlbumController = ({ id }: { id: string }) => deleteAlbum({ id });
+
+// Stats
+export const getAlbumStatsController = () => getAlbumStats();
+
+// Counts (deprecated - use getAlbumStatsController)
+export const countAlbumsController = () => countAlbums();
+export const countPublishedAlbumsController = () => countPublishedAlbums();
