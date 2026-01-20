@@ -1,15 +1,21 @@
 import { Article, ArticleSummary } from './Article.model';
 import { toCamelCaseKeys } from '../utils';
+import { isTiptapContent, EMPTY_TIPTAP_CONTENT, TiptapContent } from '@/types/TiptapContent.types';
 
 export function articleFromDocument(doc: any): Article {
     // Converte todas as chaves de snake_case para camelCase recursivamente
     const data = toCamelCaseKeys(doc) as any;
 
+    // Normaliza o conteúdo JSON do Tiptap
+    const content: TiptapContent | null = isTiptapContent(data.content)
+        ? data.content
+        : EMPTY_TIPTAP_CONTENT;
+
     return {
         _id: data._id ?? '',
         title: data.title ?? '',
         slug: data.slug ?? '',
-        content: data.content ?? '',
+        content,
         coverMedia: data.coverMedia,
         category: data.categoryId ?? data.category,
         tags: data.tagIds ?? data.tags ?? [],
