@@ -18,12 +18,14 @@ import {
     Film,
     Music,
     Palette,
+    LogOut,
 } from "lucide-react";
 import { useAuth } from '@cappuccino/web-sdk';
 import { useAutoLogin } from '@/lib/contexts/AutoLoginContext';
 import { useSystemSettings } from '@/lib/contexts/SystemSettingsContext';
 import ThemeToggle from "./ThemeToggle";
 import ScrollIndicator from "@/_components/ScrollIndicator";
+import IconContainer from "@/_components/IconContainer";
 import Sidebar, { type NavigationEntry, type NavigationItem } from "./Sidebar";
 
 interface AdminLayoutProps {
@@ -136,17 +138,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <Sidebar
                 navigation={navigation}
                 user={user ?? undefined}
-                onLogout={handleLogout}
-                loggingOut={loggingOut}
                 isPinned={isPinned}
                 onTogglePin={() => setIsPinned(!isPinned)}
                 isDrawerOpen={isDrawerOpen}
                 onCloseDrawer={handleCloseDrawer}
             />
 
-            <div className={`flex-1 flex flex-col min-w-0 ${isPinned ? 'md:ml-64' : 'md:ml-20'} transition-[margin] duration-300 ease-in-out`}>
+            <div className="flex-1 flex flex-col min-w-0">
                 <div className={`mx-auto p-4 ${!fullWidthLayout ? 'w-full xl:w-2/3' : 'w-full'}`}>
-                    <header className="h-14 flex items-center justify-between mb-4">
+                    <header className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                             {/* Botão hamburger mobile */}
                             <button
@@ -165,6 +165,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         </div>
                         <div className="flex items-center gap-3">
                             <ThemeToggle />
+                            <button
+                                onClick={handleLogout}
+                                disabled={loggingOut}
+                                title="Sair da conta"
+                                className="cursor-pointer"
+                            >
+                                <IconContainer
+                                    icon={LogOut}
+                                    size="md"
+                                    className={loggingOut ? 'opacity-50' : ''}
+                                />
+                            </button>
                         </div>
                     </header>
 
