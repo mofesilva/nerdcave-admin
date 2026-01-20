@@ -105,36 +105,13 @@ export function toCamelCaseKeys<T extends Record<string, unknown>>(
 // Text Utilities
 // ============================================
 
-/**
- * Decodifica entidades HTML comuns
- */
-function decodeHtmlEntities(text: string): string {
-  const entities: Record<string, string> = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&apos;': "'",
-    '&nbsp;': ' ',
-  };
-  return text.replace(/&(?:amp|lt|gt|quot|#39|apos|nbsp);/g, (match) => entities[match] || match);
-}
+import { TiptapContent, extractTextFromTiptap } from '@/types/TiptapContent.types';
 
 /**
- * Extrai resumo de conteúdo removendo HTML e markdown
+ * Extrai resumo de conteúdo TiptapContent (JSON)
  */
-export function getExcerpt(content: string, maxLength: number = 150): string {
-  // Primeiro decodifica entidades HTML
-  const decoded = decodeHtmlEntities(content);
-
-  // Depois remove tags HTML e markdown
-  const plainText = decoded
-    .replace(/<[^>]*>/g, '')        // Remove tags HTML
-    .replace(/#+\s/g, '')           // Remove headings markdown
-    .replace(/\*\*/g, '')           // Remove bold markdown
-    .replace(/\*/g, '')             // Remove italic markdown
-    .replace(/`/g, '')              // Remove code markdown
+export function getExcerpt(content: TiptapContent | null, maxLength: number = 150): string {
+  const plainText = extractTextFromTiptap(content)
     .replace(/\n+/g, ' ')           // Substitui quebras de linha por espaço
     .replace(/\s+/g, ' ')           // Normaliza espaços múltiplos
     .trim();
