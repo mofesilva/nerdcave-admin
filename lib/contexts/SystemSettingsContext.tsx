@@ -2,11 +2,11 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import * as SettingsController from "@/lib/settings/Settings.controller";
-import type { Settings } from "@/lib/settings/Settings.model";
+import type { SystemSetting } from "@/lib/settings/Settings.model";
 import { useAutoLogin } from "./AutoLoginContext";
 
 interface SystemSettingsContextType {
-    layoutSettings: Settings | null;
+    layoutSettings: SystemSetting | null;
     fullWidthLayout: boolean;
     loading: boolean;
     updateFullWidthLayout: (value: boolean) => Promise<void>;
@@ -17,14 +17,14 @@ const SystemSettingsContext = createContext<SystemSettingsContextType | undefine
 
 export function SystemSettingsProvider({ children }: { children: ReactNode }) {
     const { isReady: isAuthReady } = useAutoLogin();
-    const [layoutSettings, setLayoutSettings] = useState<Settings | null>(null);
+    const [layoutSettings, setLayoutSettings] = useState<SystemSetting | null>(null);
     const [fullWidthLayout, setFullWidthLayout] = useState(false);
     const [loading, setLoading] = useState(true);
 
     const fetchSettings = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await SettingsController.getSettingsByCategory({ category: 'layout' });
+            const data = await SettingsController.getSystemSetting({ category: 'layout' });
             if (data) {
                 setLayoutSettings(data);
                 setFullWidthLayout(data.fullWidthLayout ?? false);
@@ -44,7 +44,7 @@ export function SystemSettingsProvider({ children }: { children: ReactNode }) {
 
     const updateFullWidthLayout = async (value: boolean) => {
         try {
-            const updated = await SettingsController.updateSettingsByCategory({
+            const updated = await SettingsController.updateSystemSetting({
                 category: 'layout',
                 updates: { fullWidthLayout: value }
             });
