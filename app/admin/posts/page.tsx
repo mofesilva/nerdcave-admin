@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Plus, FileText, Loader2, LayoutGrid, List, ArrowDownAZ, Clock, FolderOpen } from "lucide-react";
+import { Plus, FileText, Loader2, LayoutGrid, List, ArrowDownAZ, ArrowUpZA, CalendarPlus, CalendarClock, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import FilterDropdown from "@/_components/FilterDropdown";
 import Button from "@/_components/Button";
 import SegmentedControl from "@/_components/SegmentedControl";
 import StatusBadges from "@/_components/StatusBadges";
 import Toolbar from "@/_components/Toolbar";
+import ConfirmDialog from "@/_components/ConfirmDialog";
 import { PostCardWithLoader } from "./_components/PostCardWithLoader";
 import * as ArticlesController from "@/lib/articles/Article.controller";
 import * as CategoriesController from "@/lib/categories/Category.controller";
@@ -22,8 +23,11 @@ export default function PostsPage() {
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'published' | 'scheduled'>('all');
-    const [sortBy, setSortBy] = useState<'alphabetical' | 'date' | 'category'>('date');
+    const [sortBy, setSortBy] = useState<'a-z' | 'z-a' | 'created' | 'edited' | 'category'>('created');
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [articleToDelete, setArticleToDelete] = useState<string | null>(null);
+    const [deleting, setDeleting] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -51,8 +55,7 @@ export default function PostsPage() {
     }
 
     const filteredArticles = articles.filter(article => {
-        const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            article.content.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === 'all' || article.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
@@ -60,12 +63,18 @@ export default function PostsPage() {
     const sortedArticles = useMemo(() => {
         return [...filteredArticles].sort((a, b) => {
             switch (sortBy) {
-                case 'alphabetical':
+                case 'a-z':
                     return a.title.localeCompare(b.title);
-                case 'date':
-                    const dateA = a.publishedAt || a.scheduledAt || '';
-                    const dateB = b.publishedAt || b.scheduledAt || '';
-                    return new Date(dateB).getTime() - new Date(dateA).getTime();
+                case 'z-a':
+                    return b.title.localeCompare(a.title);
+                case 'created':
+                    const createdA = a.createdAt || '';
+                    const createdB = b.createdAt || '';
+                    return new Date(createdB).getTime() - new Date(createdA).getTime();
+                case 'edited':
+                    const editedA = a.updatedAt || a.createdAt || '';
+                    const editedB = b.updatedAt || b.createdAt || '';
+                    return new Date(editedB).getTime() - new Date(editedA).getTime();
                 case 'category':
                     const catA = getCategoryName(a.category);
                     const catB = getCategoryName(b.category);
@@ -76,14 +85,24 @@ export default function PostsPage() {
         });
     }, [filteredArticles, sortBy]);
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Tem certeza que deseja deletar este artigo?')) return;
+    const openDeleteDialog = (id: string) => {
+        setArticleToDelete(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDelete = async () => {
+        if (!articleToDelete) return;
 
         try {
-            await ArticlesController.deleteArticle({ id });
-            setArticles(prev => prev.filter(a => a._id !== id));
+            setDeleting(true);
+            await ArticlesController.deleteArticle({ id: articleToDelete });
+            setArticles(prev => prev.filter(a => a._id !== articleToDelete));
+            setDeleteDialogOpen(false);
+            setArticleToDelete(null);
         } catch (err) {
             console.error('Erro ao deletar:', err);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -140,29 +159,27 @@ export default function PostsPage() {
 
     return (
         <div className="space-y-3">
-            {/* Search Bar */}
-            <Toolbar
-                search={searchQuery}
-                onSearchChange={setSearchQuery}
-                searchPlaceholder="Buscar posts..."
-            />
-
-            {/* Filters Row */}
-            <div className="flex flex-wrap items-center gap-x-1 gap-y-2 sm:gap-x-2 min-h-10">
-                <div className="overflow-x-auto scrollbar-hide -mx-1 px-1">
-                    <SegmentedControl
-                        options={[
-                            { value: 'all', label: 'Todos' },
-                            { value: 'draft', label: 'Rascunhos' },
-                            { value: 'published', label: 'Publicados' },
-                            { value: 'scheduled', label: 'Agendados' },
-                        ]}
-                        value={statusFilter}
-                        onChange={setStatusFilter}
-                    />
-                </div>
-
-                <div className="flex items-center gap-1 sm:gap-2 flex-1">
+            {/* Mobile Layout */}
+            <div className="sm:hidden space-y-3">
+                {/* Row 1: Search */}
+                <Toolbar
+                    search={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    searchPlaceholder="Buscar posts..."
+                />
+                {/* Row 2: Status Filter */}
+                <SegmentedControl
+                    options={[
+                        { value: 'all', label: 'Todos' },
+                        { value: 'draft', label: 'Rascunhos' },
+                        { value: 'published', label: 'Publicados' },
+                        { value: 'scheduled', label: 'Agendados' },
+                    ]}
+                    value={statusFilter}
+                    onChange={setStatusFilter}
+                />
+                {/* Row 3: Toggle + Sort + Button */}
+                <div className="flex items-center gap-2">
                     <SegmentedControl
                         options={[
                             { value: 'list', label: 'Lista', icon: List },
@@ -172,24 +189,67 @@ export default function PostsPage() {
                         onChange={setViewMode}
                         iconOnly
                     />
-
                     <FilterDropdown
                         value={sortBy}
-                        onChange={(value) => setSortBy(value as 'alphabetical' | 'date' | 'category')}
+                        onChange={(value) => setSortBy(value as 'a-z' | 'z-a' | 'created' | 'edited' | 'category')}
                         options={[
-                            { value: 'alphabetical', label: 'Ordem Alfabética', icon: ArrowDownAZ },
-                            { value: 'date', label: 'Data', icon: Clock },
+                            { value: 'a-z', label: 'A-Z', icon: ArrowDownAZ },
+                            { value: 'z-a', label: 'Z-A', icon: ArrowUpZA },
+                            { value: 'created', label: 'Data Criação', icon: CalendarPlus },
+                            { value: 'edited', label: 'Data Edição', icon: CalendarClock },
                             { value: 'category', label: 'Categoria', icon: FolderOpen },
                         ]}
                         label="Ordenar por"
                     />
-
                     <Link href="/admin/posts/new" className="flex-1">
-                        <Button icon={Plus} className="w-full">
-                            Novo Post
-                        </Button>
+                        <Button icon={Plus} className="w-full">Novo Post</Button>
                     </Link>
                 </div>
+            </div>
+
+            {/* Desktop Layout - Tudo em 1 linha */}
+            <div className="hidden sm:flex items-center gap-3">
+                <Toolbar
+                    search={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    searchPlaceholder="Buscar posts..."
+                    className="flex-1 max-w-md"
+                />
+                <SegmentedControl
+                    options={[
+                        { value: 'all', label: 'Todos' },
+                        { value: 'draft', label: 'Rascunhos' },
+                        { value: 'published', label: 'Publicados' },
+                        { value: 'scheduled', label: 'Agendados' },
+                    ]}
+                    value={statusFilter}
+                    onChange={setStatusFilter}
+                />
+                <SegmentedControl
+                    options={[
+                        { value: 'list', label: 'Lista', icon: List },
+                        { value: 'grid', label: 'Grid', icon: LayoutGrid },
+                    ]}
+                    value={viewMode}
+                    onChange={setViewMode}
+                    iconOnly
+                />
+                <FilterDropdown
+                    value={sortBy}
+                    onChange={(value) => setSortBy(value as 'a-z' | 'z-a' | 'created' | 'edited' | 'category')}
+                    options={[
+                        { value: 'a-z', label: 'A-Z', icon: ArrowDownAZ },
+                        { value: 'z-a', label: 'Z-A', icon: ArrowUpZA },
+                        { value: 'created', label: 'Data Criação', icon: CalendarPlus },
+                        { value: 'edited', label: 'Data Edição', icon: CalendarClock },
+                        { value: 'category', label: 'Categoria', icon: FolderOpen },
+                    ]}
+                    label="Ordenar por"
+                />
+                <div className="flex-1" />
+                <Link href="/admin/posts/new">
+                    <Button icon={Plus}>Novo Post</Button>
+                </Link>
             </div>
 
             {error && (
@@ -227,7 +287,7 @@ export default function PostsPage() {
                                 media={getMedia(article)}
                                 categoryName={getCategoryName(article.category)}
                                 variant="list"
-                                onDelete={handleDelete}
+                                onDelete={openDeleteDialog}
                                 onTogglePublish={handleTogglePublish}
                                 onToggleFeatured={handleToggleFeatured}
                                 formatDate={formatDate}
@@ -244,7 +304,7 @@ export default function PostsPage() {
                                 media={getMedia(article)}
                                 categoryName={getCategoryName(article.category)}
                                 variant="grid"
-                                onDelete={handleDelete}
+                                onDelete={openDeleteDialog}
                                 onTogglePublish={handleTogglePublish}
                                 onToggleFeatured={handleToggleFeatured}
                                 formatDate={formatDate}
@@ -254,6 +314,19 @@ export default function PostsPage() {
                     </div>
                 )
             )}
+
+            {/* Delete Confirmation Dialog */}
+            <ConfirmDialog
+                isOpen={deleteDialogOpen}
+                onClose={() => { setDeleteDialogOpen(false); setArticleToDelete(null); }}
+                onConfirm={handleDelete}
+                title="Deletar artigo"
+                message="Tem certeza que deseja deletar este artigo? Esta ação não pode ser desfeita."
+                confirmLabel="Deletar"
+                cancelLabel="Cancelar"
+                variant="danger"
+                loading={deleting}
+            />
         </div>
     );
 }
