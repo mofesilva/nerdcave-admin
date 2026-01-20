@@ -1,3 +1,10 @@
+/**
+ * ⚠️ NÃO MEXA NESSE COMPONENTE ⚠️
+ * 
+ * Este componente está funcionando corretamente.
+ * Qualquer alteração pode quebrar o layout em múltiplas páginas.
+ */
+
 "use client";
 
 import { Search, X } from "lucide-react";
@@ -44,9 +51,9 @@ export default function Toolbar({
     };
 
     return (
-        <div className={`flex flex-wrap items-stretch gap-3 ${height} ${className}`}>
+        <div className={`flex items-stretch gap-2 sm:gap-3 ${height} ${className}`}>
             {!hideSearch && (
-                <div className={`flex items-center gap-2 bg-card rounded-md px-3 min-w-[200px] flex-1 max-w-md border border-border focus-within:border-primary transition-colors`}>
+                <div className={`flex items-center gap-2 bg-card rounded-md px-3 min-w-[200px] flex-1 sm:max-w-md border border-border focus-within:border-primary transition-colors`}>
                     <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                     <input
                         type="text"
