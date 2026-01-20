@@ -41,44 +41,39 @@ export function PostCardWithLoader({
         return (
             <Link
                 href={`/admin/posts/${article._id}`}
-                className="bg-card rounded-md border border-border p-4 flex gap-4 hover:border-primary/30 transition cursor-pointer"
+                className="bg-card rounded-md border border-border p-3 sm:p-4 flex gap-3 sm:gap-4 hover:border-primary/30 transition cursor-pointer"
             >
                 {/* Cover Image */}
-                <div className="w-32 h-24 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center relative">
+                <div className="w-24 h-20 sm:w-32 sm:h-24 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center relative">
                     {coverUrl ? (
                         <SkeletonImage
                             src={coverUrl}
                             alt={article.title}
                             fill
-                            sizes="128px"
+                            sizes="(max-width: 640px) 96px, 128px"
                             className="object-cover"
                         />
                     ) : (
-                        <FileText className="w-8 h-8 text-muted-foreground" />
+                        <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
                     )}
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                                {getStatusBadge(article.status)}
-                                {article.isFeatured && (
-                                    <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                                )}
-                                <span className="text-xs text-muted-foreground">
-                                    {categoryName}
-                                </span>
-                            </div>
-                            <h3 className="font-semibold text-foreground truncate">{article.title}</h3>
-                            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                {getExcerpt(article.content, 100) || 'Sem resumo'}
-                            </p>
+                <div className="flex-1 min-w-0 flex flex-col">
+                    {/* Header: Status + Category + Actions */}
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-wrap">
+                            {getStatusBadge(article.status)}
+                            {article.isFeatured && (
+                                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400 shrink-0" />
+                            )}
+                            <span className="text-xs text-muted-foreground truncate hidden sm:inline">
+                                {categoryName}
+                            </span>
                         </div>
 
-                        {/* Actions */}
-                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.preventDefault()}>
+                        {/* Actions - hidden on mobile, visible on hover/focus on desktop */}
+                        <div className="hidden sm:flex items-center gap-1 shrink-0" onClick={(e) => e.preventDefault()}>
                             <IconButton
                                 icon={<Star className={article.isFeatured ? 'fill-primary' : ''} />}
                                 onClick={(e) => { e.preventDefault(); onToggleFeatured(article); }}
@@ -103,13 +98,23 @@ export function PostCardWithLoader({
                         </div>
                     </div>
 
+                    {/* Title */}
+                    <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-2 sm:truncate">
+                        {article.title}
+                    </h3>
+
+                    {/* Excerpt - hidden on mobile */}
+                    <p className="hidden sm:block text-sm text-muted-foreground line-clamp-1 mt-1">
+                        {getExcerpt(article.content, 80) || 'Sem resumo'}
+                    </p>
+
                     {/* Meta */}
-                    <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 sm:gap-4 mt-auto pt-2 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {article.status === 'published' ? formatDate(article.publishedAt) : 'Não publicado'}
+                            {article.status === 'published' ? formatDate(article.publishedAt) : 'Rascunho'}
                         </span>
-                        <span>{article.readingTime} min de leitura</span>
+                        <span>{article.readingTime} min</span>
                     </div>
                 </div>
             </Link>
