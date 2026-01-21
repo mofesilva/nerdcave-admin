@@ -21,18 +21,15 @@ export default function SidebarHeader({ isExpanded, isPinned = false, onTogglePi
         ? getMediaUrl({ fileName: sidebarLogo.fileName })
         : "/images/logos/nerdcave-white.png";
 
-    // Sidebar fechada = 80px (w-20), botão = 36px
-    // Centro fechado = (80 - 36) / 2 = 22px
+    // Sidebar fechada = 56px (w-14) em telas menores, 80px (w-20) em 2xl+
+    // Botão ~32px, então centro = (56-32)/2 = 12px em md, (80-32)/2 = 24px em 2xl
     return (
-        <div className="mb-6 flex flex-col gap-4">
+        <div className="mb-4 2xl:mb-6 flex flex-col gap-3 2xl:gap-4">
             {/* Toggle button - posição relativa com left animado */}
             {!hideToggle && (
-                <div className="relative h-10 flex items-center">
+                <div className="relative h-8 2xl:h-10 flex items-center">
                     <div
-                        className="absolute transition-all duration-300 ease-in-out"
-                        style={{
-                            left: isExpanded ? 'calc(100% - 48px)' : '22px'
-                        }}
+                        className={`absolute transition-all duration-300 ease-in-out ${isExpanded ? 'right-3' : 'left-1/2 -translate-x-1/2'}`}
                     >
                         <IconButton
                             icon={isPinned ? <PanelLeftClose /> : <PanelLeft />}
@@ -50,7 +47,7 @@ export default function SidebarHeader({ isExpanded, isPinned = false, onTogglePi
                     alt="Logo"
                     width={100}
                     height={100}
-                    className={`object-contain transition-all duration-300 ease-in-out ${isExpanded ? 'w-24 h-24' : 'w-10 h-10'}`}
+                    className={`object-contain transition-all duration-300 ease-in-out ${isExpanded ? 'w-20 h-20 2xl:w-24 2xl:h-24' : 'w-8 h-8 2xl:w-10 2xl:h-10'}`}
                 />
             </div>
         </div>

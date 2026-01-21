@@ -87,17 +87,17 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
                 key={item.name}
                 href={item.href}
                 title={!isExpanded ? item.name : undefined}
-                className="flex items-center rounded-md h-12 transition-colors"
+                className="flex items-center rounded-md h-10 2xl:h-12 transition-colors"
                 style={style}
                 onMouseEnter={() => setHoveredItem(item.href)}
                 onMouseLeave={() => setHoveredItem(null)}
             >
-                <div className="w-14 h-11 flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5" />
+                <div className="w-10 2xl:w-14 h-9 2xl:h-11 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4 2xl:w-5 2xl:h-5" />
                 </div>
                 <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'w-40 opacity-100' : 'w-0 opacity-0'
                     }`}>
-                    <span className="text-sm font-medium whitespace-nowrap">{item.name}</span>
+                    <span className="text-xs 2xl:text-sm font-medium whitespace-nowrap">{item.name}</span>
                 </div>
             </Link>
         );
@@ -107,12 +107,12 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
         return (
             <div key={section.name}>
                 {/* Divider antes */}
-                <div className="my-3 mx-2 border-t" style={{ borderColor: `${textColor}33` }} />
+                <div className="my-2 2xl:my-3 mx-2 border-t" style={{ borderColor: `${textColor}33` }} />
 
                 {/* Section title - só aparece quando expandido */}
                 {isExpanded && (
-                    <div className="px-4 py-2">
-                        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: `${textColor}80` }}>
+                    <div className="px-4 py-1.5 2xl:py-2">
+                        <span className="text-[10px] 2xl:text-xs font-semibold uppercase tracking-wider" style={{ color: `${textColor}80` }}>
                             {section.name}
                         </span>
                     </div>
@@ -125,7 +125,7 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
 
                 {/* Divider depois (se for a última seção e houver items depois) */}
                 {isLastSection && (
-                    <div className="my-3 mx-2 border-t" style={{ borderColor: `${textColor}33` }} />
+                    <div className="my-2 2xl:my-3 mx-2 border-t" style={{ borderColor: `${textColor}33` }} />
                 )}
             </div>
         );
@@ -143,7 +143,7 @@ export default function NavigationMenu({ items, isExpanded }: NavigationMenuProp
         <div className="relative flex-1 w-full flex flex-col overflow-hidden">
             <nav
                 ref={navRef}
-                className="flex-1 w-full px-3 space-y-1 flex flex-col overflow-y-auto scrollbar-hide overscroll-contain"
+                className="flex-1 w-full px-2 2xl:px-3 space-y-0.5 2xl:space-y-1 flex flex-col overflow-y-auto scrollbar-hide overscroll-contain"
             >
                 {items.map((entry, index) =>
                     isSection(entry)

@@ -87,8 +87,8 @@ export default function Sidebar({
     return (
         <>
             <aside
-                className={`hidden md:flex ${isPinned ? 'w-72' : 'w-20'
-                    } h-screen flex-col py-6 pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden sticky top-0`}
+                className={`hidden md:flex ${isPinned ? 'w-58 2xl:w-72' : 'w-14 2xl:w-20'
+                    } h-screen flex-col py-4 2xl:py-6 pb-3 2xl:pb-4 transition-[width] duration-300 ease-in-out shrink-0 overflow-hidden sticky top-0`}
                 style={{ backgroundColor: sidebarBg, color: sidebarText }}
             >
                 <SidebarHeader
@@ -140,6 +140,7 @@ export default function Sidebar({
                 </div>
 
                 {/* Navegação */}
+
                 <NavigationMenu items={navigation} isExpanded={true} />
 
                 {/* Seção inferior com usuário */}
