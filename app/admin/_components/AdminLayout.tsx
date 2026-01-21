@@ -23,9 +23,8 @@ import {
 import { useAuth } from '@cappuccino/web-sdk';
 import { useAutoLogin } from '@/lib/contexts/AutoLoginContext';
 import { useSystemSettings } from '@/lib/contexts/SystemSettingsContext';
-import ThemeToggle from "./ThemeToggle";
-import ScrollIndicator from "@/_components/ScrollIndicator";
-import IconContainer from "@/_components/IconContainer";
+import PageHeader from "./PageHeader";
+import FloatingScrollIndicators from "./FloatingScrollIndicators";
 import Sidebar, { type NavigationEntry, type NavigationItem } from "./Sidebar";
 
 interface AdminLayoutProps {
@@ -146,59 +145,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             <div className="flex-1 flex flex-col min-w-0">
                 <div className={`mx-auto p-4 ${!fullWidthLayout ? 'w-full xl:w-2/3' : 'w-full'}`}>
-                    <header className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                            {/* Botão hamburger mobile */}
-                            <button
-                                onClick={() => setIsDrawerOpen(true)}
-                                className="md:hidden p-2 rounded-md hover:bg-muted text-foreground"
-                                aria-label="Abrir menu"
-                            >
-                                <Menu className="w-5 h-5" />
-                            </button>
-                            <div>
-                                <h1 className="text-base sm:text-lg font-semibold text-foreground">{pageTitle}</h1>
-                                {pageDescription && (
-                                    <p className="text-muted-foreground text-[11px] sm:text-xs hidden sm:block">{pageDescription}</p>
-                                )}
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 sm:gap-3">
-                            <ThemeToggle />
-                            <button
-                                onClick={handleLogout}
-                                disabled={loggingOut}
-                                title="Sair da conta"
-                                className="cursor-pointer"
-                            >
-                                <IconContainer
-                                    icon={LogOut}
-                                    size="md"
-                                    className={loggingOut ? 'opacity-50' : ''}
-                                />
-                            </button>
-                        </div>
-                    </header>
+                    <PageHeader
+                        pageTitle={pageTitle}
+                        pageDescription={pageDescription}
+                        onMenuClick={() => setIsDrawerOpen(true)}
+                        onLogout={handleLogout}
+                        loggingOut={loggingOut}
+                    />
 
                     <main className="flex-1">
-                        <div className="w-full">
-                            {children}
-                        </div>
+                        {children}
                     </main>
                 </div>
             </div>
-
-            {/* Scroll indicators fixos na tela */}
-            {pageCanScrollUp && (
-                <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 md:left-[calc(50%+2.5rem)]">
-                    <ScrollIndicator direction="up" fixed />
-                </div>
-            )}
-            {pageCanScrollDown && (
-                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 md:left-[calc(50%+2.5rem)]">
-                    <ScrollIndicator direction="down" fixed />
-                </div>
-            )}
+            <FloatingScrollIndicators
+                canScrollUp={pageCanScrollUp}
+                canScrollDown={pageCanScrollDown}
+            />
         </div>
     );
 }
