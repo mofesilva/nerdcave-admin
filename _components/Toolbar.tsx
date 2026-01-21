@@ -9,6 +9,7 @@
 
 import { Search, X } from "lucide-react";
 import IconButton from "./IconButton";
+import { ToolbarProvider } from "./ToolbarContext";
 
 interface ToolbarProps {
     /** Valor do campo de busca */
@@ -19,7 +20,7 @@ interface ToolbarProps {
     onSearch?: (value: string) => void;
     /** Placeholder do campo de busca */
     searchPlaceholder?: string;
-    /** Altura da toolbar (default: h-12) */
+    /** Altura da toolbar e dos filhos (default: h-8) */
     height?: string;
     /** Esconde o campo de busca */
     hideSearch?: boolean;
@@ -51,24 +52,26 @@ export default function Toolbar({
     };
 
     return (
-        <div className={`flex items-stretch gap-2 sm:gap-3 ${height} ${className}`}>
-            {!hideSearch && (
-                <div className={`flex items-center gap-2 bg-card rounded-md px-3 min-w-[200px] flex-1 sm:max-w-md border border-border focus-within:border-primary transition-colors`}>
-                    <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                    <input
-                        type="text"
-                        value={search}
-                        onChange={(e) => onSearchChange?.(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={searchPlaceholder}
-                        className="bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground flex-1 min-w-0"
-                    />
-                    {search && (
-                        <IconButton icon={<X />} onClick={handleClear} />
-                    )}
-                </div>
-            )}
-            {children}
-        </div>
+        <ToolbarProvider height={height}>
+            <div className={`flex items-stretch gap-2 ${height} ${className}`}>
+                {!hideSearch && (
+                    <div className={`flex items-center gap-1 bg-card rounded-md px-2 sm:px-3 min-w-[160px] sm:min-w-[200px] flex-1 sm:max-w-md border border-border focus-within:border-primary transition-colors`}>
+                        <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(e) => onSearchChange?.(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            placeholder={searchPlaceholder}
+                            className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-muted-foreground flex-1 min-w-0"
+                        />
+                        {search && (
+                            <IconButton icon={<X />} onClick={handleClear} />
+                        )}
+                    </div>
+                )}
+                {children}
+            </div>
+        </ToolbarProvider>
     );
 }
