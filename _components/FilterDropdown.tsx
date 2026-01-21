@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { ArrowUpDown, LucideIcon, Check, ChevronUp, ChevronDown } from 'lucide-react';
+import { useToolbarHeight } from './ToolbarContext';
 
 interface FilterOption {
     value: string;
@@ -24,6 +25,7 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
     const [canScrollDown, setCanScrollDown] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const listRef = useRef<HTMLDivElement>(null);
+    const toolbarHeight = useToolbarHeight("h-8");
 
     const selectedOption = options.find(opt => opt.value === value);
     const needsScroll = options.length > 6; // Só precisa de scroll se tiver mais de 6 opções
@@ -79,7 +81,7 @@ export default function FilterDropdown({ value, onChange, options, label = "Orde
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 title={selectedOption?.label || label}
-                className={`flex items-center justify-center h-10 w-10 bg-card border border-border rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${isOpen
+                className={`flex items-center justify-center ${toolbarHeight} aspect-square bg-card border border-border rounded-md text-xs font-medium transition-all duration-200 cursor-pointer ${isOpen
                     ? 'border-primary text-foreground'
                     : 'text-muted-foreground hover:text-foreground hover:border-muted-foreground/50'
                     }`}
