@@ -68,13 +68,25 @@ export async function createArticle({ data }: ArticleParametersProps): Promise<A
     if (result.error || !result.document) {
         throw new Error(result.errorMsg || 'Failed to create article');
     }
+
+    // Incrementar contagem de uso das tags
+    if (data?.tags && data.tags.length > 0) {
+        for (const tagId of data.tags) {
+            await updateTagUsageCount(tagId, 1);
+        }
+    }
+
     return articleFromDocument(result.document);
 }
 
 export async function updateArticle({ id, updates }: ArticleParametersProps): Promise<Article | null> {
     if (!updates) return null;
-    const articles = getArticlesCollection();
 
+    // Busca o artigo atual para comparar tags
+    const currentArticle = await getArticleById({ id });
+    if (!currentArticle) return null;
+
+    const articles = getArticlesCollection();
     const updateData: Partial<Article> = { ...updates };
 
     if (updates.content) {
@@ -85,14 +97,56 @@ export async function updateArticle({ id, updates }: ArticleParametersProps): Pr
         updateData.slug = generateSlug(updates.title);
     }
 
+    // Atualizar contagem de tags se as tags mudaram
+    if (updates.tags !== undefined) {
+        const oldTags = currentArticle.tags || [];
+        const newTags = updates.tags || [];
+
+        // Tags removidas: decrementar
+        const removedTags = oldTags.filter(tagId => !newTags.includes(tagId));
+        for (const tagId of removedTags) {
+            await updateTagUsageCount(tagId, -1);
+        }
+
+        // Tags adicionadas: incrementar
+        const addedTags = newTags.filter(tagId => !oldTags.includes(tagId));
+        for (const tagId of addedTags) {
+            await updateTagUsageCount(tagId, 1);
+        }
+    }
+
     const result = await articles.updateOne(id!, updateData);
     if (result.error) return null;
     return getArticleById({ id });
 }
 
+async function updateTagUsageCount(tagId: string, delta: number): Promise<void> {
+    const { getTagsCollection } = await import('../tags/Tags.collection');
+    const { getTagById } = await import('../tags/Tag.service');
+
+    const tag = await getTagById({ id: tagId });
+    if (!tag) return;
+
+    const newCount = Math.max(0, tag.usageCount + delta);
+    const tags = getTagsCollection();
+    await tags.updateOne(tagId, { usageCount: newCount });
+}
+
 export async function deleteArticle({ id }: ArticleParametersProps): Promise<boolean> {
+    // Busca o artigo antes de deletar para decrementar contagem de tags
+    const article = await getArticleById({ id });
+    if (!article) return false;
+
     const articles = getArticlesCollection();
     const result = await articles.updateOne(id!, { deleted: true });
+
+    if (!result.error && article.tags && article.tags.length > 0) {
+        // Decrementar contagem de uso das tags
+        for (const tagId of article.tags) {
+            await updateTagUsageCount(tagId, -1);
+        }
+    }
+
     return !result.error;
 }
 
