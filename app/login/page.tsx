@@ -72,22 +72,22 @@ export default function LoginPage() {
         backgroundRepeat: 'no-repeat',
       }}
     >
-      <div className="max-w-md w-full">
-        <div className="bg-white/10 backdrop-blur-md rounded-md shadow-2xl p-8 border border-white/20">
+      <div className="max-w-sm w-full">
+        <div className="bg-white/10 backdrop-blur-md rounded-md shadow-2xl p-6 border border-white/20">
           {/* Logo/Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-5">
             <Image
               src={logoUrl}
               alt="Logo"
-              width={200}
-              height={80}
-              className="mx-auto mb-4"
+              width={160}
+              height={64}
+              className="mx-auto mb-2"
               priority
             />
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             {error && (
               <div className="bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 rounded-md text-sm">
                 {error}
@@ -95,7 +95,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="login" className="block text-sm font-medium text-gray-200 mb-2">
+              <label htmlFor="login" className="block text-sm font-medium text-gray-200 mb-1.5">
                 Usuário
               </label>
               <input
@@ -105,7 +105,7 @@ export default function LoginPage() {
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
                 placeholder="seu_usuario"
                 autoComplete="new-password"
                 disabled={loading}
@@ -113,7 +113,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-1.5">
                 Senha
               </label>
               <input
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2.5 bg-white/5 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-sm"
                 placeholder="••••••••"
                 autoComplete="new-password"
                 disabled={loading}
@@ -147,7 +147,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading || initializing}
               loading={loading}
-              size="lg"
+              size="md"
               bgColor="bg-nerdcave-purple"
               textColor="text-white"
               className="w-full"
@@ -157,7 +157,7 @@ export default function LoginPage() {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center">
             <a href="/" className=" text-nerdcave-light hover:text-nerdcave-lime text-sm transition-colors">
               ← Voltar para o site
             </a>
