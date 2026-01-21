@@ -5,18 +5,20 @@ import { LucideIcon } from "lucide-react";
 
 interface IconContainerProps {
     icon: LucideIcon | React.ElementType;
-    size?: "sm" | "md" | "lg";
+    size?: "xs" | "sm" | "md" | "lg";
     variant?: "primary" | "secondary" | "muted" | "success" | "warning" | "destructive" | "accent";
     className?: string;
 }
 
 const sizeClasses = {
+    xs: "w-4 h-4",
     sm: "w-8 h-8",
     md: "w-10 h-10",
     lg: "w-12 h-12",
 };
 
 const iconSizeClasses = {
+    xs: "w-2.5 h-2.5",
     sm: "w-4 h-4",
     md: "w-5 h-5",
     lg: "w-6 h-6",
@@ -29,7 +31,7 @@ const variantClasses = {
     success: "bg-emerald-500 text-white dark:bg-emerald-600",
     warning: "bg-amber-500 text-white dark:bg-amber-600",
     destructive: "bg-destructive text-destructive-foreground",
-    accent: "bg-primary text-primary-foreground",
+    accent: "bg-primary/20 text-primary",
 };
 
 export default function IconContainer({
