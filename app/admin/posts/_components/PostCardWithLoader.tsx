@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Star, Edit2, Trash2, Eye, EyeOff, Calendar } from "lucide-react";
-import IconButton from "@/_components/IconButton";
-import SkeletonImage from "@/_components/SkeletonImage";
+import {
+    PostCoverImage,
+    PostCardActionsRow,
+    PostCardTitle,
+    PostCardMetaRow,
+    PostCardExcerpt,
+} from ".";
 import type { Article } from "@/lib/articles/Article.model";
 import type { Media } from "@/lib/medias/Media.model";
 import * as MediaController from "@/lib/medias/Media.controller";
-import { getExcerpt } from "@/lib/utils";
 
 interface PostCardWithLoaderProps {
     article: Article;
@@ -43,78 +46,33 @@ export function PostCardWithLoader({
                 href={`/admin/posts/${article._id}`}
                 className="bg-card rounded-md border border-border p-3 sm:p-4 flex gap-3 sm:gap-4 hover:border-primary/30 transition cursor-pointer"
             >
-                {/* Cover Image */}
-                <div className="w-24 h-20 sm:w-32 sm:h-24 rounded-md overflow-hidden bg-muted shrink-0 flex items-center justify-center relative">
-                    {coverUrl ? (
-                        <SkeletonImage
-                            src={coverUrl}
-                            alt={article.title}
-                            fill
-                            sizes="(max-width: 640px) 96px, 128px"
-                            className="object-cover"
+                <PostCoverImage coverUrl={coverUrl} title={article.title} variant="list" />
+                <div className="flex-1 min-w-0 flex flex-col justify-start">
+                    <div className="flex items-center justify-between gap-1">
+                        <PostCardTitle title={article.title} variant="list" />
+                        <PostCardActionsRow
+                            article={article}
+                            variant="list"
+                            onDelete={onDelete}
+                            onTogglePublish={onTogglePublish}
+                            onToggleFeatured={onToggleFeatured}
                         />
-                    ) : (
-                        <FileText className="w-6 h-6 sm:w-8 sm:h-8 text-muted-foreground" />
-                    )}
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 min-w-0 flex flex-col">
-                    {/* Header: Status + Category + Actions */}
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-wrap">
-                            {getStatusBadge(article.status)}
-                            {article.isFeatured && (
-                                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 fill-yellow-400 shrink-0" />
-                            )}
-                            <span className="text-xs text-muted-foreground truncate hidden sm:inline">
-                                {categoryName}
-                            </span>
-                        </div>
-
-                        {/* Actions - hidden on mobile, visible on hover/focus on desktop */}
-                        <div className="hidden sm:flex items-center gap-1 shrink-0" onClick={(e) => e.preventDefault()}>
-                            <IconButton
-                                icon={<Star className={article.isFeatured ? 'fill-primary' : ''} />}
-                                onClick={(e) => { e.preventDefault(); onToggleFeatured(article); }}
-                                colorClass={article.isFeatured ? 'text-primary' : 'text-muted-foreground'}
-                                hoverClass={article.isFeatured ? 'hover:bg-primary/30' : 'hover:bg-muted'}
-                                title={article.isFeatured ? 'Remover destaque' : 'Destacar'}
-                            />
-                            <IconButton
-                                icon={article.status === 'published' ? <Eye /> : <EyeOff />}
-                                onClick={(e) => { e.preventDefault(); onTogglePublish(article); }}
-                                colorClass={article.status === 'published' ? 'text-primary' : 'text-muted-foreground'}
-                                hoverClass={article.status === 'published' ? 'hover:bg-primary/30' : 'hover:bg-muted'}
-                                title={article.status === 'published' ? 'Despublicar' : 'Publicar'}
-                            />
-                            <IconButton
-                                icon={<Trash2 />}
-                                onClick={(e) => { e.preventDefault(); onDelete(article._id); }}
-                                colorClass="text-muted-foreground"
-                                hoverClass="hover:bg-red-500/20 hover:text-red-400"
-                                title="Deletar"
-                            />
-                        </div>
                     </div>
-
-                    {/* Title */}
-                    <h3 className="font-semibold text-foreground text-sm sm:text-base line-clamp-2 sm:truncate">
-                        {article.title}
-                    </h3>
-
-                    {/* Excerpt - hidden on mobile */}
-                    <p className="hidden sm:block text-sm text-muted-foreground line-clamp-1 mt-1">
-                        {getExcerpt(article.content, 80) || 'Sem resumo'}
-                    </p>
+                    <PostCardMetaRow
+                        status={article.status}
+                        publishedAt={article.publishedAt}
+                        readingTime={article.readingTime}
+                        formatDate={formatDate}
+                        variant="list"
+                    />
+                    <PostCardExcerpt content={article.content} maxLength={500} variant="list" />
 
                     {/* Meta */}
-                    <div className="flex items-center gap-2 sm:gap-4 mt-auto pt-2 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {article.status === 'published' ? formatDate(article.publishedAt) : 'Rascunho'}
+                    <div className="flex items-center gap-2 sm:gap-3 mt-auto pt-1 text-xs text-muted-foreground">
+                        {getStatusBadge(article.status)}
+                        <span className="px-2 py-1 text-[10px] rounded-full bg-primary/20 text-primary">
+                            {categoryName}
                         </span>
-                        <span>{article.readingTime} min</span>
                     </div>
                 </div>
             </Link>
@@ -123,71 +81,46 @@ export function PostCardWithLoader({
 
     // Modo grid
     return (
-        <div className="bg-card rounded-md border border-border overflow-hidden hover:border-primary/30 transition group">
+        <Link
+            href={`/admin/posts/${article._id}`}
+            className="bg-card rounded-md border border-border overflow-hidden hover:border-primary/30 transition group block"
+        >
             {/* Cover Image */}
-            <div className="aspect-video bg-muted flex items-center justify-center relative">
-                {coverUrl ? (
-                    <SkeletonImage
-                        src={coverUrl}
-                        alt={article.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover"
-                    />
-                ) : (
-                    <FileText className="w-12 h-12 text-muted-foreground" />
-                )}
+            <div className="relative">
+                <PostCoverImage coverUrl={coverUrl} title={article.title} variant="grid" />
                 {/* Overlay com ações */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <IconButton
-                        icon={<Star className={article.isFeatured ? 'fill-yellow-400' : ''} />}
-                        onClick={() => onToggleFeatured(article)}
-                        colorClass={article.isFeatured ? 'text-yellow-400' : 'text-white'}
-                        hoverClass="hover:bg-white/20"
-                        title={article.isFeatured ? 'Remover destaque' : 'Destacar'}
-                    />
-                    <IconButton
-                        icon={article.status === 'published' ? <Eye /> : <EyeOff />}
-                        onClick={() => onTogglePublish(article)}
-                        colorClass={article.status === 'published' ? 'text-green-400' : 'text-white'}
-                        hoverClass="hover:bg-white/20"
-                        title={article.status === 'published' ? 'Despublicar' : 'Publicar'}
-                    />
-                    <Link
-                        href={`/admin/posts/${article._id}`}
-                        className="p-2 rounded-md text-white hover:bg-white/20 transition"
-                        title="Editar"
-                    >
-                        <Edit2 className="w-5 h-5" />
-                    </Link>
-                    <IconButton
-                        icon={<Trash2 />}
-                        onClick={() => onDelete(article._id)}
-                        colorClass="text-white"
-                        hoverClass="hover:bg-red-500/50 hover:text-red-300"
-                        title="Deletar"
-                    />
-                </div>
+                <PostCardActionsRow
+                    article={article}
+                    variant="grid"
+                    onDelete={onDelete}
+                    onTogglePublish={onTogglePublish}
+                    onToggleFeatured={onToggleFeatured}
+                />
             </div>
 
             {/* Content */}
-            <div className="p-4">
-                <div className="flex items-center gap-2 mb-2">
+            <div className="p-4 flex flex-col h-[180px]">
+                <PostCardTitle title={article.title} variant="grid" />
+
+                {/* Date & Reading Time */}
+                <PostCardMetaRow
+                    status={article.status}
+                    publishedAt={article.publishedAt}
+                    readingTime={article.readingTime}
+                    formatDate={formatDate}
+                    variant="grid"
+                />
+
+                <PostCardExcerpt content={article.content} maxLength={200} variant="grid" />
+
+                {/* Badges */}
+                <div className="flex items-center gap-2 mt-auto pt-2">
                     {getStatusBadge(article.status)}
-                    {article.isFeatured && (
-                        <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                    )}
-                </div>
-                <h3 className="font-semibold text-foreground line-clamp-2 mb-2">{article.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                    {getExcerpt(article.content, 80) || 'Sem resumo'}
-                </p>
-                <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                    <span>{categoryName}</span>
-                    <span>•</span>
-                    <span>{article.readingTime} min</span>
+                    <span className="px-2 py-1 text-[10px] rounded-full bg-primary/20 text-primary">
+                        {categoryName}
+                    </span>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
