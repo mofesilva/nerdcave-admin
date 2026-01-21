@@ -21,7 +21,7 @@ import Select from "@/_components/Select";
 import Button from "@/_components/Button";
 import IconButton from "@/_components/IconButton";
 import DateTimePicker from "@/_components/DateTimePicker";
-import TagSelector from "../../_components/TagSelector";
+import TagInput from "../../_components/TagInput";
 import Toolbar from "@/_components/Toolbar";
 import MediaPickerModal from "@/_components/MediaPickerModal";
 
@@ -55,7 +55,7 @@ export default function PostEditorPage() {
     const [content, setContent] = useState<TiptapContent | null>(EMPTY_TIPTAP_CONTENT);
     const [coverMediaId, setCoverMediaId] = useState<string | null>(null);
     const [categoryId, setCategoryId] = useState<string | null>(null);
-    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useState<TagType[]>([]);
     const [status, setStatus] = useState<PostStatus>('draft');
     const [isFeatured, setIsFeatured] = useState(false);
     const [seoTitle, setSeoTitle] = useState('');
@@ -128,7 +128,11 @@ export default function PostEditorPage() {
             setContent(article.content);
             setCoverMediaId(article.coverMedia?._id || null);
             setCategoryId(article.category || null);
-            setSelectedTagIds(article.tags);
+            // Carregar objetos Tag completos
+            const postTags = await Promise.all(
+                article.tags.map(tagId => TagsController.getTagById({ id: tagId }))
+            );
+            setSelectedTags(postTags.filter((tag): tag is TagType => tag !== null));
             setStatus(article.status);
             setIsFeatured(article.isFeatured);
             setSeoTitle(article.seoTitle || '');
@@ -185,14 +189,6 @@ export default function PostEditorPage() {
         setTitle(value);
     }
 
-    function toggleTag(tagId: string) {
-        setSelectedTagIds(prev =>
-            prev.includes(tagId)
-                ? prev.filter(id => id !== tagId)
-                : [...prev, tagId]
-        );
-    }
-
     async function handleSave() {
         if (!title.trim()) {
             setError('Título é obrigatório');
@@ -212,7 +208,7 @@ export default function PostEditorPage() {
                 content,
                 coverMediaId: coverMediaId || undefined,
                 category: categoryId || undefined,
-                tags: selectedTagIds,
+                tags: selectedTags.map(tag => tag._id),
                 status,
                 isFeatured,
                 seoTitle: seoTitle || undefined,
@@ -406,7 +402,7 @@ export default function PostEditorPage() {
                         )}
                     </div>
 
-                    {/* Category */}
+                    {/* Category & Tags */}
                     <div className="bg-card rounded-md border border-border p-6">
                         <h3 className="font-semibold text-foreground mb-4">Categoria</h3>
                         <Select
@@ -422,10 +418,9 @@ export default function PostEditorPage() {
                     </div>
 
                     {/* Tags */}
-                    <TagSelector
-                        tags={tags}
-                        selectedTagIds={selectedTagIds}
-                        onToggle={toggleTag}
+                    <TagInput
+                        selectedTags={selectedTags}
+                        onTagsChange={setSelectedTags}
                     />
 
                     {/* Schedule */}
