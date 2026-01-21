@@ -1,15 +1,17 @@
 "use client";
 
 import { LucideIcon, Loader2 } from 'lucide-react';
+import { useToolbarHeight } from './ToolbarContext';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'custom';
-type ButtonSize = 'sm' | 'md' | 'lg';
+type ButtonSize = 'sm' | 'md' | 'lg' | 'auto';
 
 interface ButtonProps {
     children: React.ReactNode;
     onClick?: () => void;
     type?: 'button' | 'submit' | 'reset';
     variant?: ButtonVariant;
+    /** Tamanho do botão. Use 'auto' para herdar a altura da Toolbar pai */
     size?: ButtonSize;
     icon?: LucideIcon;
     iconPosition?: 'left' | 'right';
@@ -34,16 +36,16 @@ const variantStyles: Record<ButtonVariant, string> = {
     custom: '', // Cores definidas via props
 };
 
-const sizeStyles: Record<ButtonSize, string> = {
-    sm: 'h-8 px-3 text-sm gap-1.5',
-    md: 'h-9 px-4 text-sm gap-2',
-    lg: 'h-10 px-5 text-sm gap-2',
+const sizeStyles: Record<Exclude<ButtonSize, 'auto'>, string> = {
+    sm: 'h-6 px-2 text-[11px] gap-1',
+    md: 'h-8 px-3 text-xs gap-1.5',
+    lg: 'h-9 px-4 text-xs gap-2',
 };
 
-const iconSizes: Record<ButtonSize, string> = {
-    sm: 'w-3.5 h-3.5',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5',
+const iconSizes: Record<Exclude<ButtonSize, 'auto'>, string> = {
+    sm: 'w-2.5 h-2.5',
+    md: 'w-3.5 h-3.5',
+    lg: 'w-4 h-4',
 };
 
 export default function Button({
@@ -62,7 +64,16 @@ export default function Button({
     hoverColor,
     rounded = 'rounded-md',
 }: ButtonProps) {
+    const toolbarHeight = useToolbarHeight();
     const isDisabled = disabled || loading;
+
+    // Se size='auto', usa a altura da toolbar
+    const isAutoSize = size === 'auto';
+    const effectiveSize: Exclude<ButtonSize, 'auto'> = isAutoSize ? 'md' : size;
+
+    // Classes de altura: se auto, usa toolbarHeight; senão usa sizeStyles
+    const heightClass = isAutoSize ? toolbarHeight : '';
+    const sizeClass = isAutoSize ? 'px-3 text-xs gap-1.5' : sizeStyles[effectiveSize];
 
     // Se cores customizadas forem passadas, usa variant='custom'
     const isCustom = !!(bgColor || textColor || hoverColor);
@@ -85,20 +96,21 @@ export default function Button({
                 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 cursor-pointer
                 ${variantStyles[effectiveVariant]}
                 ${customColors}
-                ${sizeStyles[size]}
+                ${heightClass}
+                ${sizeClass}
                 ${className}
             `}
         >
             {loading ? (
-                <Loader2 className={`${iconSizes[size]} animate-spin`} />
+                <Loader2 className={`${iconSizes[effectiveSize]} animate-spin`} />
             ) : (
-                Icon && iconPosition === 'left' && <Icon className={iconSizes[size]} />
+                Icon && iconPosition === 'left' && <Icon className={iconSizes[effectiveSize]} />
             )}
 
             <span>{children}</span>
 
             {!loading && Icon && iconPosition === 'right' && (
-                <Icon className={iconSizes[size]} />
+                <Icon className={iconSizes[effectiveSize]} />
             )}
         </button>
     );
