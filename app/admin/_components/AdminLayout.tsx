@@ -146,7 +146,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
             <div className="flex-1 flex flex-col min-w-0">
                 <div className={`mx-auto p-4 ${!fullWidthLayout ? 'w-full xl:w-2/3' : 'w-full'}`}>
-                    <header className="flex items-center justify-between mb-4">
+                    <header className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                             {/* Botão hamburger mobile */}
                             <button
@@ -154,16 +154,16 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                 className="md:hidden p-2 rounded-md hover:bg-muted text-foreground"
                                 aria-label="Abrir menu"
                             >
-                                <Menu className="w-6 h-6" />
+                                <Menu className="w-5 h-5" />
                             </button>
                             <div>
-                                <h1 className="text-2xl md:text-3xl font-bold text-foreground">{pageTitle}</h1>
+                                <h1 className="text-base sm:text-lg font-semibold text-foreground">{pageTitle}</h1>
                                 {pageDescription && (
-                                    <p className="text-muted-foreground text-sm md:text-md hidden sm:block">{pageDescription}</p>
+                                    <p className="text-muted-foreground text-[11px] sm:text-xs hidden sm:block">{pageDescription}</p>
                                 )}
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-4 sm:gap-3">
                             <ThemeToggle />
                             <button
                                 onClick={handleLogout}
