@@ -31,7 +31,7 @@ export interface PaginatedResult<T> {
 
 export async function getAllMedias(): Promise<Media[]> {
     const medias = getMediasCollection();
-    const result = await medias.find({ query: { deleted: false } });
+    const result = await medias.find({ query: { deleted: { $ne: true } } });
     if (result.error || !result.documents) return [];
     return result.documents.map(doc => mediaFromDocument(doc));
 }
@@ -39,7 +39,7 @@ export async function getAllMedias(): Promise<Media[]> {
 export async function getRecentMedias(limit: number = 5): Promise<Media[]> {
     const medias = getMediasCollection();
     const result = await medias.aggregate([
-        { $match: { deleted: false } },
+        { $match: { deleted: { $ne: true } } },
         { $sort: { created_at: -1 } },
         { $limit: limit }
     ]);
@@ -51,7 +51,7 @@ export async function getMediasPaginated({ page = 1, pageSize = DEFAULT_PAGE_SIZ
     const medias = getMediasCollection();
     const skip = (page - 1) * pageSize;
 
-    const filter: Record<string, unknown> = { deleted: false };
+    const filter: Record<string, unknown> = { deleted: { $ne: true } };
     if (query) {
         filter.title = { $regex: query, $options: 'i' };
     }
@@ -123,6 +123,22 @@ export async function updateMedia({ id, updates }: MediaParametersProps): Promis
 }
 
 export async function deleteMedia({ id }: MediaParametersProps): Promise<boolean> {
+    // Busca a mídia antes de deletar para pegar o fileName
+    const media = await getMediaById({ id });
+    if (!media) return false;
+
+    // Deleta o arquivo físico do storage
+    if (media.fileName) {
+        try {
+            const client = getCappuccinoClient();
+            await client.modules.mediastorage.delete(APP_NAME, media.fileName);
+        } catch (error) {
+            console.error('Error deleting file from storage:', error);
+            // Continua mesmo se falhar, para marcar como deleted no DB
+        }
+    }
+
+    // Marca como deleted no banco
     const medias = getMediasCollection();
     const result = await medias.updateOne(id!, { deleted: true });
     return !result.error;
@@ -159,7 +175,7 @@ export function getMediaUrl({ fileName }: MediaParametersProps): string {
 export async function countMedias(): Promise<number> {
     const medias = getMediasCollection();
     const result = await medias.aggregate([
-        { $match: { deleted: false } },
+        { $match: { deleted: { $ne: true } } },
         { $count: 'total' }
     ]);
     return (result.documents?.[0] as { total?: number })?.total ?? 0;
