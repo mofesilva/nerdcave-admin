@@ -149,16 +149,16 @@ export default function PostsPage() {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'published':
-                return <StatusBadges status="Publicado" bgColor="bg-primary/20" textColor="text-primary" />;
+                return <StatusBadges status="Publicado" bgColor="bg-primary/20" textColor="text-primary" textSize="text-[10px]" />;
             case 'scheduled':
-                return <StatusBadges status="Agendado" bgColor="bg-yellow-500/20" textColor="text-yellow-400" />;
+                return <StatusBadges status="Agendado" bgColor="bg-yellow-500/20" textColor="text-yellow-400" textSize="text-[10px]" />;
             default:
-                return <StatusBadges status="Rascunho" bgColor="bg-gray-500/20" textColor="text-gray-400" />;
+                return <StatusBadges status="Rascunho" bgColor="bg-gray-500/20" textColor="text-gray-400" textSize="text-[10px]" />;
         }
     };
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-2">
             {/* Mobile Layout */}
             <div className="sm:hidden space-y-3">
                 {/* Row 1: Search */}
@@ -202,54 +202,54 @@ export default function PostsPage() {
                         label="Ordenar por"
                     />
                     <Link href="/admin/posts/new" className="flex-1">
-                        <Button icon={Plus} className="w-full">Novo Post</Button>
+                        <Button icon={Plus} size="auto" className="w-full">Novo Post</Button>
                     </Link>
                 </div>
             </div>
 
             {/* Desktop Layout - Tudo em 1 linha */}
-            <div className="hidden sm:flex items-center gap-3">
+            <div className="hidden sm:block">
                 <Toolbar
                     search={searchQuery}
                     onSearchChange={setSearchQuery}
                     searchPlaceholder="Buscar posts..."
-                    className="flex-1 max-w-md"
-                />
-                <SegmentedControl
-                    options={[
-                        { value: 'all', label: 'Todos' },
-                        { value: 'draft', label: 'Rascunhos' },
-                        { value: 'published', label: 'Publicados' },
-                        { value: 'scheduled', label: 'Agendados' },
-                    ]}
-                    value={statusFilter}
-                    onChange={setStatusFilter}
-                />
-                <SegmentedControl
-                    options={[
-                        { value: 'list', label: 'Lista', icon: List },
-                        { value: 'grid', label: 'Grid', icon: LayoutGrid },
-                    ]}
-                    value={viewMode}
-                    onChange={setViewMode}
-                    iconOnly
-                />
-                <FilterDropdown
-                    value={sortBy}
-                    onChange={(value) => setSortBy(value as 'a-z' | 'z-a' | 'created' | 'edited' | 'category')}
-                    options={[
-                        { value: 'a-z', label: 'A-Z', icon: ArrowDownAZ },
-                        { value: 'z-a', label: 'Z-A', icon: ArrowUpZA },
-                        { value: 'created', label: 'Data Criação', icon: CalendarPlus },
-                        { value: 'edited', label: 'Data Edição', icon: CalendarClock },
-                        { value: 'category', label: 'Categoria', icon: FolderOpen },
-                    ]}
-                    label="Ordenar por"
-                />
-                <div className="flex-1" />
-                <Link href="/admin/posts/new">
-                    <Button icon={Plus}>Novo Post</Button>
-                </Link>
+                >
+                    <SegmentedControl
+                        options={[
+                            { value: 'all', label: 'Todos' },
+                            { value: 'draft', label: 'Rascunhos' },
+                            { value: 'published', label: 'Publicados' },
+                            { value: 'scheduled', label: 'Agendados' },
+                        ]}
+                        value={statusFilter}
+                        onChange={setStatusFilter}
+                    />
+                    <SegmentedControl
+                        options={[
+                            { value: 'list', label: 'Lista', icon: List },
+                            { value: 'grid', label: 'Grid', icon: LayoutGrid },
+                        ]}
+                        value={viewMode}
+                        onChange={setViewMode}
+                        iconOnly
+                    />
+                    <FilterDropdown
+                        value={sortBy}
+                        onChange={(value) => setSortBy(value as 'a-z' | 'z-a' | 'created' | 'edited' | 'category')}
+                        options={[
+                            { value: 'a-z', label: 'A-Z', icon: ArrowDownAZ },
+                            { value: 'z-a', label: 'Z-A', icon: ArrowUpZA },
+                            { value: 'created', label: 'Data Criação', icon: CalendarPlus },
+                            { value: 'edited', label: 'Data Edição', icon: CalendarClock },
+                            { value: 'category', label: 'Categoria', icon: FolderOpen },
+                        ]}
+                        label="Ordenar por"
+                    />
+                    <div className="flex-1" />
+                    <Link href="/admin/posts/new">
+                        <Button icon={Plus} size="auto">Novo Post</Button>
+                    </Link>
+                </Toolbar>
             </div>
 
             {error && (

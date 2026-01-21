@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Save, Eye, EyeOff, Star, Image as ImageIcon, X, Loader2, Calendar, Tag, FileEdit, Clock } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useAuth } from "@cappuccino/web-sdk";
 import * as ArticlesController from "@/lib/articles/Article.controller";
 import * as CategoriesController from "@/lib/categories/Category.controller";
 import * as TagsController from "@/lib/tags/Tag.controller";
@@ -44,6 +45,7 @@ function calculateReadingTime(content: TiptapContent | null): number {
 export default function PostEditorPage() {
     const params = useParams();
     const router = useRouter();
+    const { user } = useAuth();
 
     const isNew = params.id === 'new';
     const postId = isNew ? null : params.id as string;
@@ -217,6 +219,10 @@ export default function PostEditorPage() {
                 seoDescription: seoDescription || undefined,
                 scheduledAt: scheduledAt || undefined,
                 readingTime: calculateReadingTime(content),
+                author: {
+                    name: user?.name || user?.email || 'Anônimo',
+                    photo: user?.informations?.photo || undefined, // futuro: vem de DBUser.informations.photo
+                },
             };
 
             if (isNew) {
@@ -380,14 +386,13 @@ export default function PostEditorPage() {
                                 />
                             </div>
                         ) : (
-                            <Button
+                            <div
                                 onClick={openMediaPicker}
-                                variant="ghost"
-                                className="w-full aspect-video border-2 text-center content-center self-center border-dashed border-border rounded-md flex flex-col items-center justify-center gap-2 hover:border-primary/50"
+                                className="w-full aspect-video border-2 border-dashed border-border rounded-md flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-muted/50 cursor-pointer transition-colors"
                             >
-                                <ImageIcon className="w-8 h-8 self-center justify-center align-center text-muted-foreground" />
+                                <ImageIcon className="w-8 h-8 text-muted-foreground" />
                                 <span className="text-sm text-muted-foreground">Selecionar imagem</span>
-                            </Button>
+                            </div>
                         )}
                         {coverUrl && (
                             <Button
