@@ -217,7 +217,7 @@ export default function PostEditorPage() {
                 readingTime: calculateReadingTime(content),
                 author: {
                     name: user?.name || user?.email || 'Anônimo',
-                    photo: user?.informations?.photo || undefined, // futuro: vem de DBUser.informations.photo
+                    //photo: user?.informations?.photo || undefined, // futuro: vem de DBUser.informations.photo
                 },
             };
 
