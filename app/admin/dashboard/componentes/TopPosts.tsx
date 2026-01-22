@@ -38,7 +38,7 @@ export default function TopPosts({ posts }: TopPostsProps) {
                     {posts.length > 0 ? posts.map((post, index) => (
                         <Link
                             key={post._id}
-                            href={`/admin/posts/${post._id}`}
+                            href={`/admin/compose/${post._id}`}
                             className="flex items-center gap-4 p-3 rounded-md hover:bg-muted/50 transition-colors group"
                         >
                             <div className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-sm ${index === 0 ? 'bg-yellow-500/20 text-yellow-500' :
