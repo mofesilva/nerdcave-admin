@@ -25,6 +25,59 @@ import TagInput from "../../_components/TagInput";
 import Toolbar from "@/_components/Toolbar";
 import MediaPickerModal from "@/_components/MediaPickerModal";
 
+// Types
+interface FormState {
+    title: string;
+    content: TiptapContent | null;
+    coverMediaId: string | null;
+    categoryId: string | null;
+    selectedTags: TagType[];
+    status: PostStatus;
+    isFeatured: boolean;
+    seoTitle: string;
+    seoDescription: string;
+    scheduledAt: string;
+}
+
+interface UIState {
+    loading: boolean;
+    saving: boolean;
+    error: string | null;
+    categories: Category[];
+    tags: TagType[];
+    showMediaPicker: boolean;
+    showEditorMediaPicker: boolean;
+    imageUrls: Record<string, string>;
+    coverUrl: string | null;
+    editorImageCallback: ((url: string, alt: string) => void) | null;
+}
+
+const initialFormState: FormState = {
+    title: '',
+    content: EMPTY_TIPTAP_CONTENT,
+    coverMediaId: null,
+    categoryId: null,
+    selectedTags: [],
+    status: 'draft',
+    isFeatured: false,
+    seoTitle: '',
+    seoDescription: '',
+    scheduledAt: '',
+};
+
+const createInitialUIState = (isNew: boolean): UIState => ({
+    loading: !isNew,
+    saving: false,
+    error: null,
+    categories: [],
+    tags: [],
+    showMediaPicker: false,
+    showEditorMediaPicker: false,
+    imageUrls: {},
+    coverUrl: null,
+    editorImageCallback: null,
+});
+
 // Helper functions
 function generateSlug(title: string): string {
     return title
@@ -50,38 +103,30 @@ export default function PostEditorPage() {
     const isNew = params.id === 'new';
     const postId = isNew ? null : params.id as string;
 
-    // Form state
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState<TiptapContent | null>(EMPTY_TIPTAP_CONTENT);
-    const [coverMediaId, setCoverMediaId] = useState<string | null>(null);
-    const [categoryId, setCategoryId] = useState<string | null>(null);
-    const [selectedTags, setSelectedTags] = useState<TagType[]>([]);
-    const [status, setStatus] = useState<PostStatus>('draft');
-    const [isFeatured, setIsFeatured] = useState(false);
-    const [seoTitle, setSeoTitle] = useState('');
-    const [seoDescription, setSeoDescription] = useState('');
-    const [scheduledAt, setScheduledAt] = useState('');
+    // Form state - dados do formulário
+    const [form, setForm] = useState<FormState>(initialFormState);
 
-    // UI state
-    const [loading, setLoading] = useState(!isNew);
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [tags, setTags] = useState<TagType[]>([]);
-    const [showMediaPicker, setShowMediaPicker] = useState(false);
-    const [showEditorMediaPicker, setShowEditorMediaPicker] = useState(false);
-    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
-    const [coverUrl, setCoverUrl] = useState<string | null>(null);
-    const [editorImageCallback, setEditorImageCallback] = useState<((url: string, alt: string) => void) | null>(null);
+    // UI state - estado da interface
+    const [ui, setUI] = useState<UIState>(() => createInitialUIState(isNew));
+
+    // Helper para atualizar campos do form
+    const updateForm = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
+        setForm(prev => ({ ...prev, [key]: value }));
+    }, []);
+
+    // Helper para atualizar campos da UI
+    const updateUI = useCallback(<K extends keyof UIState>(key: K, value: UIState[K]) => {
+        setUI(prev => ({ ...prev, [key]: value }));
+    }, []);
 
     const loadImageUrl = useCallback(async (fileName: string, retries = 3): Promise<string | null> => {
-        if (imageUrls[fileName]) return imageUrls[fileName];
+        if (ui.imageUrls[fileName]) return ui.imageUrls[fileName];
         try {
             const response = await MediaController.downloadFile({ fileName });
             if (!response) return null;
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
-            setImageUrls(prev => ({ ...prev, [fileName]: url }));
+            setUI(prev => ({ ...prev, imageUrls: { ...prev.imageUrls, [fileName]: url } }));
             return url;
         } catch (err) {
             console.error('Erro ao baixar imagem:', fileName, err);
@@ -92,7 +137,7 @@ export default function PostEditorPage() {
             }
             return null;
         }
-    }, [imageUrls]);
+    }, [ui.imageUrls]);
 
     useEffect(() => {
         fetchMetadata();
@@ -107,8 +152,7 @@ export default function PostEditorPage() {
                 CategoriesController.getAllCategories(),
                 TagsController.getAllTags(),
             ]);
-            setCategories(cats);
-            setTags(tgs);
+            setUI(prev => ({ ...prev, categories: cats, tags: tgs }));
         } catch (err) {
             console.error('Erro ao carregar metadados:', err);
         }
@@ -117,107 +161,103 @@ export default function PostEditorPage() {
     async function fetchPost() {
         if (!postId) return;
         try {
-            setLoading(true);
+            updateUI('loading', true);
             const article = await ArticlesController.getArticleById({ id: postId });
             if (!article) {
                 router.push('/admin/posts');
                 return;
             }
 
-            setTitle(article.title);
-            setContent(article.content);
-            setCoverMediaId(article.coverMedia?._id || null);
-            setCategoryId(article.category || null);
             // Carregar objetos Tag completos
             const postTags = await Promise.all(
                 article.tags.map(tagId => TagsController.getTagById({ id: tagId }))
             );
-            setSelectedTags(postTags.filter((tag): tag is TagType => tag !== null));
-            setStatus(article.status);
-            setIsFeatured(article.isFeatured);
-            setSeoTitle(article.seoTitle || '');
-            setSeoDescription(article.seoDescription || '');
-            setScheduledAt(article.scheduledAt || '');
+
+            setForm({
+                title: article.title,
+                content: article.content,
+                coverMediaId: article.coverMedia?._id || null,
+                categoryId: article.category || null,
+                selectedTags: postTags.filter((tag): tag is TagType => tag !== null),
+                status: article.status,
+                isFeatured: article.isFeatured,
+                seoTitle: article.seoTitle || '',
+                seoDescription: article.seoDescription || '',
+                scheduledAt: article.scheduledAt || '',
+            });
 
             // Carregar imagem de capa
             if (article.coverMedia) {
                 const url = await loadImageUrl(article.coverMedia.fileName);
-                setCoverUrl(url);
+                updateUI('coverUrl', url);
             }
         } catch (err) {
-            setError('Erro ao carregar post');
+            updateUI('error', 'Erro ao carregar post');
             console.error(err);
         } finally {
-            setLoading(false);
+            updateUI('loading', false);
         }
     }
 
     async function openMediaPicker() {
-        setShowMediaPicker(true);
+        updateUI('showMediaPicker', true);
     }
 
     async function selectCoverImage(media: Media) {
-        setCoverMediaId(media._id);
+        updateForm('coverMediaId', media._id);
         const url = await loadImageUrl(media.fileName);
-        setCoverUrl(url);
-        setShowMediaPicker(false);
+        setUI(prev => ({ ...prev, coverUrl: url, showMediaPicker: false }));
     }
 
     function removeCover() {
-        setCoverMediaId(null);
-        setCoverUrl(null);
+        setForm(prev => ({ ...prev, coverMediaId: null }));
+        updateUI('coverUrl', null);
     }
 
     // Handler para inserir imagem no editor
     async function handleEditorInsertImage(callback: (url: string, alt: string) => void) {
-        setEditorImageCallback(() => callback);
-        setShowEditorMediaPicker(true);
+        setUI(prev => ({ ...prev, editorImageCallback: callback, showEditorMediaPicker: true }));
     }
 
     async function selectEditorImage(media: Media) {
-        if (editorImageCallback) {
+        if (ui.editorImageCallback) {
             const url = await loadImageUrl(media.fileName);
             if (url) {
-                editorImageCallback(url, media.title || media.fileName);
+                ui.editorImageCallback(url, media.title || media.fileName);
             }
         }
-        setShowEditorMediaPicker(false);
-        setEditorImageCallback(null);
-    }
-
-    function handleTitleChange(value: string) {
-        setTitle(value);
+        setUI(prev => ({ ...prev, showEditorMediaPicker: false, editorImageCallback: null }));
     }
 
     async function handleSave() {
-        if (!title.trim()) {
-            setError('Título é obrigatório');
+        if (!form.title.trim()) {
+            updateUI('error', 'Título é obrigatório');
             return;
         }
 
-        setSaving(true);
-        setError(null);
+        updateUI('saving', true);
+        updateUI('error', null);
 
         try {
             // Gera slug automaticamente
-            const autoSlug = generateSlug(title);
+            const autoSlug = generateSlug(form.title);
 
             const data = {
-                title,
+                title: form.title,
                 slug: autoSlug,
-                content,
-                coverMediaId: coverMediaId || undefined,
-                category: categoryId || undefined,
-                tags: selectedTags.map(tag => tag._id),
-                status,
-                isFeatured,
-                seoTitle: seoTitle || undefined,
-                seoDescription: seoDescription || undefined,
-                scheduledAt: scheduledAt || undefined,
-                readingTime: calculateReadingTime(content),
+                content: form.content,
+                coverMediaId: form.coverMediaId || undefined,
+                category: form.categoryId || undefined,
+                tags: form.selectedTags.map(tag => tag._id),
+                status: form.status,
+                isFeatured: form.isFeatured,
+                seoTitle: form.seoTitle || undefined,
+                seoDescription: form.seoDescription || undefined,
+                scheduledAt: form.scheduledAt || undefined,
+                readingTime: calculateReadingTime(form.content),
                 author: {
                     name: user?.name || user?.email || 'Anônimo',
-                    photo: user?.informations?.photo || undefined, // futuro: vem de DBUser.informations.photo
+                    //photo: user?.informations?.photo || undefined, // futuro: vem de DBUser.informations.photo
                 },
             };
 
@@ -229,19 +269,19 @@ export default function PostEditorPage() {
 
             router.push('/admin/posts');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Erro ao salvar');
+            updateUI('error', err instanceof Error ? err.message : 'Erro ao salvar');
             console.error(err);
         } finally {
-            setSaving(false);
+            updateUI('saving', false);
         }
     }
 
     async function handlePublish() {
-        setStatus('published');
+        updateForm('status', 'published');
         // Salvar será chamado depois
     }
 
-    if (loading) {
+    if (ui.loading) {
         return (
             <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -251,7 +291,6 @@ export default function PostEditorPage() {
 
     return (
         <div className="space-y-3">
-            {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Link href="/admin/posts" className="p-2 rounded-md bg-card border border-border hover:bg-muted transition">
@@ -266,17 +305,17 @@ export default function PostEditorPage() {
 
                 <Toolbar hideSearch>
                     <IconButton
-                        icon={<Star className={isFeatured ? 'fill-yellow-400' : ''} />}
-                        onClick={() => setIsFeatured(!isFeatured)}
-                        colorClass={isFeatured ? 'text-yellow-400' : 'text-muted-foreground'}
-                        hoverClass={isFeatured ? 'hover:bg-yellow-500/30' : 'hover:bg-muted'}
-                        className={`h-full aspect-square rounded-md ${isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
-                        title={isFeatured ? 'Remover destaque' : 'Destacar'}
+                        icon={<Star className={form.isFeatured ? 'fill-yellow-400' : ''} />}
+                        onClick={() => updateForm('isFeatured', !form.isFeatured)}
+                        colorClass={form.isFeatured ? 'text-yellow-400' : 'text-muted-foreground'}
+                        hoverClass={form.isFeatured ? 'hover:bg-yellow-500/30' : 'hover:bg-muted'}
+                        className={`h-full aspect-square rounded-md ${form.isFeatured ? 'bg-yellow-500/20' : 'bg-card border border-border'}`}
+                        title={form.isFeatured ? 'Remover destaque' : 'Destacar'}
                     />
 
                     <Select
-                        value={status}
-                        onChange={(value) => setStatus(value as PostStatus)}
+                        value={form.status}
+                        onChange={(value) => updateForm('status', value as PostStatus)}
                         options={[
                             { value: 'draft', label: 'Rascunho', icon: FileEdit },
                             { value: 'published', label: 'Publicar', icon: Eye },
@@ -288,16 +327,16 @@ export default function PostEditorPage() {
                     <Button
                         onClick={handleSave}
                         icon={Save}
-                        loading={saving}
+                        loading={ui.saving}
                     >
                         Salvar
                     </Button>
                 </Toolbar>
             </div>
 
-            {error && (
+            {ui.error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-md">
-                    {error}
+                    {ui.error}
                 </div>
             )}
 
@@ -311,8 +350,8 @@ export default function PostEditorPage() {
                         </label>
                         <input
                             type="text"
-                            value={title}
-                            onChange={(e) => handleTitleChange(e.target.value)}
+                            value={form.title}
+                            onChange={(e) => updateForm('title', e.target.value)}
                             placeholder="Digite o título do post"
                             className="w-full text-lg font-semibold bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground"
                         />
@@ -321,8 +360,8 @@ export default function PostEditorPage() {
                     {/* Content */}
                     <div className="bg-card rounded-md border border-border overflow-hidden">
                         <RichTextEditor
-                            content={content}
-                            onChange={setContent}
+                            content={form.content}
+                            onChange={(content) => updateForm('content', content)}
                             placeholder="Escreva o conteúdo do seu post..."
                             onInsertImage={handleEditorInsertImage}
                         />
@@ -338,9 +377,9 @@ export default function PostEditorPage() {
                                 </label>
                                 <input
                                     type="text"
-                                    value={seoTitle}
-                                    onChange={(e) => setSeoTitle(e.target.value)}
-                                    placeholder={title || 'Título para mecanismos de busca'}
+                                    value={form.seoTitle}
+                                    onChange={(e) => updateForm('seoTitle', e.target.value)}
+                                    placeholder={form.title || 'Título para mecanismos de busca'}
                                     className="w-full bg-transparent border border-border rounded-md p-3 text-foreground placeholder:text-muted-foreground"
                                 />
                             </div>
@@ -349,8 +388,8 @@ export default function PostEditorPage() {
                                     Descrição SEO
                                 </label>
                                 <textarea
-                                    value={seoDescription}
-                                    onChange={(e) => setSeoDescription(e.target.value)}
+                                    value={form.seoDescription}
+                                    onChange={(e) => updateForm('seoDescription', e.target.value)}
                                     placeholder={'Descrição para mecanismos de busca'}
                                     rows={3}
                                     className="w-full bg-transparent border border-border rounded-md p-3 text-foreground placeholder:text-muted-foreground resize-none"
@@ -365,10 +404,10 @@ export default function PostEditorPage() {
                     {/* Cover Image */}
                     <div className="bg-card rounded-md border border-border p-6">
                         <h3 className="font-semibold text-foreground mb-4">Imagem de Capa</h3>
-                        {coverUrl ? (
+                        {ui.coverUrl ? (
                             <div className="relative aspect-video rounded-md overflow-hidden">
                                 <Image
-                                    src={coverUrl}
+                                    src={ui.coverUrl}
                                     alt="Capa"
                                     fill
                                     className="object-cover"
@@ -390,7 +429,7 @@ export default function PostEditorPage() {
                                 <span className="text-sm text-muted-foreground">Selecionar imagem</span>
                             </div>
                         )}
-                        {coverUrl && (
+                        {ui.coverUrl && (
                             <Button
                                 onClick={openMediaPicker}
                                 variant="ghost"
@@ -406,12 +445,12 @@ export default function PostEditorPage() {
                     <div className="bg-card rounded-md border border-border p-6">
                         <h3 className="font-semibold text-foreground mb-4">Categoria</h3>
                         <Select
-                            value={categoryId || ''}
-                            onChange={(value) => setCategoryId(value || null)}
+                            value={form.categoryId || ''}
+                            onChange={(value) => updateForm('categoryId', value || null)}
                             placeholder="Sem categoria"
                             options={[
                                 { value: '', label: 'Sem categoria' },
-                                ...categories.map(cat => ({ value: cat._id, label: cat.name }))
+                                ...ui.categories.map(cat => ({ value: cat._id, label: cat.name }))
                             ]}
                             className="h-13"
                         />
@@ -419,17 +458,17 @@ export default function PostEditorPage() {
 
                     {/* Tags */}
                     <TagInput
-                        selectedTags={selectedTags}
-                        onTagsChange={setSelectedTags}
+                        selectedTags={form.selectedTags}
+                        onTagsChange={(tags) => updateForm('selectedTags', tags)}
                     />
 
                     {/* Schedule */}
-                    {status === 'scheduled' && (
+                    {form.status === 'scheduled' && (
                         <div className="bg-card rounded-md border border-border p-6">
                             <h3 className="font-semibold text-foreground mb-4">Agendar Publicação</h3>
                             <DateTimePicker
-                                value={scheduledAt}
-                                onChange={(value) => setScheduledAt(value)}
+                                value={form.scheduledAt}
+                                onChange={(value) => updateForm('scheduledAt', value)}
                                 placeholder="Selecione data e hora"
                             />
                         </div>
@@ -439,15 +478,15 @@ export default function PostEditorPage() {
 
             {/* Media Picker Modal for Cover */}
             <MediaPickerModal
-                isOpen={showMediaPicker}
-                onClose={() => setShowMediaPicker(false)}
+                isOpen={ui.showMediaPicker}
+                onClose={() => updateUI('showMediaPicker', false)}
                 onSelect={selectCoverImage}
             />
 
             {/* Media Picker Modal for Editor */}
             <MediaPickerModal
-                isOpen={showEditorMediaPicker}
-                onClose={() => { setShowEditorMediaPicker(false); setEditorImageCallback(null); }}
+                isOpen={ui.showEditorMediaPicker}
+                onClose={() => setUI(prev => ({ ...prev, showEditorMediaPicker: false, editorImageCallback: null }))}
                 onSelect={selectEditorImage}
             />
         </div>
