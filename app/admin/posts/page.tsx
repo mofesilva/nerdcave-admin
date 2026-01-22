@@ -201,7 +201,7 @@ export default function PostsPage() {
                         ]}
                         label="Ordenar por"
                     />
-                    <Link href="/admin/posts/new" className="flex-1">
+                    <Link href="/admin/compose/new" className="flex-1">
                         <Button icon={Plus} size="auto" className="w-full">Novo Post</Button>
                     </Link>
                 </div>
@@ -246,7 +246,7 @@ export default function PostsPage() {
                         label="Ordenar por"
                     />
                     <div className="flex-1" />
-                    <Link href="/admin/posts/new">
+                    <Link href="/admin/compose/new">
                         <Button icon={Plus} size="auto">Novo Post</Button>
                     </Link>
                 </Toolbar>
@@ -270,7 +270,7 @@ export default function PostsPage() {
                     </p>
                     {!searchQuery && statusFilter === 'all' && (
                         <Link
-                            href="/admin/posts/new"
+                            href="/admin/compose/new"
                             className="inline-block mt-4 text-primary hover:underline"
                         >
                             Criar primeiro post
