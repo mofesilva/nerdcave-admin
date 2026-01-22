@@ -61,6 +61,11 @@ const navigation: NavigationEntry[] = [
     { name: 'Configurações', href: '/admin/settings', icon: Settings, description: 'Gerencie as configurações do sistema' },
 ];
 
+// Rotas ocultas (não aparecem na navegação mas são reconhecidas pelo sistema)
+const hiddenRoutes: NavigationItem[] = [
+    { name: 'Escrever', href: '/admin/compose', icon: FileText, description: 'Escreva seu post' },
+];
+
 export default function AdminLayout({ children }: AdminLayoutProps) {
     const router = useRouter();
     const pathname = usePathname();
@@ -98,6 +103,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
     // Pega o título e descrição da página baseado na rota atual
     const findCurrentPage = (): NavigationItem | undefined => {
+        // Primeiro verifica rotas ocultas
+        const hiddenRoute = hiddenRoutes.find(route => pathname?.startsWith(route.href));
+        if (hiddenRoute) return hiddenRoute;
+        
+        // Depois verifica navegação principal
         for (const entry of navigation) {
             if ('items' in entry) {
                 const found = entry.items.find(item => pathname?.startsWith(item.href));
