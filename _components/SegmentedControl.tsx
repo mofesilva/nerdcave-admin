@@ -19,6 +19,10 @@ interface SegmentedControlProps<T extends string> {
     className?: string;
     bgColor?: string;
     mobileFullWidth?: boolean;
+    /** Sempre expande os botões para ocupar toda a largura */
+    fullWidth?: boolean;
+    /** Altura do componente (ex: 'h-8', 'h-10') */
+    height?: string;
 }
 
 export default function SegmentedControl<T extends string>({
@@ -29,11 +33,14 @@ export default function SegmentedControl<T extends string>({
     className,
     bgColor,
     mobileFullWidth = false,
+    fullWidth = false,
+    height,
 }: SegmentedControlProps<T>) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 });
     const [hasInteracted, setHasInteracted] = useState(false);
     const toolbarHeight = useToolbarHeight("h-8");
+    const finalHeight = height || toolbarHeight;
 
     useEffect(() => {
         const container = containerRef.current;
@@ -59,7 +66,7 @@ export default function SegmentedControl<T extends string>({
     return (
         <div
             ref={containerRef}
-            className={cn("relative inline-flex items-center px-1 py-1 border border-border rounded-md", toolbarHeight, !bgColor && "bg-card", mobileFullWidth && "w-full sm:w-auto", className)}
+            className={cn("relative inline-flex items-center px-1 py-1 border border-border rounded-md", finalHeight, !bgColor && "bg-card", mobileFullWidth && "w-full sm:w-auto", className)}
             style={bgColor ? { backgroundColor: bgColor } : undefined}
         >
             {/* Sliding indicator */}
@@ -82,7 +89,7 @@ export default function SegmentedControl<T extends string>({
                         className={`relative z-10 flex items-center justify-center ${iconOnly ? 'aspect-square h-full' : 'px-2.5 h-full'} text-[11px] sm:text-xs font-medium rounded-sm transition-colors duration-200 ${value === option.value
                             ? 'text-primary-foreground'
                             : 'text-muted-foreground hover:text-foreground'
-                            } cursor-pointer gap-1.5 ${mobileFullWidth ? 'flex-1 sm:flex-none' : ''}`}
+                            } cursor-pointer gap-1.5 ${fullWidth ? 'flex-1' : mobileFullWidth ? 'flex-1 sm:flex-none' : ''}`}
                     >
                         {Icon && <Icon className="w-4 h-4" />}
                         {!iconOnly && option.label}
