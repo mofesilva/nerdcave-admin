@@ -33,7 +33,7 @@ export default function RecentPosts({ posts }: RecentPostsProps) {
                         <div className="text-center py-8 text-muted-foreground">
                             <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
                             <p>Nenhum post ainda</p>
-                            <Link href="/admin/posts/new" className="text-primary text-sm hover:underline">
+                            <Link href="/admin/compose/new" className="text-primary text-sm hover:underline">
                                 Criar primeiro post
                             </Link>
                         </div>
