@@ -11,7 +11,7 @@ interface PostListItemProps {
 }
 
 export default function PostListItem({ post, href }: PostListItemProps) {
-    const linkHref = href || `/admin/posts/${post._id}`;
+    const linkHref = href || `/admin/compose/${post._id}`;
 
     return (
         <Link
