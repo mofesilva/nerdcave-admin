@@ -43,7 +43,7 @@ export function PostCardWithLoader({
     if (variant === "list") {
         return (
             <Link
-                href={`/admin/posts/${article._id}`}
+                href={`/admin/compose/${article._id}`}
                 className="bg-card rounded-md border border-border p-3 sm:p-4 flex gap-3 sm:gap-4 hover:border-primary/30 transition cursor-pointer"
             >
                 <PostCoverImage coverUrl={coverUrl} title={article.title} variant="list" />
@@ -82,7 +82,7 @@ export function PostCardWithLoader({
     // Modo grid
     return (
         <Link
-            href={`/admin/posts/${article._id}`}
+            href={`/admin/compose/${article._id}`}
             className="bg-card rounded-md border border-border overflow-hidden hover:border-primary/30 transition group block"
         >
             {/* Cover Image */}
